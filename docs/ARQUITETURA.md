@@ -129,6 +129,21 @@ Interface única `Classificador` (`src/server/classificador/`) com duas implemen
 
   Limitação: casos escritos pela equipe, não denúncias reais — o número real tende a ser menor. Refazer a medição ao trocar de modelo, de prompt ou de lista de categorias.
 - No envio, o servidor **reclassifica** a descrição (não confia na sugestão vinda do navegador) e grava em `SugestaoIA`.
+- **Escopo atual: só texto.** As fotos não são enviadas ao modelo; seguem apenas para armazenamento (sem EXIF) e como link no JSON do GDF.
+
+### Extensão futura: fotos (não implementado)
+
+Decisão de 23/09/2026: manter só texto na Fase 1 (texto já mede 93,8%; foto é opcional; ganho não medido). Se for retomado:
+
+- **Viabilidade:** o `qwen3.5:4b` já instalado aceita imagem (capacidade "vision" no Ollama) — não precisa de outro modelo. A imagem vai no campo `images` (base64) da mensagem em `/api/chat`; mandar a versão já processada (sem EXIF, reduzida) para não pesar a latência.
+- **Onde muda:**
+  - `Classificador.classificar(descricao)` → `classificar({ descricao, imagens? })` em `src/server/classificador/tipos.ts` (regras ignoram imagens).
+  - `OllamaClassificador`: anexar `images` na mensagem do usuário; ajustar o prompt ("use a foto só como apoio ao relato").
+  - Fluxo do assistente: hoje as fotos só sobem no envio final. Para a sugestão usar a foto, é preciso subir/processar antes (ex.: `POST /api/v1/classificacoes` multipart) — reavaliar rate limit e tamanho.
+  - `criarDenuncia` reclassifica com as mesmas fotos já processadas.
+- **Estratégia recomendada:** foto como **apoio**, não como padrão — reclassificar com imagem só quando a confiança do texto for baixa ou o texto for curto/vago. Evita pagar a latência extra em toda denúncia.
+- **Medir antes de adotar:** montar um conjunto de fotos fictícias rotuladas (sem pessoas nem placas) e estender `scripts/eval-classificador.ts` para comparar texto vs. texto+foto em acurácia e latência p50/p95.
+- **Privacidade:** continua local (a foto não sai do servidor), mas o modelo passa a "ver" rostos/placas; a justificativa gerada não deve descrevê-los (instruir no prompt e testar).
 
 ## 4. Perfis e permissões
 

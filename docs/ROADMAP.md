@@ -40,3 +40,4 @@ Objetivo: fluxo completo cidadão → IA sugere → JSON ao GDF (simulado) → G
 - Integração real com o GDF (API própria ou adesão à API do Fala.BR/CGU) — ver `docs/ARQUITETURA.md` §2.
 - Chatbot WhatsApp; QR Codes em equipamentos públicos.
 - IA: sugerir também prioridade e detectar duplicatas por texto/foto — sempre como sugestão, com avaliação de precisão antes de uso.
+- **IA analisando as fotos** (decisão adiada em 23/09/2026; hoje a IA lê só o texto). Plano e pontos de mudança em `docs/ARQUITETURA.md` §3 "Extensão futura: fotos". Só adotar se a medição mostrar ganho sobre o texto sozinho.
