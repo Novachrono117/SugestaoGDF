@@ -6,7 +6,7 @@ import { Alerta, Cartao } from "@/components/ui";
 import { exigirUsuario } from "@/server/auth/sessao";
 import { db } from "@/server/db";
 import { obterManifestacao, opcoesDeStatus, rotuloSimulador } from "@/simulador-gdf/servico";
-import { FormDecisao } from "../componentes";
+import { FormAvaliacaoIa, FormDecisao } from "../componentes";
 
 export async function generateMetadata({ params }: PageProps<"/simulador-gdf/[protocolo]">): Promise<Metadata> {
   return { title: `${(await params).protocolo} — Simulador GDF` };
@@ -16,10 +16,12 @@ export default async function ManifestacaoPage({ params }: PageProps<"/simulador
   const { protocolo } = await params;
   await exigirUsuario("OPERADOR_GDF", `/simulador-gdf/${protocolo}`);
 
-  const [m, orgaos] = await Promise.all([
+  const [m, orgaos, categorias] = await Promise.all([
     obterManifestacao(db, protocolo),
     db.orgao.findMany({ select: { sigla: true, nome: true }, orderBy: { sigla: "asc" } }),
+    db.categoria.findMany({ where: { ativa: true }, select: { slug: true, nome: true } }),
   ]);
+  categorias.sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
   if (!m) notFound();
 
   const p = m.payload;
@@ -39,6 +41,15 @@ export default async function ManifestacaoPage({ params }: PageProps<"/simulador
           {rotuloSimulador(m.status)}
         </span>
       </div>
+
+      {m.avaliacaoCidadao === "CONTESTADA" && (
+        <Alerta>
+          <strong>O cidadão reabriu esta denúncia:</strong> “{m.justificativaCidadao}”
+        </Alerta>
+      )}
+      {m.avaliacaoCidadao === "CONFIRMADA" && (
+        <Alerta tipo="sucesso">O cidadão confirmou que o problema foi resolvido.</Alerta>
+      )}
 
       <div className="grid gap-4 lg:grid-cols-3">
         <div className="flex flex-col gap-4 lg:col-span-2">
@@ -101,17 +112,22 @@ export default async function ManifestacaoPage({ params }: PageProps<"/simulador
             <h2 className="text-sm font-semibold text-blue-900">Sugestão da IA</h2>
             <p className="mt-2 text-lg font-bold text-slate-900">{s.orgao.nome}</p>
             <p className="text-sm text-slate-700">{s.orgao.sigla}</p>
-            <div className="mt-3" aria-label={`Confiança ${Math.round(s.confianca * 100)}%`}>
-              <div className="h-2 rounded-full bg-blue-100">
-                <div className="h-2 rounded-full bg-blue-700" style={{ width: `${Math.round(s.confianca * 100)}%` }} />
-              </div>
-              <p className="mt-1 text-xs text-slate-600">Confiança estimada pelo modelo: {Math.round(s.confianca * 100)}%</p>
-            </div>
             <p className="mt-3 text-sm italic text-slate-700">“{s.justificativa}”</p>
             <p className="mt-3 text-xs text-slate-600">
               {s.origem === "LLM" ? `LLM local (${s.modelo})` : "Regras por palavra-chave (fallback)"}
               {!s.cidadaoConfirmou && " · o cidadão trocou a categoria sugerida"}
             </p>
+          </Cartao>
+
+          <Cartao>
+            <h2 className="mb-3 text-lg font-semibold text-slate-900">A IA acertou?</h2>
+            <FormAvaliacaoIa
+              key={`${m.iaAcertou}-${m.categoriaCorretaSlug}`}
+              protocolo={p.protocolo}
+              categoriaSugerida={s.categoriaSlug}
+              categorias={categorias}
+              atual={{ acertou: m.iaAcertou, categoriaCorretaSlug: m.categoriaCorretaSlug }}
+            />
           </Cartao>
 
           <Cartao>

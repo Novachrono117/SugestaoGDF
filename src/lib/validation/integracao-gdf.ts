@@ -53,6 +53,8 @@ export const STATUS_INFORMADOS_PELO_GDF = [
 
 export const callbackGdfSchema = z.object({
   eventoId: z.string().min(1).max(100),
+  // Opcional por compatibilidade: eventos sem "tipo" são mudanças de status.
+  tipo: z.literal("STATUS").optional(),
   protocolo,
   status: z.enum(STATUS_INFORMADOS_PELO_GDF),
   orgaoSigla: z.string().min(1).max(30).optional(),
@@ -61,3 +63,41 @@ export const callbackGdfSchema = z.object({
 });
 
 export type CallbackGdf = z.infer<typeof callbackGdfSchema>;
+
+/** GDF → Voz DF: o operador avaliou se a IA acertou a categoria (base para medir/melhorar a IA). */
+export const avaliacaoIaGdfSchema = z
+  .object({
+    eventoId: z.string().min(1).max(100),
+    tipo: z.literal("AVALIACAO_IA"),
+    protocolo,
+    acertou: z.boolean(),
+    categoriaCorretaSlug: z.string().min(1).max(60).optional(),
+    ocorridoEm: z.iso.datetime(),
+  })
+  .refine((e) => e.acertou || e.categoriaCorretaSlug, {
+    message: "Informe a categoria correta quando a IA errou.",
+    path: ["categoriaCorretaSlug"],
+  });
+
+export type AvaliacaoIaGdf = z.infer<typeof avaliacaoIaGdfSchema>;
+
+/** Tudo o que o endpoint de callback aceita. */
+export const entradaCallbackGdfSchema = z.union([avaliacaoIaGdfSchema, callbackGdfSchema]);
+
+/** Voz DF → GDF: o autor confirmou ou contestou a resolução. */
+export const avaliacaoCidadaoGdfSchema = z
+  .object({
+    versao: z.literal("1"),
+    eventoId: z.string().min(1).max(100),
+    protocolo,
+    avaliacao: z.enum(["CONFIRMADA", "CONTESTADA"]),
+    justificativa: z.string().min(1).max(2000).optional(),
+    ocorridoEm: z.iso.datetime(),
+  })
+  .strict()
+  .refine((a) => a.avaliacao === "CONFIRMADA" || a.justificativa, {
+    message: "Contestação exige justificativa.",
+    path: ["justificativa"],
+  });
+
+export type AvaliacaoCidadaoGdf = z.infer<typeof avaliacaoCidadaoGdfSchema>;

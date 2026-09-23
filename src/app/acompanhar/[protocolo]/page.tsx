@@ -6,13 +6,16 @@ import { Alerta, Cartao } from "@/components/ui";
 import { normalizarProtocolo } from "@/domain/protocolo";
 import { obterUsuarioAtual } from "@/server/auth/sessao";
 import { db } from "@/server/db";
+import { consultarSituacaoAvaliacao, ultimaJustificativa } from "@/server/denuncias/avaliacao-cidadao";
 import { consultarPorProtocolo, detalheDoAutor } from "@/server/denuncias/consulta";
+import { CartaoAvaliacao } from "./avaliacao";
 
 export async function generateMetadata({ params }: PageProps<"/acompanhar/[protocolo]">): Promise<Metadata> {
   return { title: `${(await params).protocolo} — Voz DF` };
 }
 
-const ATOR: Record<string, string> = { SISTEMA: "Voz DF", GDF: "GDF", CIDADAO: "Você" };
+const ATOR: Record<string, string> = { SISTEMA: "Voz DF", GDF: "GDF", CIDADAO: "Cidadão" };
+
 
 export default async function AcompanharProtocoloPage({ params, searchParams }: PageProps<"/acompanhar/[protocolo]">) {
   const bruto = (await params).protocolo;
@@ -28,6 +31,13 @@ export default async function AcompanharProtocoloPage({ params, searchParams }: 
   if (!consulta) notFound();
   // Descrição e fotos só para a pessoa que denunciou (consulta pública não mostra).
   const detalhe = usuario ? await detalheDoAutor(db, protocolo, usuario.id) : null;
+  const [avaliacao, contestacao] =
+    detalhe && usuario
+      ? await Promise.all([
+          consultarSituacaoAvaliacao(db, protocolo, usuario.id),
+          ultimaJustificativa(db, protocolo, usuario.id),
+        ])
+      : [null, null];
 
   return (
     <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-4 p-4 sm:p-6">
@@ -72,6 +82,20 @@ export default async function AcompanharProtocoloPage({ params, searchParams }: 
         </dl>
       </Cartao>
 
+      {avaliacao?.pode && <CartaoAvaliacao protocolo={protocolo} prazoAte={formatarData(avaliacao.prazoAte)} />}
+      {avaliacao && !avaliacao.pode && avaliacao.motivo === "JA_AVALIADA" && (
+        <Alerta tipo={avaliacao.avaliacao === "CONFIRMADA" ? "sucesso" : "info"}>
+          {avaliacao.avaliacao === "CONFIRMADA"
+            ? "Você confirmou que o problema foi resolvido. Obrigado pelo retorno!"
+            : "Você informou que o problema continua; a denúncia foi reaberta."}
+        </Alerta>
+      )}
+      {consulta.status === "RESOLVIDA" && !detalhe && (
+        <p className="text-sm text-slate-600">
+          Quem fez a denúncia com uma conta pode confirmar se o problema foi mesmo resolvido.
+        </p>
+      )}
+
       {detalhe && (
         <Cartao>
           <h2 className="mb-2 text-lg font-semibold text-slate-900">Seu relato</h2>
@@ -84,6 +108,11 @@ export default async function AcompanharProtocoloPage({ params, searchParams }: 
                 <img key={a.token} src={`/api/v1/anexos/${a.token}`} alt={`Foto ${i + 1} da denúncia`} className="h-28 w-28 rounded-lg object-cover" />
               ))}
             </div>
+          )}
+          {contestacao?.justificativa && (
+            <p className="mt-3 rounded-lg bg-orange-50 p-3 text-sm text-orange-900">
+              <strong>Sua última contestação ({formatarData(contestacao.criadoEm)}):</strong> {contestacao.justificativa}
+            </p>
           )}
           <p className="mt-3 text-xs text-slate-500">Só você vê este texto e as fotos aqui. A consulta pública mostra apenas o andamento.</p>
         </Cartao>

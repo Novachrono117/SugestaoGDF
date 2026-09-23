@@ -23,6 +23,7 @@ enum StatusDenuncia {
   RESOLVIDA
   NAO_PROCEDENTE
   DUPLICADA
+  REABERTA
 }
 
 enum AtorEvento {
@@ -36,6 +37,12 @@ enum TipoEvento {
   ENVIADA_GDF
   FALHA_ENVIO
   MUDANCA_STATUS
+  AVALIACAO_CIDADAO
+}
+
+enum TipoAvaliacaoCidadao {
+  CONFIRMADA
+  CONTESTADA
 }
 
 enum OrigemSugestao {
@@ -53,12 +60,12 @@ model RegiaoAdministrativa {
 }
 
 model Orgao {
-  id                 String       @id @default(cuid())
-  sigla              String       @unique
-  nome               String
-  categoriasPadrao   Categoria[]
+  id                  String       @id @default(cuid())
+  sigla               String       @unique
+  nome                String
+  categoriasPadrao    Categoria[]
   denunciasAtribuidas Denuncia[]
-  sugestoes          SugestaoIA[]
+  sugestoes           SugestaoIA[]
 }
 
 model Categoria {
@@ -71,15 +78,16 @@ model Categoria {
   orgaoPadrao   Orgao        @relation(fields: [orgaoPadraoId], references: [id])
   denuncias     Denuncia[]
   sugestoes     SugestaoIA[]
+  correcoes     SugestaoIA[] @relation("CategoriaCorreta")
 }
 
 model Usuario {
-  id        String     @id @default(cuid())
+  id        String           @id @default(cuid())
   nome      String
-  email     String     @unique
+  email     String           @unique
   senhaHash String
-  papel     Papel      @default(CIDADAO)
-  criadoEm  DateTime   @default(now())
+  papel     Papel            @default(CIDADAO)
+  criadoEm  DateTime         @default(now())
   denuncias Denuncia[]
   eventos   EventoDenuncia[]
 }
@@ -106,10 +114,11 @@ model Denuncia {
   atualizadoEm       DateTime             @updatedAt
   resolvidoEm        DateTime?
 
-  sugestao SugestaoIA?
-  anexos   Anexo[]
-  eventos  EventoDenuncia[]
-  envio    EnvioGdf?
+  sugestao   SugestaoIA?
+  anexos     Anexo[]
+  eventos    EventoDenuncia[]
+  envio      EnvioGdf?
+  avaliacoes AvaliacaoCidadao[]
 
   @@index([raId, status])
   @@index([categoriaId, status])
@@ -131,6 +140,12 @@ model SugestaoIA {
   modelo           String
   cidadaoConfirmou Boolean
   criadoEm         DateTime       @default(now())
+
+  // Avaliação do operador do GDF sobre a categoria sugerida (base para medir/melhorar a IA).
+  acertouSegundoGdf  Boolean?
+  categoriaCorretaId String?
+  categoriaCorreta   Categoria? @relation("CategoriaCorreta", fields: [categoriaCorretaId], references: [id])
+  avaliadoPeloGdfEm  DateTime?
 }
 
 model Anexo {
@@ -180,6 +195,23 @@ model EnvioGdf {
   @@index([enviadoEm])
 }
 
+// Avaliação da resolução pelo autor da denúncia. Também funciona como fila de envio ao GDF
+// (enviadoEm null = ainda não entregue).
+model AvaliacaoCidadao {
+  id            String               @id @default(cuid())
+  denunciaId    String
+  denuncia      Denuncia             @relation(fields: [denunciaId], references: [id], onDelete: Cascade)
+  tipo          TipoAvaliacaoCidadao
+  justificativa String?
+  criadoEm      DateTime             @default(now())
+  enviadoEm     DateTime?
+  tentativas    Int                  @default(0)
+  ultimoErro    String?
+
+  @@index([denunciaId, criadoEm])
+  @@index([enviadoEm])
+}
+
 model ContadorProtocolo {
   ano    Int @id
   ultimo Int
@@ -190,11 +222,16 @@ model ContadorProtocolo {
 // que recebe o JSON; não faz parte do produto Voz DF.
 // ---------------------------------------------------------------------------
 model ManifestacaoGdf {
-  id                 String   @id @default(cuid())
-  protocolo          String   @unique
-  payload            String // JSON recebido, como veio
-  status             String
-  orgaoDecididoSigla String?
-  recebidoEm         DateTime @default(now())
-  atualizadoEm       DateTime @updatedAt
+  id                   String   @id @default(cuid())
+  protocolo            String   @unique
+  payload              String // JSON recebido, como veio
+  status               String
+  orgaoDecididoSigla   String?
+  // Retorno do cidadão sobre a resolução (CONFIRMADA | CONTESTADA) e a avaliação da IA pelo operador.
+  avaliacaoCidadao     String?
+  justificativaCidadao String?
+  iaAcertou            Boolean?
+  categoriaCorretaSlug String?
+  recebidoEm           DateTime @default(now())
+  atualizadoEm         DateTime @updatedAt
 }

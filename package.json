@@ -10,11 +10,12 @@
     "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "db:migrate": "prisma migrate dev && prisma generate",
+    "db:migrate": "prisma migrate dev",
     "db:seed": "prisma db seed",
     "db:generate": "prisma generate",
     "eval:classificador": "tsx scripts/eval-classificador.ts",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "postdb:migrate": "prisma generate"
   },
   "dependencies": {
     "@prisma/adapter-better-sqlite3": "^7.10.0",

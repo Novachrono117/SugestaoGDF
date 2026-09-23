@@ -18,7 +18,7 @@ beforeAll(async () => {
     {
       db,
       appUrl: "http://voz.test",
-      gateway: { enviar: async () => ({ ok: true, idExterno: null }) },
+      gateway: { enviar: async () => ({ ok: true, idExterno: null }), enviarAvaliacao: async () => ({ ok: true, idExterno: null }) },
       classificador: {
         nome: "fixo",
         classificar: async () => ({

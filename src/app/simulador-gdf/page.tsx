@@ -16,6 +16,7 @@ const FILTROS = [
   ["ENCAMINHADA", "Encaminhadas"],
   ["EM_EXECUCAO", "Em execução"],
   ["RESOLVIDA", "Resolvidas"],
+  ["REABERTA", "Reabertas"],
 ] as const;
 
 function Contagem({ titulo, itens }: { titulo: string; itens: [string, number][] }) {
@@ -43,11 +44,13 @@ export default async function SimuladorPage({ searchParams }: PageProps<"/simula
   const { status } = await searchParams;
   const filtro = typeof status === "string" && FILTROS.some(([v]) => v === status) ? status : "";
 
-  const [lista, r, pendentes] = await Promise.all([
+  const [lista, r, denunciasPendentes, avaliacoesPendentes] = await Promise.all([
     listarManifestacoes(db, filtro || undefined),
     resumo(db),
     db.envioGdf.count({ where: { enviadoEm: null } }),
+    db.avaliacaoCidadao.count({ where: { enviadoEm: null } }),
   ]);
+  const pendentes = denunciasPendentes + avaliacoesPendentes;
 
   return (
     <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-5 p-4 sm:p-6">
@@ -64,9 +67,17 @@ export default async function SimuladorPage({ searchParams }: PageProps<"/simula
         <Cartao className="p-4">
           <h2 className="text-sm font-semibold text-slate-700">Recebidas</h2>
           <p className="text-3xl font-bold tabular-nums text-slate-900">{r.total}</p>
-          <p className="mt-1 text-xs text-slate-600">
-            IA x decisão do GDF: {r.concordanciaIA.iguais}/{r.concordanciaIA.decididas} encaminhadas ao órgão sugerido
-          </p>
+          <ul className="mt-2 flex flex-col gap-1 text-xs text-slate-600">
+            <li>
+              Acerto da IA (avaliado pelo GDF): <strong>{r.acuraciaIA.acertos}/{r.acuraciaIA.avaliadas}</strong>
+            </li>
+            <li>
+              Órgão sugerido mantido: {r.concordanciaIA.iguais}/{r.concordanciaIA.decididas}
+            </li>
+            <li>
+              Cidadão: {r.retornoCidadao.confirmadas} confirmada(s), {r.retornoCidadao.contestadas} contestada(s)
+            </li>
+          </ul>
         </Cartao>
         <Contagem titulo="Por status" itens={r.porStatus} />
         <Contagem titulo="Por RA" itens={r.porRa} />
@@ -104,7 +115,9 @@ export default async function SimuladorPage({ searchParams }: PageProps<"/simula
                 >
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <span className="font-mono text-sm font-semibold text-slate-900">{m.protocolo}</span>
-                    <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-800">
+                    <span
+                      className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${m.status === "REABERTA" ? "bg-orange-100 text-orange-900" : "bg-slate-100 text-slate-800"}`}
+                    >
                       {rotuloSimulador(m.status)}
                     </span>
                   </div>
@@ -113,7 +126,8 @@ export default async function SimuladorPage({ searchParams }: PageProps<"/simula
                     {m.payload.categoria.nome} · {m.payload.local.ra.nome} · {formatarData(m.recebidoEm)}
                   </p>
                   <p className="mt-1 text-xs text-slate-600">
-                    IA sugere <strong>{s.orgao.sigla}</strong> ({Math.round(s.confianca * 100)}%)
+                    IA sugere <strong>{s.orgao.sigla}</strong>
+                    {m.iaAcertou !== null && (m.iaAcertou ? " ✓ acertou" : " ✗ errou")}
                     {!s.cidadaoConfirmou && " · cidadão trocou a categoria sugerida"}
                     {m.orgaoDecididoSigla && (
                       <>

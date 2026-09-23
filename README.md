@@ -6,7 +6,7 @@ O cidadão descreve um problema urbano com as próprias palavras (texto, foto, l
 
 ## Estado atual
 
-Fase 1 (MVP web) em andamento — ver `docs/ROADMAP.md`. Prontos: domínio (status, protocolo, contrato JSON), IA com fallback, integração push + callback, login, fotos sem EXIF, assistente de denúncia, acompanhamento por protocolo e "Minhas denúncias". Faltam: tela do Simulador GDF, mapa público e teste E2E.
+Fase 1 (MVP web) em andamento — ver `docs/ROADMAP.md`. Prontos: domínio (status, protocolo, contrato JSON), IA com fallback, integração push + callback, login, fotos sem EXIF, assistente de denúncia, acompanhamento por protocolo, "Minhas denúncias", Simulador GDF, confirmação/contestação da resolução pelo cidadão e avaliação da IA pelo operador. Faltam: mapa público e teste E2E.
 
 ## Como rodar (máquina limpa)
 
@@ -35,9 +35,9 @@ Usuários fictícios (senha = `SEED_SENHA_DEMO`): `operador@vozdf.example` (aces
 | `npm run dev` | Servidor de desenvolvimento |
 | `npm test` | Testes (Vitest; inclui integração com SQLite real) |
 | `npm run lint` / `npm run typecheck` | Qualidade |
-| `npm run db:migrate` | Aplica migrações **e** gera o client (no Prisma 7 o `migrate dev` não gera sozinho) |
+| `npm run db:migrate` | Aplica migrações **e** gera o client (no Prisma 7 o `migrate dev` não gera sozinho). Pare o `npm run dev` antes |
 | `npm run db:seed` | Dados de referência + usuários fictícios (idempotente) |
-| `npm run eval:classificador -- qwen3.5:4b` | Mede acurácia/latência da IA em 48 casos fictícios |
+| `npm run eval:classificador -- qwen3.5:4b` | Mede acurácia/latência da IA em 48 casos fictícios (`-- --fonte=gdf qwen3.5:4b`: nos casos avaliados pelo operador) |
 
 ## Estrutura
 

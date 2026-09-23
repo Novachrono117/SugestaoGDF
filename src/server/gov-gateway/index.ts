@@ -1,11 +1,13 @@
 // Porta de saída para o sistema do governo (docs/ARQUITETURA.md §2).
 // No MVP o destino é o Simulador GDF; uma integração real (ex.: Fala.BR) implementa a mesma interface.
-import type { PayloadGdfV1 } from "@/lib/validation/integracao-gdf";
+import type { AvaliacaoCidadaoGdf, PayloadGdfV1 } from "@/lib/validation/integracao-gdf";
 
 export type ResultadoEnvio = { ok: true; idExterno: string | null } | { ok: false; erro: string };
 
 export interface GovGateway {
   enviar(payload: PayloadGdfV1): Promise<ResultadoEnvio>;
+  /** Confirmação/contestação da resolução pelo cidadão. */
+  enviarAvaliacao(avaliacao: AvaliacaoCidadaoGdf): Promise<ResultadoEnvio>;
 }
 
 export type HttpGovGatewayConfig = {
@@ -19,13 +21,23 @@ export type HttpGovGatewayConfig = {
 export class HttpGovGateway implements GovGateway {
   constructor(private readonly config: HttpGovGatewayConfig) {}
 
-  async enviar(payload: PayloadGdfV1): Promise<ResultadoEnvio> {
+  enviar(payload: PayloadGdfV1): Promise<ResultadoEnvio> {
+    return this.post(this.config.url, payload);
+  }
+
+  enviarAvaliacao(avaliacao: AvaliacaoCidadaoGdf): Promise<ResultadoEnvio> {
+    // Sub-recurso da manifestação: {GDF_WEBHOOK_URL}/{protocolo}/avaliacoes-cidadao
+    const base = this.config.url.replace(/\/+$/, "");
+    return this.post(`${base}/${encodeURIComponent(avaliacao.protocolo)}/avaliacoes-cidadao`, avaliacao);
+  }
+
+  private async post(url: string, corpoJson: unknown): Promise<ResultadoEnvio> {
     const fetchFn = this.config.fetchFn ?? fetch;
     try {
-      const res = await fetchFn(this.config.url, {
+      const res = await fetchFn(url, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${this.config.chave}` },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(corpoJson),
         signal: AbortSignal.timeout(this.config.timeoutMs),
       });
       if (!res.ok) return { ok: false, erro: `GDF respondeu HTTP ${res.status}` };

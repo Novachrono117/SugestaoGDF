@@ -61,9 +61,29 @@ describe("validarTransicao", () => {
     for (const final of ESTADOS_FINAIS) {
       expect(proximosStatus(final)).toEqual([]);
       for (const para of STATUS) {
-        expect(validarTransicao({ de: final, para, ator: "GDF", texto: "x", orgaoSigla: "SLU" }).ok).toBe(false);
+        for (const ator of ["GDF", "CIDADAO", "SISTEMA"] as const) {
+          expect(validarTransicao({ de: final, para, ator, texto: "x", orgaoSigla: "SLU" }).ok).toBe(false);
+        }
       }
     }
+  });
+
+  it("só o cidadão reabre uma denúncia resolvida, e com justificativa", () => {
+    expect(validarTransicao({ de: "RESOLVIDA", para: "REABERTA", ator: "CIDADAO", texto: "Continua apagado." })).toEqual({ ok: true });
+    expect(validarTransicao({ de: "RESOLVIDA", para: "REABERTA", ator: "GDF", texto: "x" })).toMatchObject({
+      code: "ATOR_NAO_AUTORIZADO",
+    });
+    expect(validarTransicao({ de: "RESOLVIDA", para: "REABERTA", ator: "CIDADAO", texto: " " })).toMatchObject({
+      code: "TEXTO_OBRIGATORIO",
+    });
+  });
+
+  it("depois de reaberta, o GDF decide de novo", () => {
+    expect(validarTransicao({ de: "REABERTA", para: "EM_ANALISE", ator: "GDF" })).toEqual({ ok: true });
+    expect(validarTransicao({ de: "REABERTA", para: "ENCAMINHADA", ator: "GDF", orgaoSigla: "CEB-IPES" })).toEqual({ ok: true });
+    expect(validarTransicao({ de: "REABERTA", para: "RESOLVIDA", ator: "GDF", texto: "x" })).toMatchObject({
+      code: "TRANSICAO_INVALIDA",
+    });
   });
 
   it("nenhuma transição leva de volta a RECEBIDA", () => {

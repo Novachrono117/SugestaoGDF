@@ -18,13 +18,18 @@ export function statusNoVozDf(statusSimulador: string): Status {
 }
 
 export function rotuloSimulador(statusSimulador: string): string {
-  return statusSimulador === "RECEBIDA" ? "Nova (recebida)" : ROTULO_STATUS[statusSimulador as Status] ?? statusSimulador;
+  if (statusSimulador === "RECEBIDA") return "Nova (recebida)";
+  return ROTULO_STATUS[statusSimulador as Status] ?? statusSimulador;
 }
 
 export type Manifestacao = {
   protocolo: string;
   status: string;
   orgaoDecididoSigla: string | null;
+  avaliacaoCidadao: string | null;
+  justificativaCidadao: string | null;
+  iaAcertou: boolean | null;
+  categoriaCorretaSlug: string | null;
   recebidoEm: Date;
   atualizadoEm: Date;
   payload: PayloadGdfV1;
@@ -61,6 +66,15 @@ export async function resumo(db: PrismaClient) {
     porStatus: contar(todas, (m) => rotuloSimulador(m.status)),
     porRa: contar(todas, (m) => m.payload.local.ra.nome),
     porCategoria: contar(todas, (m) => m.payload.categoria.nome),
+    // Avaliação explícita do operador: a IA acertou a categoria?
+    acuraciaIA: (() => {
+      const avaliadas = todas.filter((m) => m.iaAcertou !== null);
+      return { avaliadas: avaliadas.length, acertos: avaliadas.filter((m) => m.iaAcertou).length };
+    })(),
+    retornoCidadao: {
+      confirmadas: todas.filter((m) => m.avaliacaoCidadao === "CONFIRMADA").length,
+      contestadas: todas.filter((m) => m.avaliacaoCidadao === "CONTESTADA").length,
+    },
     // Quantas vezes o operador manteve o órgão sugerido pela IA (entre as já encaminhadas).
     concordanciaIA: (() => {
       const decididas = todas.filter((m) => m.orgaoDecididoSigla);
@@ -99,6 +113,25 @@ export type Decisao = {
 
 export type DecidirDeps = { db: PrismaClient; chaveCallback: string; fetchFn?: typeof fetch; timeoutMs?: number };
 
+async function postCallback(deps: DecidirDeps, url: string, corpo: unknown) {
+  let res: Response;
+  try {
+    res = await (deps.fetchFn ?? fetch)(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${deps.chaveCallback}` },
+      body: JSON.stringify(corpo),
+      signal: AbortSignal.timeout(deps.timeoutMs ?? 5000),
+    });
+  } catch {
+    throw new ErroDominio("CALLBACK_FALHOU", "Não foi possível avisar o Voz DF (rede/timeout). Nada foi alterado.", 502);
+  }
+  if (!res.ok) {
+    const corpoErro = await res.json().catch(() => null);
+    const msg = corpoErro?.error?.message ?? `HTTP ${res.status}`;
+    throw new ErroDominio("CALLBACK_RECUSADO", `O Voz DF recusou a atualização: ${msg}`, 502);
+  }
+}
+
 export async function decidir(deps: DecidirDeps, decisao: Decisao) {
   const { db } = deps;
   const m = await obterManifestacao(db, decisao.protocolo);
@@ -123,22 +156,7 @@ export async function decidir(deps: DecidirDeps, decisao: Decisao) {
     ocorridoEm: new Date().toISOString(),
   };
 
-  let res: Response;
-  try {
-    res = await (deps.fetchFn ?? fetch)(m.payload.callbackUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${deps.chaveCallback}` },
-      body: JSON.stringify(evento),
-      signal: AbortSignal.timeout(deps.timeoutMs ?? 5000),
-    });
-  } catch {
-    throw new ErroDominio("CALLBACK_FALHOU", "Não foi possível avisar o Voz DF (rede/timeout). Nada foi alterado.", 502);
-  }
-  if (!res.ok) {
-    const corpo = await res.json().catch(() => null);
-    const msg = corpo?.error?.message ?? `HTTP ${res.status}`;
-    throw new ErroDominio("CALLBACK_RECUSADO", `O Voz DF recusou a atualização: ${msg}`, 502);
-  }
+  await postCallback(deps, m.payload.callbackUrl, evento);
 
   // Só registra no "sistema do governo" depois que o Voz DF aceitou.
   await db.manifestacaoGdf.update({
@@ -146,7 +164,47 @@ export async function decidir(deps: DecidirDeps, decisao: Decisao) {
     data: {
       status: decisao.status,
       ...(decisao.status === "ENCAMINHADA" && { orgaoDecididoSigla: decisao.orgaoSigla }),
+      // Nova resolução = novo ciclo: aguarda nova avaliação do cidadão.
+      ...(decisao.status === "RESOLVIDA" && { avaliacaoCidadao: null, justificativaCidadao: null }),
     },
   });
   return { status: decisao.status };
+}
+
+export const avaliacaoIaSchema = z
+  .object({
+    protocolo: z.string(),
+    acertou: z.enum(["sim", "nao"]).transform((v) => v === "sim"),
+    categoriaCorretaSlug: z
+      .string()
+      .trim()
+      .optional()
+      .transform((v) => v || undefined),
+  })
+  .refine((a) => a.acertou || a.categoriaCorretaSlug, {
+    message: "Escolha a categoria correta.",
+    path: ["categoriaCorretaSlug"],
+  });
+
+/** Operador avalia a categoria sugerida pela IA e informa o Voz DF (mesmo callback, tipo AVALIACAO_IA). */
+export async function registrarAvaliacaoIa(
+  deps: DecidirDeps,
+  entrada: { protocolo: string; acertou: boolean; categoriaCorretaSlug?: string },
+) {
+  const m = await obterManifestacao(deps.db, entrada.protocolo);
+  if (!m) throw new ErroDominio("NAO_ENCONTRADA", "Manifestação não encontrada.", 404);
+  const categoriaCorretaSlug = entrada.acertou ? undefined : entrada.categoriaCorretaSlug;
+
+  await postCallback(deps, m.payload.callbackUrl, {
+    eventoId: `sim-ia-${randomUUID()}`,
+    tipo: "AVALIACAO_IA",
+    protocolo: m.protocolo,
+    acertou: entrada.acertou,
+    ...(categoriaCorretaSlug && { categoriaCorretaSlug }),
+    ocorridoEm: new Date().toISOString(),
+  });
+  await deps.db.manifestacaoGdf.update({
+    where: { protocolo: m.protocolo },
+    data: { iaAcertou: entrada.acertou, categoriaCorretaSlug: categoriaCorretaSlug ?? null },
+  });
 }

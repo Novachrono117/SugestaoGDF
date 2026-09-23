@@ -44,14 +44,15 @@ Regras do Next.js 16 (a doc da versão instalada fica em `node_modules/next/dist
 ## Comandos
 - `npm run dev` — servidor local (http://localhost:3000)
 - `npm run lint` / `npm run typecheck` / `npm test`
-- `npm run db:migrate` — `prisma migrate dev` + `prisma generate` (no Prisma 7 o migrate não gera o client sozinho)
+- `npm run db:migrate -- --name <nome>` — `prisma migrate dev`; o hook `postdb:migrate` roda `prisma generate` (no Prisma 7 o migrate não gera o client sozinho)
 - `npm run db:seed` — dados de referência + usuários fictícios (idempotente)
-- `npm run eval:classificador -- <modelo>` — acurácia/latência da IA
+- `npm run eval:classificador -- <modelo>` — acurácia/latência da IA (casos fictícios); `-- --fonte=gdf <modelo>` usa as avaliações do operador como gabarito
 
 ## Armadilhas conhecidas
 - next-auth v5: `auth()` lê a sessão de `headers()`. Não usar `signIn`/`signOut` com redirect dentro de server action (renderiza o destino sem o cookie novo → loop); usar `redirect: false` + navegação completa no cliente (`src/app/(auth)/navegacao.tsx`).
 - SQLite ordena texto por byte: ordenar nomes com acento em JS (`localeCompare("pt-BR")`).
 - O singleton do Prisma fica em `globalThis` no dev: após `db:migrate`, reiniciar o `npm run dev`.
+- Migração com o `npm run dev` rodando pode falhar com "database is locked" (SQLite): pare o servidor antes.
 
 ## Definição de pronto
 Lint, typecheck e testes passando; fluxo testado manualmente no navegador; README/CLAUDE.md atualizados se comandos ou arquitetura mudarem.

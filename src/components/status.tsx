@@ -9,6 +9,7 @@ const COR: Record<Status, string> = {
   RESOLVIDA: "bg-emerald-50 text-emerald-900 ring-emerald-300",
   NAO_PROCEDENTE: "bg-rose-50 text-rose-900 ring-rose-300",
   DUPLICADA: "bg-zinc-100 text-zinc-800 ring-zinc-300",
+  REABERTA: "bg-orange-50 text-orange-900 ring-orange-300",
 };
 
 export function SeloStatus({ status }: { status: Status }) {

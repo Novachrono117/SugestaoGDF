@@ -8,6 +8,8 @@ O Voz DF é a **porta de entrada** da denúncia, não o sistema de gestão do go
 2. Uma IA local **sugere** a categoria e o órgão responsável; o cidadão confirma ou troca a categoria.
 3. O Voz DF envia a denúncia como **JSON para o GDF** (push). **Quem decide o órgão responsável é o GDF** — a IA só sugere.
 4. O GDF devolve a decisão e as mudanças de status (callback); o cidadão acompanha pelo protocolo.
+5. Quando o GDF marca **Resolvida**, o autor (com conta) confirma ou **contesta com justificativa** — contestar reabre a denúncia e ela volta ao GDF.
+6. O operador do GDF avalia se a IA acertou a categoria; isso mede a acurácia real e orienta melhorias (não treina o modelo sozinho).
 
 ```
 [Navegador / PWA / App mobile (fase 3)]
@@ -103,6 +105,34 @@ Nomes em pt-BR; entre parênteses o campo equivalente no Open311.
 }
 ```
 
+O mesmo endpoint de callback aceita também a **avaliação da IA pelo operador**:
+
+```json
+{
+  "eventoId": "gdf-ia-0001",
+  "tipo": "AVALIACAO_IA",          // eventos sem "tipo" são mudanças de status
+  "protocolo": "DF-2026-000123",
+  "acertou": false,
+  "categoriaCorretaSlug": "seguranca-espacos-publicos", // obrigatório quando acertou = false
+  "ocorridoEm": "2026-09-23T15:05:00.000Z"
+}
+```
+
+### Avaliação do cidadão (Voz DF → GDF)
+
+`POST {GDF_WEBHOOK_URL}/{protocolo}/avaliacoes-cidadao` (mesma chave do push). Enviada quando o autor confirma ou contesta a resolução; falhas ficam pendentes em `AvaliacaoCidadao` e são reenviadas junto com as denúncias.
+
+```json
+{
+  "versao": "1",
+  "eventoId": "voz-aval-<id>",
+  "protocolo": "DF-2026-000123",
+  "avaliacao": "CONTESTADA",        // CONFIRMADA | CONTESTADA
+  "justificativa": "O poste voltou a apagar no dia seguinte.", // obrigatória em CONTESTADA
+  "ocorridoEm": "2026-10-01T12:00:00.000Z"
+}
+```
+
 Erros no formato `{ error: { code, message } }`, sem stack trace.
 
 ## 3. IA de sugestão (classificador)
@@ -129,6 +159,8 @@ Interface única `Classificador` (`src/server/classificador/`) com duas implemen
 
   Limitação: casos escritos pela equipe, não denúncias reais — o número real tende a ser menor. Refazer a medição ao trocar de modelo, de prompt ou de lista de categorias.
 - No envio, o servidor **reclassifica** a descrição (não confia na sugestão vinda do navegador) e grava em `SugestaoIA`.
+- **Confiança:** o modelo devolve uma confiança autodeclarada que se mostrou pouco informativa (praticamente sempre 0,95). Ela é gravada (`SugestaoIA.confianca`) e segue no JSON, mas **não é exibida** nas telas.
+- **Avaliação pelo operador (feedback):** no Simulador GDF, "A IA acertou?" (sim/não + categoria correta) → callback `AVALIACAO_IA` → `SugestaoIA.acertouSegundoGdf` / `categoriaCorretaId`. Isso **não treina o modelo**: serve para (1) medir a acurácia em casos reais — `npm run eval:classificador -- --fonte=gdf <modelo>` usa essas avaliações como gabarito — e (2) orientar mudanças de prompt/modelo/categorias, comparando antes/depois. Uso dos casos corrigidos como exemplos no prompt: fase 2, só se a medição mostrar ganho.
 - **Escopo atual: só texto.** As fotos não são enviadas ao modelo; seguem apenas para armazenamento (sem EXIF) e como link no JSON do GDF.
 
 ### Extensão futura: fotos (não implementado)
@@ -150,8 +182,8 @@ Decisão de 23/09/2026: manter só texto na Fase 1 (texto já mede 93,8%; foto �
 | Perfil | Vê | Pode |
 |---|---|---|
 | (anônimo) | Mapa público; consulta por protocolo | Criar denúncia anônima |
-| `CIDADAO` | Mapa público; as próprias denúncias | Criar denúncia; acompanhar as suas |
-| `OPERADOR_GDF` | Simulador GDF | Operar o simulador (demonstração) |
+| `CIDADAO` | Mapa público; as próprias denúncias | Criar denúncia; acompanhar as suas; confirmar ou contestar a resolução (até 30 dias) |
+| `OPERADOR_GDF` | Simulador GDF | Operar o simulador (demonstração); avaliar se a IA acertou |
 | Integração GDF (chave de API) | — | Enviar eventos de status via callback |
 
 Verificação de permissão no servidor em toda leitura e escrita (não apenas esconder botões).
@@ -181,15 +213,19 @@ Denuncia
   criadoEm, atualizadoEm, resolvidoEm?
 
 SugestaoIA        id, denunciaId (único), categoriaId, orgaoId, confianca, justificativa,
-                  origem (LLM|REGRAS), modelo, cidadaoConfirmou, criadoEm
+                  origem (LLM|REGRAS), modelo, cidadaoConfirmou, criadoEm,
+                  acertouSegundoGdf?, categoriaCorretaId?, avaliadoPeloGdfEm?   (feedback do operador)
+AvaliacaoCidadao  id, denunciaId, tipo (CONFIRMADA|CONTESTADA), justificativa?, criadoEm,
+                  enviadoEm?, tentativas, ultimoErro?     (também é a fila de envio ao GDF)
 Anexo             id, denunciaId, token (único, aleatório), caminho, mime, tamanho, criadoEm
 EventoDenuncia    id, denunciaId, ator (SISTEMA|GDF|CIDADAO), autorId?, tipo,
                   statusDe?, statusPara?, texto?, publico, eventoExternoId? (único), criadoEm
-EnvioGdf          id, denunciaId (único), tentativas, ultimoErro?, enviadoEm?, atualizadoEm
+EnvioGdf          id, denunciaId (único), tentativas, ultimoErro?, enviadoEm?, idExterno?, atualizadoEm
 ContadorProtocolo ano (PK), ultimo           (geração atômica do protocolo)
 
 -- módulo simulador-gdf (demonstração) --
-ManifestacaoGdf   id, protocolo (único), payload (JSON), status, orgaoDecididoSigla?, recebidoEm, atualizadoEm
+ManifestacaoGdf   id, protocolo (único), payload (JSON), status, orgaoDecididoSigla?,
+                  avaliacaoCidadao?, justificativaCidadao?, iaAcertou?, categoriaCorretaSlug?, recebidoEm, atualizadoEm
 ```
 
 Índices: `Denuncia(raId, status)`, `Denuncia(categoriaId, status)`, `Denuncia(criadoEm)`, `Denuncia(autorId)`.
@@ -206,14 +242,17 @@ ENVIADA_GDF ──► EM_ANALISE | ENCAMINHADA | NAO_PROCEDENTE | DUPLICADA
 EM_ANALISE  ──► ENCAMINHADA | NAO_PROCEDENTE | DUPLICADA
 ENCAMINHADA ──► EM_EXECUCAO | NAO_PROCEDENTE | EM_ANALISE   (órgão devolve: não é competência dele)
 EM_EXECUCAO ──► RESOLVIDA | NAO_PROCEDENTE
+RESOLVIDA   ──(CIDADAO autor, até 30 dias, justificativa)──► REABERTA
+REABERTA    ──► EM_ANALISE | ENCAMINHADA | NAO_PROCEDENTE
 ```
 
 | Transição | Ator | Exige |
 |---|---|---|
 | RECEBIDA → ENVIADA_GDF | SISTEMA | envio aceito pelo GDF |
+| RESOLVIDA → REABERTA | CIDADAO (só o autor, com conta) | justificativa (mín. 10 caracteres); prazo de 30 dias contado de quando o Voz DF **recebeu** a resolução |
 | demais | GDF (callback) | `ENCAMINHADA`: `orgaoSigla`; `NAO_PROCEDENTE`, `DUPLICADA`, `RESOLVIDA`: `texto` |
 
-Estados finais: `RESOLVIDA`, `NAO_PROCEDENTE`, `DUPLICADA`. Reabertura pelo cidadão fica para a fase 2 (precisa de reenvio ao GDF).
+Estados finais: `NAO_PROCEDENTE`, `DUPLICADA`. `RESOLVIDA` pode ser reaberta pelo autor; **confirmar** não muda o status (só registra `AvaliacaoCidadao` e avisa o GDF). Cada nova resolução abre um novo ciclo de avaliação. A justificativa da contestação **não** aparece na linha do tempo pública (pode citar terceiros) — fica com o autor e o GDF. Denúncias anônimas não podem ser avaliadas (o protocolo é sequencial; qualquer um poderia contestar).
 
 ## 7. Fluxos principais
 
@@ -237,11 +276,12 @@ POST   /api/v1/denuncias                      criar (auth opcional; multipart co
 GET    /api/v1/denuncias/{protocolo}          consulta pública (sem dados pessoais)
 GET    /api/v1/denuncias/mapa?ra=&categoria=  pontos públicos
 GET    /api/v1/anexos/{token}                 foto (token aleatório, sem EXIF)
-POST   /api/v1/integracao/gdf/eventos         callback do GDF (chave de API)
+POST   /api/v1/integracao/gdf/eventos         callback do GDF: status ou AVALIACAO_IA (chave de API)
 POST   /api/v1/integracao/gdf/reenviar        reprocessa envios pendentes (OPERADOR_GDF)
 
 -- simulador (demonstração) --
 POST   /api/simulador-gdf/manifestacoes       recebe o push (chave de API)
+POST   /api/simulador-gdf/manifestacoes/{protocolo}/avaliacoes-cidadao   recebe confirmação/contestação
 ```
 
 ## 9. Segurança e LGPD

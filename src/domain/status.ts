@@ -10,13 +10,17 @@ export const STATUS = [
   "RESOLVIDA",
   "NAO_PROCEDENTE",
   "DUPLICADA",
+  "REABERTA",
 ] as const;
 
 export type Status = (typeof STATUS)[number];
 
 export type Ator = "SISTEMA" | "GDF" | "CIDADAO";
 
-export const ESTADOS_FINAIS: ReadonlySet<Status> = new Set(["RESOLVIDA", "NAO_PROCEDENTE", "DUPLICADA"]);
+// RESOLVIDA não é final: o autor pode contestar (→ REABERTA) em até PRAZO_CONTESTACAO_DIAS.
+export const ESTADOS_FINAIS: ReadonlySet<Status> = new Set(["NAO_PROCEDENTE", "DUPLICADA"]);
+
+export const PRAZO_CONTESTACAO_DIAS = 30;
 
 const TRANSICOES: Record<Status, { para: readonly Status[]; ator: Ator }> = {
   RECEBIDA: { para: ["ENVIADA_GDF"], ator: "SISTEMA" },
@@ -25,12 +29,14 @@ const TRANSICOES: Record<Status, { para: readonly Status[]; ator: Ator }> = {
   // EM_ANALISE: o órgão devolve porque não é de sua competência.
   ENCAMINHADA: { para: ["EM_EXECUCAO", "NAO_PROCEDENTE", "EM_ANALISE"], ator: "GDF" },
   EM_EXECUCAO: { para: ["RESOLVIDA", "NAO_PROCEDENTE"], ator: "GDF" },
-  RESOLVIDA: { para: [], ator: "GDF" },
+  // Só o autor da denúncia reabre, com justificativa; volta para o GDF decidir de novo.
+  RESOLVIDA: { para: ["REABERTA"], ator: "CIDADAO" },
+  REABERTA: { para: ["EM_ANALISE", "ENCAMINHADA", "NAO_PROCEDENTE"], ator: "GDF" },
   NAO_PROCEDENTE: { para: [], ator: "GDF" },
   DUPLICADA: { para: [], ator: "GDF" },
 };
 
-const EXIGE_TEXTO: ReadonlySet<Status> = new Set(["NAO_PROCEDENTE", "DUPLICADA", "RESOLVIDA"]);
+const EXIGE_TEXTO: ReadonlySet<Status> = new Set(["NAO_PROCEDENTE", "DUPLICADA", "RESOLVIDA", "REABERTA"]);
 
 export const ROTULO_STATUS: Record<Status, string> = {
   RECEBIDA: "Recebida",
@@ -41,6 +47,7 @@ export const ROTULO_STATUS: Record<Status, string> = {
   RESOLVIDA: "Resolvida",
   NAO_PROCEDENTE: "Não procedente",
   DUPLICADA: "Duplicada",
+  REABERTA: "Reaberta pelo cidadão",
 };
 
 export function isStatus(value: string): value is Status {

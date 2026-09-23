@@ -12,6 +12,8 @@ Objetivo: fluxo completo cidadão → IA sugere → JSON ao GDF (simulado) → G
 6. Autenticação (Auth.js credenciais) para cidadão e operador do simulador.
 7. Cidadão: home, wizard (descrição/foto → sugestão da IA → confirmação → mapa Leaflet + RA → revisão), confirmação com protocolo, consulta por protocolo, "minhas denúncias".
 8. Simulador GDF: lista do que chegou, sugestão da IA em destaque, decidir órgão e status (dispara o callback), contagens por RA/categoria/status.
+   - ✅ Extra: o autor confirma ou contesta (com justificativa) a resolução; contestação reabre e volta ao GDF.
+   - ✅ Extra: operador avalia se a IA acertou (feedback) → acurácia real no simulador e `eval:classificador -- --fonte=gdf`.
 9. Mapa público com marcadores por status (sem dados pessoais).
 10. Teste E2E (Playwright): criar denúncia → chega no simulador → "GDF" encaminha e resolve → cidadão vê "Resolvida" pelo protocolo.
 
@@ -22,7 +24,6 @@ Objetivo: fluxo completo cidadão → IA sugere → JSON ao GDF (simulado) → G
 - PostgreSQL (+ PostGIS se houver consultas espaciais) e storage S3-compatível.
 - Detecção automática da RA por polígono.
 - Sugestão de duplicatas por proximidade; apoios.
-- Reabertura pela pessoa que denunciou (com reenvio ao GDF).
 - Notificações por e-mail a cada mudança de status.
 - PWA: manifest, instalação, câmera, rascunho offline da denúncia.
 - Relatórios: tempo médio de resolução por RA/órgão; exportação CSV.
@@ -40,4 +41,5 @@ Objetivo: fluxo completo cidadão → IA sugere → JSON ao GDF (simulado) → G
 - Integração real com o GDF (API própria ou adesão à API do Fala.BR/CGU) — ver `docs/ARQUITETURA.md` §2.
 - Chatbot WhatsApp; QR Codes em equipamentos públicos.
 - IA: sugerir também prioridade e detectar duplicatas por texto/foto — sempre como sugestão, com avaliação de precisão antes de uso.
+- **IA aprendendo com o feedback do GDF**: usar casos corrigidos pelo operador como exemplos no prompt (few-shot por similaridade) — só após medir ganho com `eval:classificador -- --fonte=gdf`. Fine-tuning apenas se houver volume e ganho comprovado.
 - **IA analisando as fotos** (decisão adiada em 23/09/2026; hoje a IA lê só o texto). Plano e pontos de mudança em `docs/ARQUITETURA.md` §3 "Extensão futura: fotos". Só adotar se a medição mostrar ganho sobre o texto sozinho.
