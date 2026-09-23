@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { sair } from "@/app/(auth)/actions";
+import { BotaoSair } from "@/app/(auth)/navegacao";
 import { obterUsuarioAtual } from "@/server/auth/sessao";
 
 export async function Cabecalho() {
@@ -21,11 +21,7 @@ export async function Cabecalho() {
               <span className="text-slate-600" aria-label="Usuário conectado">
                 {usuario.nome}
               </span>
-              <form action={sair}>
-                <button type="submit" className="font-medium text-slate-700 underline hover:text-blue-700">
-                  Sair
-                </button>
-              </form>
+              <BotaoSair />
             </>
           ) : (
             <>

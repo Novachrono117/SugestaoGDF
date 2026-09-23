@@ -11,7 +11,12 @@ import { ErroDominio } from "@/server/erros";
 import { limites } from "@/server/limites";
 import { ipDoCliente } from "@/server/rate-limit";
 
-export type EstadoForm = { erro?: string; campos?: Record<string, string> } | undefined;
+// `destino` preenchido = login feito; o cliente então faz navegação completa (ver formularios.tsx).
+export type EstadoForm = { erro?: string; campos?: Record<string, string>; destino?: string } | undefined;
+
+// Por que redirect: false — o auth() do next-auth lê a sessão de headers() (requisição original).
+// Com redirect dentro da action, o Next renderiza o destino na MESMA requisição, ainda sem o cookie
+// novo: a página protegida manda de volta para /entrar e o roteador entra em loop.
 
 function mensagemDeLogin(erro: AuthError): string {
   if (erro instanceof CredentialsSignin && erro.code === "limite_tentativas") {
@@ -23,16 +28,12 @@ function mensagemDeLogin(erro: AuthError): string {
 export async function entrar(_anterior: EstadoForm, formData: FormData): Promise<EstadoForm> {
   const email = String(formData.get("email") ?? "");
   try {
-    await signIn("credentials", {
-      email,
-      senha: formData.get("senha"),
-      redirectTo: destinoSeguro(formData.get("voltar")),
-    });
+    await signIn("credentials", { email, senha: formData.get("senha"), redirect: false });
   } catch (erro) {
-    // signIn lança um redirect no sucesso: só tratamos erros de autenticação.
     if (erro instanceof AuthError) return { erro: mensagemDeLogin(erro), campos: { email } };
     throw erro;
   }
+  return { destino: destinoSeguro(formData.get("voltar")) };
 }
 
 export async function cadastrar(_anterior: EstadoForm, formData: FormData): Promise<EstadoForm> {
@@ -53,17 +54,14 @@ export async function cadastrar(_anterior: EstadoForm, formData: FormData): Prom
   }
 
   try {
-    await signIn("credentials", {
-      email: parsed.data.email,
-      senha: parsed.data.senha,
-      redirectTo: destinoSeguro(formData.get("voltar")),
-    });
+    await signIn("credentials", { email: parsed.data.email, senha: parsed.data.senha, redirect: false });
   } catch (erro) {
     if (erro instanceof AuthError) return { erro: "Conta criada. Faça login para continuar.", campos };
     throw erro;
   }
+  return { destino: destinoSeguro(formData.get("voltar")) };
 }
 
 export async function sair() {
-  await signOut({ redirectTo: "/" });
+  await signOut({ redirect: false }); // mesmo motivo do login: o cliente recarrega a página
 }

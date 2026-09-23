@@ -7,6 +7,8 @@ const envSchema = z.object({
   GDF_WEBHOOK_KEY: z.string().min(32, "GDF_WEBHOOK_KEY deve ter pelo menos 32 caracteres"),
   GDF_CALLBACK_KEY: z.string().min(32, "GDF_CALLBACK_KEY deve ter pelo menos 32 caracteres"),
   GDF_TIMEOUT_MS: z.coerce.number().int().positive().default(5000),
+  UPLOAD_DIR: z.string().min(1).default("./uploads"),
+  MAX_UPLOAD_MB: z.coerce.number().positive().max(20).default(5),
 });
 
 export type ServerEnv = z.infer<typeof envSchema>;
