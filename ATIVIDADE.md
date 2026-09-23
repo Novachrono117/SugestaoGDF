@@ -73,7 +73,7 @@ Em todo o Distrito Federal, nas **35 Regiões Administrativas** (Plano Piloto, C
 | **Nome da solução** | Voz DF — Rede Central de Denúncias do Distrito Federal |
 | **Problema que será resolvido** | Falta de um canal único e simples para o cidadão denunciar problemas urbanos sem precisar saber qual órgão é responsável, e dificuldade do GDF em receber essas demandas de forma organizada. |
 | **Público beneficiado** | Moradores das 35 RAs do DF e o GDF (Ouvidoria, Administrações Regionais e órgãos executores), que passa a receber as denúncias já organizadas. |
-| **Como a tecnologia irá funcionar?** | 1) O cidadão abre o site e **descreve o problema com as próprias palavras** (ex.: "o poste da minha rua está apagado"), anexa foto e marca o **local no mapa** com a RA. 2) Uma **IA sugere a categoria** (ex.: Iluminação pública) e o **órgão provável** (ex.: CEB-IPES); o cidadão confirma ou troca com um toque. 3) Recebe um **número de protocolo** (ex.: `DF-2026-000123`). 4) O Voz DF **envia a denúncia ao GDF em formato JSON** (uma API): descrição, categoria, local, RA, fotos e a sugestão da IA, **sem dados pessoais** do denunciante. 5) **O GDF decide** o órgão responsável e informa cada mudança de status de volta ao Voz DF. 6) O cidadão acompanha pelo protocolo até a resolução. |
+| **Como a tecnologia irá funcionar?** | 1) O cidadão abre o site e **descreve o problema com as próprias palavras** (ex.: "o poste da minha rua está apagado"), anexa foto e marca o **local no mapa** com a RA. 2) Uma **IA sugere a categoria** (ex.: Iluminação pública) e o **órgão provável** (ex.: CEB-IPES); o cidadão confirma ou troca com um toque. 3) Recebe um **número de protocolo** (ex.: `DF-2026-000123`). 4) O Voz DF **envia a denúncia ao GDF em formato JSON** (uma API): descrição, categoria, local, RA, fotos e a sugestão da IA, **sem dados pessoais** do denunciante. 5) **O GDF decide** o órgão responsável e informa cada mudança de status de volta ao Voz DF. 6) O cidadão acompanha pelo protocolo até a resolução. 7) Quando o GDF marca como resolvida, **o cidadão confirma se foi mesmo resolvido** — se não foi, explica o motivo e a denúncia é **reaberta** e volta ao GDF. |
 | **Quais recursos tecnológicos serão utilizados?** | Site responsivo (Next.js/React + TypeScript), banco de dados (SQLite no protótipo, PostgreSQL em produção), mapa com OpenStreetMap/Leaflet, **IA local** (modelo de linguagem Qwen 3.5 rodando no próprio servidor via Ollama, sem custo e sem enviar o texto a empresas externas), **API REST com JSON** para a integração com o GDF, login seguro. Fase 2: PWA (instalável). Fase 3: aplicativo Android/iOS (React Native/Expo). |
 | **Quem utilizará a solução?** | **Cidadão** (registra e acompanha, com ou sem login — denúncia anônima é permitida) e o **sistema do GDF** (recebe as denúncias pela API e devolve o status). No protótipo, um **Simulador do GDF** faz o papel do governo. |
 | **Quais benefícios serão gerados?** | O cidadão não precisa conhecer a estrutura do governo; denúncias chegam ao GDF padronizadas e com uma sugestão de órgão, reduzindo o tempo de triagem; o governo **não precisa trocar de sistema**, só receber os dados; transparência com protocolo e status; proteção de dados (o GDF recebe a denúncia sem dados pessoais). |
@@ -93,13 +93,15 @@ O protótipo será o próprio site em desenvolvimento, com dados fictícios. Tel
 3. **Nova denúncia (passo a passo)** — ① "O que está acontecendo?" (texto livre + foto) → ② **Sugestão da IA**: categoria e órgão provável, com botão para confirmar ou trocar → ③ Local no mapa + RA → ④ Revisar e enviar.
 4. **Confirmação** — número de protocolo (ex.: `DF-2026-000123`) e aviso de que a denúncia foi enviada ao GDF.
 5. **Acompanhar / Minhas denúncias** — status: Recebida → Enviada ao GDF → Em análise → Encaminhada ao órgão → Em execução → Resolvida.
+6. **Confirmação da solução** — quando o GDF marca como resolvida, quem denunciou com conta responde "Foi mesmo resolvido?" (até 30 dias). "Não" exige justificativa e **reabre** a denúncia no GDF.
 
 **Simulador do GDF (só para a demonstração)**
-6. **Denúncias recebidas** — lista do que chegou pela API, com o JSON recebido e a sugestão da IA em destaque.
-7. **Decisão** — o "GDF" aceita ou troca o órgão sugerido e atualiza o status (em análise, encaminhada, em execução, resolvida, não procedente); cada ação volta automaticamente para o cidadão.
-8. **Visão geral** — totais por RA, categoria e status.
+7. **Denúncias recebidas** — lista do que chegou pela API, com o JSON recebido e a sugestão da IA em destaque.
+8. **Decisão** — o "GDF" aceita ou troca o órgão sugerido e atualiza o status (em análise, encaminhada, em execução, resolvida, não procedente); cada ação volta automaticamente para o cidadão.
+9. **A IA acertou?** — o operador avalia a categoria sugerida (sim / não + a correta). Isso mede a acurácia real da IA e orienta melhorias.
+10. **Visão geral** — totais por RA, categoria e status; acerto da IA segundo o GDF; resoluções confirmadas e contestadas pelos cidadãos.
 
-**Resultado esperado:** o cidadão denuncia em menos de 2 minutos sem precisar saber quem é o responsável; o GDF recebe tudo padronizado, com uma sugestão de órgão, e decide.
+**Resultado esperado:** o cidadão denuncia em menos de 2 minutos sem precisar saber quem é o responsável; o GDF recebe tudo padronizado, com uma sugestão de órgão, e decide; **a palavra final sobre "resolvido" também é do cidadão**, que confirma ou reabre.
 
 ---
 
@@ -110,9 +112,9 @@ O protótipo será o próprio site em desenvolvimento, com dados fictícios. Tel
 | 0:00–0:40 | **Qual problema escolhemos?** | "Quem aqui já viu um poste apagado ou lixo acumulado e não soube para quem reclamar?" — o problema é a falta de um canal eficiente de denúncias. |
 | 0:40–1:20 | **Por que é importante?** | Problemas pequenos viram grandes (dengue, acidentes, insegurança). Sem retorno, a população desiste; sem dados, o governo prioriza no escuro. |
 | 1:20–1:50 | **Como surgiu a ideia?** | Da experiência do grupo nas nossas RAs: ninguém sabe se buraco é com a Novacap ou com a Administração. Por isso o cidadão só descreve, e uma IA ajuda a descobrir o responsável. |
-| 1:50–3:10 | **Como a solução funciona?** | Demonstração: escrever "o poste da minha rua está apagado" → a IA sugere *Iluminação pública / CEB-IPES* → confirmar, marcar no mapa → protocolo. No Simulador do GDF, a denúncia chega como JSON; o "GDF" encaminha e resolve; o cidadão vê "Resolvida" pelo protocolo. |
+| 1:50–3:10 | **Como a solução funciona?** | Demonstração: escrever "o poste da minha rua está apagado" → a IA sugere *Iluminação pública / CEB-IPES* → confirmar, marcar no mapa → protocolo. No Simulador do GDF, a denúncia chega como JSON; o "GDF" encaminha e resolve; o cidadão vê "Resolvida" e **confirma** (ou contesta e a denúncia reabre). |
 | 3:10–3:50 | **Tecnologias usadas** | Site responsivo, banco de dados, mapa (OpenStreetMap), **IA local** (Qwen 3.5 via Ollama, sem custo e sem mandar dados para fora) e **API com JSON** para o GDF; depois vira aplicativo. |
-| 3:50–4:30 | **Benefícios** | Cidadão não precisa conhecer o governo; GDF recebe tudo padronizado, com sugestão de órgão, sem trocar de sistema; transparência pelo protocolo; LGPD (o GDF não recebe dados pessoais). |
+| 3:50–4:30 | **Benefícios** | Cidadão não precisa conhecer o governo; GDF recebe tudo padronizado, com sugestão de órgão, sem trocar de sistema; transparência pelo protocolo; **o cidadão confirma se foi resolvido** (o governo não "fecha" sozinho); o GDF avalia a IA, medindo a acurácia real; LGPD (o GDF não recebe dados pessoais). |
 | 4:30–5:00 | **É viável? Por quê?** | Sim: testamos a IA — **93,8% de acerto** em 48 casos, ~1 segundo por denúncia, num notebook comum. Tecnologias gratuitas/abertas. O GDF ainda não tem API pública, mas o governo federal já usa esse modelo (**Fala.BR**, da CGU), então a integração é realista. **A IA só sugere; quem decide é o governo.** |
 
 ---
