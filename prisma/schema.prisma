@@ -1,0 +1,198 @@
+// Modelo de dados do Voz DF — ver docs/ARQUITETURA.md §5.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+enum Papel {
+  CIDADAO
+  OPERADOR_GDF
+}
+
+enum StatusDenuncia {
+  RECEBIDA
+  ENVIADA_GDF
+  EM_ANALISE
+  ENCAMINHADA
+  EM_EXECUCAO
+  RESOLVIDA
+  NAO_PROCEDENTE
+  DUPLICADA
+}
+
+enum AtorEvento {
+  SISTEMA
+  GDF
+  CIDADAO
+}
+
+enum TipoEvento {
+  CRIADA
+  ENVIADA_GDF
+  FALHA_ENVIO
+  MUDANCA_STATUS
+}
+
+enum OrigemSugestao {
+  LLM
+  REGRAS
+}
+
+model RegiaoAdministrativa {
+  id        String     @id @default(cuid())
+  codigo    String     @unique
+  numero    Int        @unique
+  nome      String
+  slug      String     @unique
+  denuncias Denuncia[]
+}
+
+model Orgao {
+  id                 String       @id @default(cuid())
+  sigla              String       @unique
+  nome               String
+  categoriasPadrao   Categoria[]
+  denunciasAtribuidas Denuncia[]
+  sugestoes          SugestaoIA[]
+}
+
+model Categoria {
+  id            String       @id @default(cuid())
+  slug          String       @unique
+  nome          String
+  descricao     String
+  ativa         Boolean      @default(true)
+  orgaoPadraoId String
+  orgaoPadrao   Orgao        @relation(fields: [orgaoPadraoId], references: [id])
+  denuncias     Denuncia[]
+  sugestoes     SugestaoIA[]
+}
+
+model Usuario {
+  id        String     @id @default(cuid())
+  nome      String
+  email     String     @unique
+  senhaHash String
+  papel     Papel      @default(CIDADAO)
+  criadoEm  DateTime   @default(now())
+  denuncias Denuncia[]
+  eventos   EventoDenuncia[]
+}
+
+model Denuncia {
+  id                 String               @id @default(cuid())
+  protocolo          String               @unique
+  descricao          String
+  categoriaId        String
+  categoria          Categoria            @relation(fields: [categoriaId], references: [id])
+  raId               String
+  ra                 RegiaoAdministrativa @relation(fields: [raId], references: [id])
+  // Definido apenas pelo GDF (callback); nunca pela IA.
+  orgaoResponsavelId String?
+  orgaoResponsavel   Orgao?               @relation(fields: [orgaoResponsavelId], references: [id])
+  latitude           Float
+  longitude          Float
+  enderecoReferencia String?
+  status             StatusDenuncia       @default(RECEBIDA)
+  // null = denúncia anônima
+  autorId            String?
+  autor              Usuario?             @relation(fields: [autorId], references: [id])
+  criadoEm           DateTime             @default(now())
+  atualizadoEm       DateTime             @updatedAt
+  resolvidoEm        DateTime?
+
+  sugestao SugestaoIA?
+  anexos   Anexo[]
+  eventos  EventoDenuncia[]
+  envio    EnvioGdf?
+
+  @@index([raId, status])
+  @@index([categoriaId, status])
+  @@index([criadoEm])
+  @@index([autorId])
+}
+
+model SugestaoIA {
+  id               String         @id @default(cuid())
+  denunciaId       String         @unique
+  denuncia         Denuncia       @relation(fields: [denunciaId], references: [id], onDelete: Cascade)
+  categoriaId      String
+  categoria        Categoria      @relation(fields: [categoriaId], references: [id])
+  orgaoId          String
+  orgao            Orgao          @relation(fields: [orgaoId], references: [id])
+  confianca        Float
+  justificativa    String
+  origem           OrigemSugestao
+  modelo           String
+  cidadaoConfirmou Boolean
+  criadoEm         DateTime       @default(now())
+}
+
+model Anexo {
+  id         String   @id @default(cuid())
+  denunciaId String
+  denuncia   Denuncia @relation(fields: [denunciaId], references: [id], onDelete: Cascade)
+  // Token aleatório usado na URL pública; o caminho em disco nunca é exposto.
+  token      String   @unique
+  caminho    String
+  mime       String
+  tamanho    Int
+  criadoEm   DateTime @default(now())
+
+  @@index([denunciaId])
+}
+
+model EventoDenuncia {
+  id              String          @id @default(cuid())
+  denunciaId      String
+  denuncia        Denuncia        @relation(fields: [denunciaId], references: [id], onDelete: Cascade)
+  ator            AtorEvento
+  autorId         String?
+  autor           Usuario?        @relation(fields: [autorId], references: [id])
+  tipo            TipoEvento
+  statusDe        StatusDenuncia?
+  statusPara      StatusDenuncia?
+  texto           String?
+  publico         Boolean         @default(true)
+  // Idempotência dos callbacks do GDF.
+  eventoExternoId String?         @unique
+  criadoEm        DateTime        @default(now())
+
+  @@index([denunciaId, criadoEm])
+}
+
+model EnvioGdf {
+  id           String    @id @default(cuid())
+  denunciaId   String    @unique
+  denuncia     Denuncia  @relation(fields: [denunciaId], references: [id], onDelete: Cascade)
+  tentativas   Int       @default(0)
+  ultimoErro   String?
+  enviadoEm    DateTime?
+  atualizadoEm DateTime  @updatedAt
+
+  @@index([enviadoEm])
+}
+
+model ContadorProtocolo {
+  ano    Int @id
+  ultimo Int
+}
+
+// ---------------------------------------------------------------------------
+// Módulo simulador-gdf — SOMENTE demonstração. Representa o sistema do governo
+// que recebe o JSON; não faz parte do produto Voz DF.
+// ---------------------------------------------------------------------------
+model ManifestacaoGdf {
+  id                 String   @id @default(cuid())
+  protocolo          String   @unique
+  payload            String // JSON recebido, como veio
+  status             String
+  orgaoDecididoSigla String?
+  recebidoEm         DateTime @default(now())
+  atualizadoEm       DateTime @updatedAt
+}

@@ -2,8 +2,11 @@
 
 Leia `docs/ARQUITETURA.md` e `docs/ROADMAP.md` antes de implementar qualquer coisa.
 
+Regras do Next.js 16 (a doc da versão instalada fica em `node_modules/next/dist/docs/`):
+@AGENTS.md
+
 ## Contexto
-- Web app de denúncias cidadãs do DF, segmentado pelas 35 Regiões Administrativas e por categoria, com painel de gestão para o GDF.
+- Web app de denúncias cidadãs do DF, segmentado pelas 35 Regiões Administrativas e por categoria. O cidadão só descreve o problema; uma IA local **sugere** categoria/órgão; a denúncia é enviada como JSON ao GDF, que **decide** o órgão e devolve o status. O lado do GDF é um simulador no MVP.
 - Projeto acadêmico: priorize um MVP demonstrável e simples de rodar localmente. Evite infraestrutura que não seja necessária para a fase atual.
 - Idioma da interface e do domínio: **português (pt-BR)**. Código (variáveis, funções) em inglês; termos de domínio podem manter nomes em português quando mais claros (ex.: `RegiaoAdministrativa`) — manter consistência depois de escolhido.
 
@@ -13,15 +16,18 @@ Leia `docs/ARQUITETURA.md` e `docs/ROADMAP.md` antes de implementar qualquer coi
 - Zod para validação em todas as fronteiras (forms, route handlers, server actions)
 - Auth.js (NextAuth) com credenciais; senhas com hash (bcrypt/argon2)
 - Leaflet + OpenStreetMap para mapas (sem chave paga)
+- IA: LLM local via Ollama (modelo configurável em `OLLAMA_MODEL`) com fallback por regras; sem API paga
 - Tailwind CSS
 - Testes: Vitest (unidade/integração) e Playwright (fluxos principais)
 
 ## Regras do domínio (invariantes)
 - Toda denúncia pertence a exatamente **uma RA** e **uma categoria**.
 - Protocolo único e legível: `DF-AAAA-NNNNNN`, gerado no servidor.
-- Transições de status só pelas permitidas em `docs/ARQUITETURA.md` (máquina de estados centralizada em um único módulo, com testes).
-- Toda mudança de status gera um registro de histórico (`EventoDenuncia`) com autor e data — nunca sobrescrever histórico.
-- Autorização **sempre no servidor**: gestor de RA só vê a própria RA; órgão só vê o que foi encaminhado a ele.
+- Transições de status só pelas permitidas em `docs/ARQUITETURA.md` (máquina de estados centralizada em `src/domain/status.ts`, com testes).
+- Toda mudança de status gera um registro de histórico (`EventoDenuncia`) com ator e data — nunca sobrescrever histórico.
+- **A IA só sugere.** O órgão responsável (`Denuncia.orgaoResponsavelId`) é definido apenas pelo GDF via callback; a sugestão fica separada em `SugestaoIA`.
+- Payload enviado ao GDF não contém dados pessoais do denunciante.
+- Autorização **sempre no servidor**; callback do GDF só com chave de API válida e idempotente por `eventoId`.
 
 ## Privacidade / LGPD
 - Mapa e páginas públicas **nunca** exibem nome, e-mail, CPF ou telefone do denunciante.

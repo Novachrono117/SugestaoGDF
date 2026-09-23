@@ -2,24 +2,27 @@
 
 ## Fase 1 — MVP web (demonstração da atividade)
 
-Objetivo: fluxo completo cidadão → painel funcionando localmente com dados fictícios.
+Objetivo: fluxo completo cidadão → IA sugere → JSON ao GDF (simulado) → GDF decide → cidadão acompanha, rodando localmente com dados fictícios.
 
 1. Scaffold Next.js + TypeScript + Tailwind + ESLint; configurar Vitest.
-2. Prisma com SQLite; schema de `docs/ARQUITETURA.md`; seed a partir de `data/*.json` + usuários fictícios (1 admin, 1 gestor de RA, 1 gestor de órgão, 1 cidadão).
-3. `src/domain/status.ts` (máquina de estados) e `src/domain/protocolo.ts` com testes.
-4. Autenticação (Auth.js credenciais) e middleware de autorização por perfil/escopo.
-5. Cidadão: home, nova denúncia (wizard com mapa Leaflet e upload), confirmação com protocolo, consulta por protocolo, "minhas denúncias".
-6. Painel: fila com filtros, detalhe com histórico, ações de transição, indicadores simples (contagem por RA/categoria/status).
-7. Mapa público com marcadores por status (sem dados pessoais).
-8. Teste E2E (Playwright): criar denúncia → gestor encaminha → órgão resolve → cidadão vê "Resolvida".
+2. Prisma com SQLite; schema de `docs/ARQUITETURA.md`; seed a partir de `data/*.json` + usuários fictícios (1 operador GDF, 1 cidadão).
+3. Domínio com testes: `status.ts` (máquina de estados), `protocolo.ts`, `payload-gdf.ts` (monta o JSON de envio).
+4. Classificador: interface + fallback por regras + Ollama; `scripts/eval-classificador.ts` com casos fictícios rotulados → **medir viabilidade e escolher o modelo**.
+5. Integração: `GovGateway` (push + registro em `EnvioGdf` + reenvio) e callback `/api/v1/integracao/gdf/eventos`.
+6. Autenticação (Auth.js credenciais) para cidadão e operador do simulador.
+7. Cidadão: home, wizard (descrição/foto → sugestão da IA → confirmação → mapa Leaflet + RA → revisão), confirmação com protocolo, consulta por protocolo, "minhas denúncias".
+8. Simulador GDF: lista do que chegou, sugestão da IA em destaque, decidir órgão e status (dispara o callback), contagens por RA/categoria/status.
+9. Mapa público com marcadores por status (sem dados pessoais).
+10. Teste E2E (Playwright): criar denúncia → chega no simulador → "GDF" encaminha e resolve → cidadão vê "Resolvida" pelo protocolo.
 
-**Critério de pronto:** o fluxo do item 8 passa e roda com `npm run dev` numa máquina limpa seguindo o README.
+**Critério de pronto:** o fluxo do item 10 passa e roda com `npm run dev` numa máquina limpa seguindo o README (com e sem Ollama instalado).
 
 ## Fase 2 — Produto web + PWA
 
 - PostgreSQL (+ PostGIS se houver consultas espaciais) e storage S3-compatível.
 - Detecção automática da RA por polígono.
 - Sugestão de duplicatas por proximidade; apoios.
+- Reabertura pela pessoa que denunciou (com reenvio ao GDF).
 - Notificações por e-mail a cada mudança de status.
 - PWA: manifest, instalação, câmera, rascunho offline da denúncia.
 - Relatórios: tempo médio de resolução por RA/órgão; exportação CSV.
@@ -34,6 +37,6 @@ Objetivo: fluxo completo cidadão → painel funcionando localmente com dados fi
 
 ## Futuro (avaliar necessidade antes)
 
-- Integração com Participa DF / 162.
+- Integração real com o GDF (API própria ou adesão à API do Fala.BR/CGU) — ver `docs/ARQUITETURA.md` §2.
 - Chatbot WhatsApp; QR Codes em equipamentos públicos.
-- Sugestão de categoria por IA **com revisão humana** e avaliação de precisão antes de uso.
+- IA: sugerir também prioridade e detectar duplicatas por texto/foto — sempre como sugestão, com avaliação de precisão antes de uso.
