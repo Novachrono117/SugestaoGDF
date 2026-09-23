@@ -114,7 +114,7 @@ Interface única `Classificador` (`src/server/classificador/`) com duas implemen
 | `OllamaClassificador` | `OLLAMA_URL` acessível | LLM local via Ollama (`/api/chat`, `format` = JSON Schema, `temperature: 0`). A categoria é restrita a um `enum` com os slugs ativos — o modelo não consegue inventar categoria. |
 | `RegrasClassificador` | fallback (Ollama fora do ar, timeout, resposta inválida) | Palavras-chave por categoria. Fraco, mas a demo nunca quebra. |
 
-- O **órgão sugerido** é derivado da categoria (`Categoria.orgaoPadrao`); `ADM-RA` vira "Administração Regional de <RA da denúncia>".
+- O **órgão sugerido** é derivado da categoria (`Categoria.orgaoPadrao`); `ADM-RA` vira "Administração Regional – <RA da denúncia>".
 - Saída sempre validada com Zod; confiança em `[0, 1]`; `origem` registra qual implementação respondeu.
 - **Por que local:** sem custo, sem chave, e o texto do cidadão não sai da máquina (LGPD). Limite: precisa do Ollama instalado onde o app roda; em deploy serverless (Vercel) não há GPU → cai no fallback ou exige um servidor com Ollama.
 - **Viabilidade medida, não presumida:** `npm run eval:classificador -- <modelos>` roda os casos fictícios de `data/casos-classificador.json` e reporta acurácia e latência por modelo.

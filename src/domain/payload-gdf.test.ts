@@ -37,7 +37,7 @@ describe("montarPayloadGdf", () => {
       { ...denuncia, sugestao: { ...denuncia.sugestao, orgao: { sigla: "ADM-RA", nome: "Administração Regional da RA" } } },
       "http://localhost:3000",
     );
-    expect(payload.sugestaoIA.orgao).toEqual({ sigla: "ADM-RA", nome: "Administração Regional de Ceilândia" });
+    expect(payload.sugestaoIA.orgao).toEqual({ sigla: "ADM-RA", nome: "Administração Regional – Ceilândia" });
   });
 
   it("contrato rejeita campos extras (ex.: dados pessoais)", () => {
