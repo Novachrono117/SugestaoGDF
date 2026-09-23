@@ -1,0 +1,68 @@
+{
+  "_aviso": "Casos FICTÍCIOS para medir a acurácia do classificador (npm run eval:classificador). Linguagem coloquial de propósito; evite copiar as palavras-chave das categorias para não inflar o resultado.",
+  "casos": [
+    { "texto": "Jogaram um monte de resto de reforma e um sofá velho no canteiro do lado da minha casa", "esperado": "lixo-entulho" },
+    { "texto": "O lote vazio da esquina virou depósito de tudo quanto é porcaria, tá cheio de rato", "esperado": "lixo-entulho" },
+    { "texto": "Pessoal despeja saco de lixo toda noite perto da passarela", "esperado": "lixo-entulho" },
+
+    { "texto": "O caminhão não passa na nossa rua há duas semanas, os sacos estão se acumulando nas portas", "esperado": "coleta-seletiva" },
+    { "texto": "Queria separar o reciclável mas aqui no bairro não tem recolhimento separado", "esperado": "coleta-seletiva" },
+    { "texto": "Os garis pularam a nossa quadra de novo essa semana", "esperado": "coleta-seletiva" },
+
+    { "texto": "A rua inteira tá no breu desde sexta, dá medo voltar do trabalho", "esperado": "iluminacao-publica" },
+    { "texto": "Tem uma luz do poste que fica ligada o dia todo, desperdício", "esperado": "iluminacao-publica" },
+    { "texto": "Três postes queimados seguidos na avenida perto da escola", "esperado": "iluminacao-publica" },
+
+    { "texto": "Abriu uma cratera na pista, já vi dois carros estourarem o pneu", "esperado": "buracos-vias" },
+    { "texto": "O asfalto tá todo esfarelando depois da chuva, virou uma costela de vaca", "esperado": "buracos-vias" },
+    { "texto": "A calçada tá toda levantada pela raiz e cheia de buraco, minha mãe caiu ontem", "esperado": "buracos-vias" },
+
+    { "texto": "Toda vez que chove a rua vira um rio e a água entra nas casas", "esperado": "alagamento-drenagem" },
+    { "texto": "A boca de lobo tá entupida de folha e terra, a água empoça na esquina", "esperado": "alagamento-drenagem" },
+    { "texto": "A tampa do bueiro sumiu e ficou um buraco fundo aberto", "esperado": "alagamento-drenagem" },
+
+    { "texto": "Tem um cano estourado jorrando água limpa na rua desde ontem", "esperado": "agua-esgoto" },
+    { "texto": "Um cheiro horrível e uma água preta correndo pela sarjeta vindo da rede", "esperado": "agua-esgoto" },
+    { "texto": "Estamos sem água nas torneiras há três dias no condomínio", "esperado": "agua-esgoto" },
+
+    { "texto": "Não dá pra subir na calçada com cadeira de rodas, não tem rebaixamento em lugar nenhum", "esperado": "acessibilidade" },
+    { "texto": "Colocaram mesas do bar ocupando a calçada inteira e meu pai que é cego não consegue passar", "esperado": "acessibilidade" },
+    { "texto": "A entrada do prédio público só tem escada, nenhum acesso pra quem tem mobilidade reduzida", "esperado": "acessibilidade" },
+
+    { "texto": "O ônibus da linha 0.110 demora mais de uma hora pra passar de manhã", "esperado": "transporte-publico" },
+    { "texto": "O abrigo da parada caiu e a gente espera no sol e na chuva", "esperado": "transporte-publico" },
+    { "texto": "O motorista não parou pro idoso que estava dando sinal", "esperado": "transporte-publico" },
+
+    { "texto": "O semáforo do cruzamento tá piscando amarelo faz dias e já teve batida", "esperado": "transito-sinalizacao" },
+    { "texto": "Apagou a faixa de pedestre na frente da creche, carro passa voando", "esperado": "transito-sinalizacao" },
+    { "texto": "Carros estacionam em cima da ciclovia todo dia na comercial", "esperado": "transito-sinalizacao" },
+
+    { "texto": "A praça virou ponto de assalto depois que escurece, ninguém passa mais lá", "esperado": "seguranca-espacos-publicos" },
+    { "texto": "A passagem subterrânea é deserta e perigosa, sem nenhum policiamento", "esperado": "seguranca-espacos-publicos" },
+    { "texto": "Galera usando droga na parada do lado do colégio, as crianças ficam com medo", "esperado": "seguranca-espacos-publicos" },
+
+    { "texto": "Os brinquedos do parquinho estão quebrados e enferrujados, criança se machuca", "esperado": "areas-lazer" },
+    { "texto": "O mato do parque tá na altura da cintura, precisa de roçagem", "esperado": "areas-lazer" },
+    { "texto": "Galho grande da árvore da praça tá quase caindo em cima do banco", "esperado": "areas-lazer" },
+
+    { "texto": "Vizinho deixa o cachorro preso sem água e sem comida no sol", "esperado": "animais" },
+    { "texto": "Tem cavalo solto andando no meio da pista à noite", "esperado": "animais" },
+    { "texto": "Abandonaram uma ninhada de filhotes numa caixa na esquina", "esperado": "animais" },
+
+    { "texto": "O bar da esquina bota caixa de som no talo até três da manhã", "esperado": "poluicao-sonora" },
+    { "texto": "Carro com paredão parado na quadra todo domingo, não dá pra dormir", "esperado": "poluicao-sonora" },
+    { "texto": "A oficina ao lado martela e usa esmerilhadeira desde as seis da manhã", "esperado": "poluicao-sonora" },
+
+    { "texto": "Estão levantando um muro e fechando parte da área verde pública", "esperado": "ocupacao-irregular" },
+    { "texto": "Estão parcelando o terreno perto da chácara e vendendo lote sem escritura", "esperado": "ocupacao-irregular" },
+    { "texto": "O comércio avançou a construção pra cima da calçada e do estacionamento público", "esperado": "ocupacao-irregular" },
+
+    { "texto": "Piscina abandonada na casa vazia com água verde cheia de mosquito", "esperado": "saude-publica" },
+    { "texto": "Esperei seis horas na UPA com minha filha com febre e ninguém atendeu", "esperado": "saude-publica" },
+    { "texto": "Pneus velhos acumulando água num terreno, bairro com muitos casos de dengue", "esperado": "saude-publica" },
+
+    { "texto": "Quero sugerir que coloquem um bicicletário na biblioteca pública", "esperado": "outros" },
+    { "texto": "A administração regional não responde meus e-mails sobre alvará", "esperado": "outros" },
+    { "texto": "O banheiro público da rodoviária vive fechado", "esperado": "outros" }
+  ]
+}

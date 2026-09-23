@@ -51,97 +51,265 @@
       "slug": "lixo-entulho",
       "nome": "Lixo e entulho",
       "descricao": "Descarte irregular, lixo acumulado, terreno baldio sujo",
-      "orgaoPadrao": "SLU"
+      "orgaoPadrao": "SLU",
+      "palavrasChave": [
+        "lixo",
+        "entulho",
+        "descarte",
+        "sujeira",
+        "lixao",
+        "terreno baldio",
+        "sofa",
+        "resto de obra",
+        "mato alto"
+      ]
     },
     {
       "slug": "coleta-seletiva",
       "nome": "Coleta de lixo e coleta seletiva",
       "descricao": "Coleta não realizada, ausência de coleta seletiva",
-      "orgaoPadrao": "SLU"
+      "orgaoPadrao": "SLU",
+      "palavrasChave": [
+        "coleta",
+        "caminhao do lixo",
+        "lixeiro",
+        "reciclavel",
+        "reciclagem",
+        "container",
+        "conteiner",
+        "lixeira"
+      ]
     },
     {
       "slug": "iluminacao-publica",
       "nome": "Iluminação pública",
       "descricao": "Poste apagado, lâmpada acesa de dia, falta de iluminação",
-      "orgaoPadrao": "CEB-IPES"
+      "orgaoPadrao": "CEB-IPES",
+      "palavrasChave": [
+        "poste",
+        "lampada",
+        "iluminacao",
+        "apagad",
+        "escur",
+        "sem luz",
+        "luminaria",
+        "acesa de dia"
+      ]
     },
     {
       "slug": "buracos-vias",
       "nome": "Buracos e pavimentação",
       "descricao": "Buracos, asfalto danificado, calçadas quebradas",
-      "orgaoPadrao": "NOVACAP"
+      "orgaoPadrao": "NOVACAP",
+      "palavrasChave": [
+        "buraco",
+        "asfalto",
+        "pavimenta",
+        "cratera",
+        "calcada quebrada",
+        "meio-fio",
+        "meio fio",
+        "tapa-buraco",
+        "recapea"
+      ]
     },
     {
       "slug": "alagamento-drenagem",
       "nome": "Alagamento e drenagem",
       "descricao": "Bueiro entupido, boca de lobo danificada, pontos de alagamento",
-      "orgaoPadrao": "NOVACAP"
+      "orgaoPadrao": "NOVACAP",
+      "palavrasChave": [
+        "alaga",
+        "bueiro",
+        "boca de lobo",
+        "enchente",
+        "enxurrada",
+        "agua da chuva",
+        "drenagem",
+        "galeria pluvial"
+      ]
     },
     {
       "slug": "agua-esgoto",
       "nome": "Água e esgoto",
       "descricao": "Vazamento, desperdício de água, esgoto a céu aberto",
-      "orgaoPadrao": "CAESB"
+      "orgaoPadrao": "CAESB",
+      "palavrasChave": [
+        "esgoto",
+        "vazamento",
+        "vazando",
+        "cano",
+        "falta de agua",
+        "sem agua",
+        "fossa",
+        "mau cheiro",
+        "caesb",
+        "hidrometro"
+      ]
     },
     {
       "slug": "acessibilidade",
       "nome": "Acessibilidade",
       "descricao": "Falta de rampas, calçadas obstruídas, piso tátil ausente",
-      "orgaoPadrao": "ADM-RA"
+      "orgaoPadrao": "ADM-RA",
+      "palavrasChave": [
+        "rampa",
+        "cadeirante",
+        "cadeira de rodas",
+        "piso tatil",
+        "acessibilidade",
+        "deficiente",
+        "deficiencia",
+        "cego"
+      ]
     },
     {
       "slug": "transporte-publico",
       "nome": "Transporte público",
       "descricao": "Atrasos, linhas insuficientes, paradas danificadas",
-      "orgaoPadrao": "SEMOB"
+      "orgaoPadrao": "SEMOB",
+      "palavrasChave": [
+        "onibus",
+        "parada",
+        "metro",
+        "brt",
+        "linha",
+        "motorista",
+        "cobrador",
+        "ponto de onibus",
+        "transporte"
+      ]
     },
     {
       "slug": "transito-sinalizacao",
       "nome": "Trânsito e sinalização",
       "descricao": "Semáforo com defeito, sinalização ausente, estacionamento irregular",
-      "orgaoPadrao": "DETRAN-DF"
+      "orgaoPadrao": "DETRAN-DF",
+      "palavrasChave": [
+        "semaforo",
+        "sinal",
+        "sinalizacao",
+        "faixa de pedestre",
+        "placa",
+        "estacionad",
+        "quebra-mola",
+        "lombada",
+        "radar",
+        "transito"
+      ]
     },
     {
       "slug": "seguranca-espacos-publicos",
       "nome": "Segurança em espaços públicos",
       "descricao": "Praças e paradas inseguras, iluminação e vigilância insuficientes (não emergencial)",
-      "orgaoPadrao": "ADM-RA"
+      "orgaoPadrao": "ADM-RA",
+      "palavrasChave": [
+        "inseguro",
+        "inseguranca",
+        "assalto",
+        "perigoso",
+        "medo",
+        "vigilancia",
+        "usuarios de droga",
+        "roubo"
+      ]
     },
     {
       "slug": "areas-lazer",
       "nome": "Praças, parques e áreas de lazer",
       "descricao": "Equipamentos quebrados, falta de manutenção, poda de árvores",
-      "orgaoPadrao": "ADM-RA"
+      "orgaoPadrao": "ADM-RA",
+      "palavrasChave": [
+        "praca",
+        "parque",
+        "parquinho",
+        "quadra",
+        "academia",
+        "brinquedo",
+        "balanco",
+        "poda",
+        "arvore",
+        "gramado",
+        "ponto de encontro"
+      ]
     },
     {
       "slug": "animais",
       "nome": "Animais",
       "descricao": "Maus-tratos, animais abandonados, animais soltos em vias",
-      "orgaoPadrao": "IBRAM"
+      "orgaoPadrao": "IBRAM",
+      "palavrasChave": [
+        "cachorro",
+        "cao",
+        "gato",
+        "cavalo",
+        "animal",
+        "animais",
+        "maus-tratos",
+        "maus tratos",
+        "abandonad",
+        "carroca",
+        "boi",
+        "vaca"
+      ]
     },
     {
       "slug": "poluicao-sonora",
       "nome": "Poluição sonora",
       "descricao": "Som alto recorrente, ruído de estabelecimentos",
-      "orgaoPadrao": "DF-LEGAL"
+      "orgaoPadrao": "DF-LEGAL",
+      "palavrasChave": [
+        "barulho",
+        "som alto",
+        "paredao",
+        "ruido",
+        "festa",
+        "bar ",
+        "musica alta",
+        "madrugada"
+      ]
     },
     {
       "slug": "ocupacao-irregular",
       "nome": "Ordem urbanística",
       "descricao": "Obras e ocupações irregulares, invasão de área pública",
-      "orgaoPadrao": "DF-LEGAL"
+      "orgaoPadrao": "DF-LEGAL",
+      "palavrasChave": [
+        "invasao",
+        "invadi",
+        "grilagem",
+        "obra irregular",
+        "construcao irregular",
+        "puxadinho",
+        "ocupacao",
+        "cercou",
+        "area publica"
+      ]
     },
     {
       "slug": "saude-publica",
       "nome": "Saúde pública",
       "descricao": "Focos de dengue, filas e problemas em unidades de saúde",
-      "orgaoPadrao": "SES-DF"
+      "orgaoPadrao": "SES-DF",
+      "palavrasChave": [
+        "dengue",
+        "mosquito",
+        "agua parada",
+        "upa",
+        "posto de saude",
+        "hospital",
+        "fila",
+        "medico",
+        "larva",
+        "foco"
+      ]
     },
     {
       "slug": "outros",
       "nome": "Outros",
       "descricao": "Demandas que não se encaixam nas demais categorias",
-      "orgaoPadrao": "ADM-RA"
+      "orgaoPadrao": "ADM-RA",
+      "palavrasChave": []
     }
   ]
 }
