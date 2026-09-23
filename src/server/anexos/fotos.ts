@@ -4,9 +4,10 @@ import { randomBytes, randomUUID } from "node:crypto";
 import { mkdir, rm, writeFile } from "node:fs/promises";
 import { basename, join, resolve } from "node:path";
 import sharp from "sharp";
+import { FOTOS } from "@/lib/validation/denuncia";
 import { ErroDominio } from "../erros";
 
-export const MAX_FOTOS = 3;
+export const MAX_FOTOS = FOTOS.max;
 const LADO_MAXIMO = 1920;
 // Barra "bombas de descompressão" (imagem pequena em bytes que explode em pixels).
 const MAX_PIXELS_ENTRADA = 50_000_000;

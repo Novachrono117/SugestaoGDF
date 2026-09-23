@@ -16,8 +16,14 @@ export async function Cabecalho() {
               Simulador GDF
             </Link>
           )}
+          <Link href="/acompanhar" className="font-medium text-slate-700 hover:text-blue-700">
+            Acompanhar
+          </Link>
           {usuario ? (
             <>
+              <Link href="/minhas-denuncias" className="font-medium text-slate-700 hover:text-blue-700">
+                Minhas denúncias
+              </Link>
               <span className="text-slate-600" aria-label="Usuário conectado">
                 {usuario.nome}
               </span>

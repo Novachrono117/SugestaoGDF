@@ -73,7 +73,7 @@ describe("criarDenuncia", () => {
     expect(salva.orgaoResponsavelId).toBeNull(); // a IA nunca define o responsável
     expect(salva.sugestao).toMatchObject({ confianca: 0.9, origem: "LLM", cidadaoConfirmou: true });
     expect(salva.eventos.map((e) => e.tipo)).toEqual(["CRIADA", "ENVIADA_GDF"]);
-    expect(salva.envio).toMatchObject({ tentativas: 1, ultimoErro: null });
+    expect(salva.envio).toMatchObject({ tentativas: 1, ultimoErro: null, idExterno: "gdf-1" });
 
     expect(enviados[0]).toMatchObject({ protocolo: a.protocolo, anonima: false });
     expect(JSON.stringify(enviados[0])).not.toMatch(/t@vozdf\.example|Teste/);

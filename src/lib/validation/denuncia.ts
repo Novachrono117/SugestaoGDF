@@ -33,3 +33,11 @@ export type NovaDenuncia = z.infer<typeof novaDenunciaSchema>;
 export const classificacaoSchema = z.object({
   descricao: novaDenunciaSchema.shape.descricao,
 });
+
+// Limites de fotos compartilhados entre o formulário e o servidor.
+// O tamanho máximo efetivo no servidor vem de MAX_UPLOAD_MB (padrão 5).
+export const FOTOS = {
+  max: 3,
+  maxMbPadrao: 5,
+  tiposAceitos: ["image/jpeg", "image/png", "image/webp"],
+} as const;

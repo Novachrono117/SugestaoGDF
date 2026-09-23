@@ -1,17 +1,62 @@
+import Link from "next/link";
+import { AvisoEmergencia } from "@/components/aviso-emergencia";
+import { BuscaProtocolo } from "@/components/busca-protocolo";
+import { Alerta } from "@/components/ui";
+
+const PASSOS = [
+  ["Conte o que está acontecendo", "Com suas palavras, com foto se quiser. Não precisa saber qual órgão é o responsável."],
+  ["A IA sugere a categoria", "Você confirma ou troca com um toque. Depois marca o local no mapa."],
+  ["O GDF recebe e decide", "Sua denúncia chega ao governo organizada, sem seus dados pessoais. Você acompanha pelo protocolo."],
+] as const;
+
 export default async function Home({ searchParams }: PageProps<"/">) {
   const { erro } = await searchParams;
   return (
-    <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-4 p-6">
-      {erro === "acesso-negado" && (
-        <p role="alert" className="rounded border border-red-300 bg-red-50 p-3 text-sm text-red-900">
-          Você não tem permissão para acessar aquela página.
+    <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-8 p-4 sm:p-6">
+      {erro === "acesso-negado" && <Alerta>Você não tem permissão para acessar aquela página.</Alerta>}
+
+      <section className="flex flex-col gap-4 pt-4">
+        <h1 className="text-3xl font-bold leading-tight text-slate-900 sm:text-4xl">
+          Viu um problema na sua rua? <span className="text-blue-700">Conte pra gente.</span>
+        </h1>
+        <p className="text-lg text-slate-700">
+          Buraco, poste apagado, lixo acumulado, esgoto… Registre em poucos minutos e acompanhe até a solução.
         </p>
-      )}
-      <h1 className="text-3xl font-bold">Voz DF</h1>
-      <p>Rede Central de Denúncias do Distrito Federal — em construção.</p>
-      <p className="rounded border border-amber-400 bg-amber-50 p-3 text-sm text-amber-900">
-        Emergências: ligue <strong>190</strong> (PMDF) ou <strong>193</strong> (CBMDF). Este canal não
-        substitui o atendimento de emergência.
+        <Link
+          href="/denunciar"
+          className="inline-flex min-h-12 items-center justify-center self-start rounded-xl bg-blue-700 px-6 text-lg font-semibold text-white shadow hover:bg-blue-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
+        >
+          Fazer denúncia
+        </Link>
+        <AvisoEmergencia />
+      </section>
+
+      <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm" aria-labelledby="titulo-acompanhar">
+        <h2 id="titulo-acompanhar" className="mb-3 text-lg font-semibold text-slate-900">
+          Já fez uma denúncia? Acompanhe pelo protocolo
+        </h2>
+        <BuscaProtocolo />
+      </section>
+
+      <section aria-labelledby="titulo-como">
+        <h2 id="titulo-como" className="mb-4 text-lg font-semibold text-slate-900">
+          Como funciona
+        </h2>
+        <ol className="grid gap-4 sm:grid-cols-3">
+          {PASSOS.map(([titulo, texto], i) => (
+            <li key={titulo} className="rounded-2xl border border-slate-200 bg-white p-4">
+              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 font-bold text-blue-800">
+                {i + 1}
+              </span>
+              <p className="mt-3 font-semibold text-slate-900">{titulo}</p>
+              <p className="mt-1 text-sm text-slate-600">{texto}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <p className="text-xs text-slate-500">
+        Projeto acadêmico — não é um serviço oficial do GDF. A integração com o governo é simulada.
       </p>
     </main>
   );

@@ -77,7 +77,7 @@ export async function enviarDenunciaAoGdf(deps: EnvioDeps, denunciaId: string): 
     if (count === 0) return;
     await tx.envioGdf.update({
       where: { denunciaId },
-      data: { tentativas: { increment: 1 }, ultimoErro: null, enviadoEm: new Date() },
+      data: { tentativas: { increment: 1 }, ultimoErro: null, enviadoEm: new Date(), idExterno: resultado.idExterno },
     });
     await tx.eventoDenuncia.create({
       data: {
@@ -86,7 +86,7 @@ export async function enviarDenunciaAoGdf(deps: EnvioDeps, denunciaId: string): 
         tipo: "ENVIADA_GDF",
         statusDe: "RECEBIDA",
         statusPara: "ENVIADA_GDF",
-        texto: resultado.idExterno ? `Recebida pelo GDF (id ${resultado.idExterno}).` : "Recebida pelo GDF.",
+        texto: "Recebida pelo GDF.",
       },
     });
   });

@@ -46,3 +46,32 @@ export async function consultarPorProtocolo(db: PrismaClient, protocolo: string)
 }
 
 export type ConsultaPublica = NonNullable<Awaited<ReturnType<typeof consultarPorProtocolo>>>;
+
+/** Descrição e fotos: só para quem fez a denúncia (nunca na consulta pública). */
+export async function detalheDoAutor(db: PrismaClient, protocolo: string, usuarioId: string) {
+  return db.denuncia.findFirst({
+    where: { protocolo, autorId: usuarioId },
+    select: {
+      descricao: true,
+      enderecoReferencia: true,
+      anexos: { select: { token: true }, orderBy: { criadoEm: "asc" } },
+    },
+  });
+}
+
+export async function listarDoAutor(db: PrismaClient, usuarioId: string) {
+  const denuncias = await db.denuncia.findMany({
+    where: { autorId: usuarioId },
+    orderBy: { criadoEm: "desc" },
+    take: 100,
+    select: {
+      protocolo: true,
+      descricao: true,
+      status: true,
+      criadoEm: true,
+      categoria: { select: { nome: true } },
+      ra: { select: { nome: true } },
+    },
+  });
+  return denuncias.map((d) => ({ ...d, statusRotulo: ROTULO_STATUS[d.status] }));
+}

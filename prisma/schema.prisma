@@ -173,6 +173,8 @@ model EnvioGdf {
   tentativas   Int       @default(0)
   ultimoErro   String?
   enviadoEm    DateTime?
+  // Identificador da manifestação no sistema do GDF (correlação/suporte; não exibido ao cidadão).
+  idExterno    String?
   atualizadoEm DateTime  @updatedAt
 
   @@index([enviadoEm])
