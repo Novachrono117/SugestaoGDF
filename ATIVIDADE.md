@@ -37,11 +37,11 @@ Em todo o Distrito Federal, nas **35 Regiões Administrativas** (Plano Piloto, C
 - Emergências seguem pelos números 190 (PMDF) e 193 (CBMDF).
 
 **7. O que ainda poderia ser melhorado?**
-- Registro em poucos toques, com **foto e localização no mapa**, sem o cidadão precisar saber qual órgão acionar;
-- **Encaminhamento automático** por categoria e RA;
+- Registro em poucos toques: o cidadão **descreve o problema com as próprias palavras**, com foto e localização no mapa, sem precisar saber qual órgão acionar;
+- Uma **IA que sugere** a categoria e o órgão responsável (quem decide continua sendo o governo);
 - **Mapa público** dos problemas (sem dados pessoais) e acompanhamento por número de protocolo;
 - Agrupamento de denúncias repetidas do mesmo local, mostrando "apoios" da comunidade;
-- **Painel de gestão** para o GDF ver tudo unificado, priorizar e registrar as ações tomadas.
+- **Entrega padronizada ao GDF**: cada denúncia chega ao sistema do governo como um pacote de dados (JSON via API), já organizada por RA e categoria e com a sugestão de órgão, e o status volta para o cidadão.
 
 ---
 
@@ -50,19 +50,19 @@ Em todo o Distrito Federal, nas **35 Regiões Administrativas** (Plano Piloto, C
 | # | Ideia | Observação |
 |---|-------|------------|
 | 1 | **Web app/app de denúncias com foto e GPS, dividido por RA e categoria** | ✅ **Escolhida** |
-| 2 | Painel de gestão (dashboard) para o GDF priorizar e decidir ações | Parte da escolhida |
+| 2 | Painel de gestão (dashboard) para o GDF priorizar e decidir ações | Substituída por **integração via API**: o GDF recebe os dados no próprio sistema e decide |
 | 3 | Mapa colaborativo público com os problemas e seu status | Parte da escolhida |
 | 4 | Chatbot no WhatsApp para registrar denúncia conversando | Fase futura |
 | 5 | QR Codes em postes, paradas e praças para denunciar aquele ponto | Fase futura |
 | 6 | Notificações automáticas quando a denúncia muda de status | Parte da escolhida |
 | 7 | "Apoiar" denúncia existente (evita duplicadas e mostra urgência) | Parte da escolhida |
-| 8 | IA para sugerir a categoria a partir da foto/texto | Fase futura, com revisão humana |
+| 8 | IA para sugerir a categoria a partir da foto/texto | ✅ **Parte da escolhida** (texto): a IA sugere, o cidadão confirma e o GDF decide |
 | 9 | Sensores de nível em bueiros para alertar alagamento | Caro; fora do escopo |
 | 10 | Portal de transparência com ranking de resolução por RA | Parte da escolhida |
 | 11 | Alertas para a população (ex.: área alagada, via interditada) | Fase futura |
 | 12 | Gamificação: selo de "cidadão ativo" por denúncias válidas | Avaliar riscos de abuso |
 
-**Proposta mais viável:** a ideia 1 combinada com 2, 3, 6, 7 e 10 — funciona com tecnologia acessível (celular + internet), não exige equipamento novo e começa como site, podendo virar aplicativo depois.
+**Proposta mais viável:** a ideia 1 combinada com 3, 6, 8 e a integração via API (no lugar da ideia 2) — funciona com tecnologia acessível (celular + internet), não exige equipamento novo, não obriga o governo a trocar de sistema e começa como site, podendo virar aplicativo depois.
 
 ---
 
@@ -71,13 +71,15 @@ Em todo o Distrito Federal, nas **35 Regiões Administrativas** (Plano Piloto, C
 | Item | Resposta |
 |------|----------|
 | **Nome da solução** | Voz DF — Rede Central de Denúncias do Distrito Federal |
-| **Problema que será resolvido** | Falta de um canal único e eficiente para denúncias e solicitações ao GDF, e falta de visão unificada para o governo decidir as ações. |
-| **Público beneficiado** | Moradores das 35 RAs do DF e os gestores do GDF (Administrações Regionais, secretarias e órgãos executores). |
-| **Como a tecnologia irá funcionar?** | 1) O cidadão abre o site, escolhe a **categoria** (ex.: iluminação), marca o **local no mapa** (a RA é identificada), escreve uma descrição e anexa foto. 2) Recebe um **número de protocolo**. 3) O sistema **encaminha** a denúncia ao órgão responsável e à Administração da RA. 4) O gestor vê tudo no **painel** (filtros por RA, categoria, status, mapa de calor), define prioridade, encaminha e registra a ação. 5) O cidadão acompanha o status e é notificado até a resolução. |
-| **Quais recursos tecnológicos serão utilizados?** | Site responsivo (Next.js/React + TypeScript), banco de dados PostgreSQL, mapa com OpenStreetMap/Leaflet, geolocalização do celular, armazenamento de fotos em nuvem, login seguro, e-mail/notificações. Fase 2: PWA (instalável). Fase 3: aplicativo Android/iOS (React Native/Expo). |
-| **Quem utilizará a solução?** | **Cidadão** (registra e acompanha), **Gestor da RA** (vê as denúncias da sua região), **Órgão executor** (vê o que é de sua responsabilidade), **Administrador GDF** (visão geral e relatórios). |
-| **Quais benefícios serão gerados?** | Canal único e fácil; menos denúncias perdidas ou duplicadas; transparência e prestação de contas; dados por região para o GDF priorizar investimentos; mais confiança e participação da população. |
-| **Quais desafios existirão para sua implementação?** | Integração com os sistemas já existentes (Participa DF/162); adesão dos órgãos; proteção de dados pessoais (**LGPD**) e opção de denúncia anônima; denúncias falsas ou ofensivas (moderação); inclusão de quem tem pouco acesso à internet; custo de hospedagem e manutenção; capacidade de resposta dos órgãos. |
+| **Problema que será resolvido** | Falta de um canal único e simples para o cidadão denunciar problemas urbanos sem precisar saber qual órgão é responsável, e dificuldade do GDF em receber essas demandas de forma organizada. |
+| **Público beneficiado** | Moradores das 35 RAs do DF e o GDF (Ouvidoria, Administrações Regionais e órgãos executores), que passa a receber as denúncias já organizadas. |
+| **Como a tecnologia irá funcionar?** | 1) O cidadão abre o site e **descreve o problema com as próprias palavras** (ex.: "o poste da minha rua está apagado"), anexa foto e marca o **local no mapa** com a RA. 2) Uma **IA sugere a categoria** (ex.: Iluminação pública) e o **órgão provável** (ex.: CEB-IPES); o cidadão confirma ou troca com um toque. 3) Recebe um **número de protocolo** (ex.: `DF-2026-000123`). 4) O Voz DF **envia a denúncia ao GDF em formato JSON** (uma API): descrição, categoria, local, RA, fotos e a sugestão da IA, **sem dados pessoais** do denunciante. 5) **O GDF decide** o órgão responsável e informa cada mudança de status de volta ao Voz DF. 6) O cidadão acompanha pelo protocolo até a resolução. |
+| **Quais recursos tecnológicos serão utilizados?** | Site responsivo (Next.js/React + TypeScript), banco de dados (SQLite no protótipo, PostgreSQL em produção), mapa com OpenStreetMap/Leaflet, **IA local** (modelo de linguagem Qwen 3.5 rodando no próprio servidor via Ollama, sem custo e sem enviar o texto a empresas externas), **API REST com JSON** para a integração com o GDF, login seguro. Fase 2: PWA (instalável). Fase 3: aplicativo Android/iOS (React Native/Expo). |
+| **Quem utilizará a solução?** | **Cidadão** (registra e acompanha, com ou sem login — denúncia anônima é permitida) e o **sistema do GDF** (recebe as denúncias pela API e devolve o status). No protótipo, um **Simulador do GDF** faz o papel do governo. |
+| **Quais benefícios serão gerados?** | O cidadão não precisa conhecer a estrutura do governo; denúncias chegam ao GDF padronizadas e com uma sugestão de órgão, reduzindo o tempo de triagem; o governo **não precisa trocar de sistema**, só receber os dados; transparência com protocolo e status; proteção de dados (o GDF recebe a denúncia sem dados pessoais). |
+| **Quais desafios existirão para sua implementação?** | O GDF **ainda não disponibiliza uma API pública** para receber manifestações (pesquisa de 23/09/2026) — a integração real dependeria dele abrir uma API ou aderir à API do **Fala.BR** (CGU), que já segue esse modelo; a IA erra às vezes (por isso só sugere); proteção de dados (**LGPD**); denúncias falsas ou ofensivas; inclusão de quem tem pouco acesso à internet; custo de manter um servidor com IA. |
+
+**Viabilidade da IA (testada):** em 48 denúncias fictícias escritas em linguagem do dia a dia, a IA local acertou a categoria em **93,8%** dos casos (97,9% considerando as 3 sugestões mostradas), respondendo em cerca de **1,3 segundo** num notebook comum com placa de vídeo. Uma regra simples por palavras-chave acertou 58,3%. Sem a IA disponível, o sistema usa essas palavras-chave e continua funcionando.
 
 ---
 
@@ -86,19 +88,18 @@ Em todo o Distrito Federal, nas **35 Regiões Administrativas** (Plano Piloto, C
 O protótipo será o próprio site em desenvolvimento, com dados fictícios. Telas previstas:
 
 **Área do cidadão**
-1. **Tela inicial** — botão "Fazer denúncia", campo "Acompanhar protocolo", mapa público da minha RA e aviso de emergência (190/193).
-2. **Cadastro/Login** — nome, e-mail/CPF, senha; opção "denunciar sem me identificar" (com aviso de que não receberá notificações).
-3. **Nova denúncia (passo a passo)** — ① Categoria → ② Local no mapa (RA detectada automaticamente) → ③ Descrição + foto → ④ Revisar e enviar.
-4. **Confirmação** — número de protocolo (ex.: `DF-2026-000123`) e prazo estimado.
-5. **Minhas denúncias** — lista com status: Recebida → Em triagem → Encaminhada → Em execução → Resolvida.
+1. **Tela inicial** — botão "Fazer denúncia", campo "Acompanhar protocolo", mapa público das denúncias e aviso de emergência (190/193).
+2. **Cadastro/Login** — nome, e-mail, senha; opção "denunciar sem me identificar".
+3. **Nova denúncia (passo a passo)** — ① "O que está acontecendo?" (texto livre + foto) → ② **Sugestão da IA**: categoria e órgão provável, com botão para confirmar ou trocar → ③ Local no mapa + RA → ④ Revisar e enviar.
+4. **Confirmação** — número de protocolo (ex.: `DF-2026-000123`) e aviso de que a denúncia foi enviada ao GDF.
+5. **Acompanhar / Minhas denúncias** — status: Recebida → Enviada ao GDF → Em análise → Encaminhada ao órgão → Em execução → Resolvida.
 
-**Painel do GDF**
-6. **Visão geral** — totais por status, por RA e por categoria; mapa de calor.
-7. **Fila de denúncias** — filtros (RA, categoria, status, prioridade, data); denúncias semelhantes agrupadas.
-8. **Detalhe da denúncia** — fotos, local, histórico; ações: definir prioridade, encaminhar ao órgão, registrar providência, marcar como resolvida/não procedente/duplicada.
-9. **Relatórios** — tempo médio de resolução por RA e por órgão; exportação.
+**Simulador do GDF (só para a demonstração)**
+6. **Denúncias recebidas** — lista do que chegou pela API, com o JSON recebido e a sugestão da IA em destaque.
+7. **Decisão** — o "GDF" aceita ou troca o órgão sugerido e atualiza o status (em análise, encaminhada, em execução, resolvida, não procedente); cada ação volta automaticamente para o cidadão.
+8. **Visão geral** — totais por RA, categoria e status.
 
-**Resultado esperado:** o cidadão denuncia em menos de 2 minutos e acompanha a solução; o GDF enxerga todas as demandas em um só lugar e decide com base em dados.
+**Resultado esperado:** o cidadão denuncia em menos de 2 minutos sem precisar saber quem é o responsável; o GDF recebe tudo padronizado, com uma sugestão de órgão, e decide.
 
 ---
 
@@ -108,11 +109,11 @@ O protótipo será o próprio site em desenvolvimento, com dados fictícios. Tel
 |-------|--------|------------|
 | 0:00–0:40 | **Qual problema escolhemos?** | "Quem aqui já viu um poste apagado ou lixo acumulado e não soube para quem reclamar?" — o problema é a falta de um canal eficiente de denúncias. |
 | 0:40–1:20 | **Por que é importante?** | Problemas pequenos viram grandes (dengue, acidentes, insegurança). Sem retorno, a população desiste; sem dados, o governo prioriza no escuro. |
-| 1:20–1:50 | **Como surgiu a ideia?** | Da experiência do grupo nas nossas RAs e do brainstorming: juntamos denúncia + mapa + painel de gestão em uma ideia só. |
-| 1:50–3:10 | **Como a solução funciona?** | Demonstração: fazer uma denúncia (categoria → mapa → foto → protocolo) e ver ela chegar no painel do GDF, filtrada por RA. |
-| 3:10–3:50 | **Tecnologias usadas** | Site responsivo, banco de dados, mapa (OpenStreetMap), geolocalização, fotos na nuvem; depois vira aplicativo. |
-| 3:50–4:30 | **Benefícios** | Canal único, transparência, menos retrabalho, decisões baseadas em dados por região. |
-| 4:30–5:00 | **É viável? Por quê?** | Sim: usa o celular que a população já tem, tecnologias gratuitas/abertas, começa pequeno (algumas categorias e RAs) e pode se integrar aos canais que o GDF já possui (Participa DF/162). |
+| 1:20–1:50 | **Como surgiu a ideia?** | Da experiência do grupo nas nossas RAs: ninguém sabe se buraco é com a Novacap ou com a Administração. Por isso o cidadão só descreve, e uma IA ajuda a descobrir o responsável. |
+| 1:50–3:10 | **Como a solução funciona?** | Demonstração: escrever "o poste da minha rua está apagado" → a IA sugere *Iluminação pública / CEB-IPES* → confirmar, marcar no mapa → protocolo. No Simulador do GDF, a denúncia chega como JSON; o "GDF" encaminha e resolve; o cidadão vê "Resolvida" pelo protocolo. |
+| 3:10–3:50 | **Tecnologias usadas** | Site responsivo, banco de dados, mapa (OpenStreetMap), **IA local** (Qwen 3.5 via Ollama, sem custo e sem mandar dados para fora) e **API com JSON** para o GDF; depois vira aplicativo. |
+| 3:50–4:30 | **Benefícios** | Cidadão não precisa conhecer o governo; GDF recebe tudo padronizado, com sugestão de órgão, sem trocar de sistema; transparência pelo protocolo; LGPD (o GDF não recebe dados pessoais). |
+| 4:30–5:00 | **É viável? Por quê?** | Sim: testamos a IA — **93,8% de acerto** em 48 casos, ~1 segundo por denúncia, num notebook comum. Tecnologias gratuitas/abertas. O GDF ainda não tem API pública, mas o governo federal já usa esse modelo (**Fala.BR**, da CGU), então a integração é realista. **A IA só sugere; quem decide é o governo.** |
 
 ---
 
@@ -121,3 +122,7 @@ O protótipo será o próprio site em desenvolvimento, com dados fictícios. Tel
 - Ouvidoria-Geral do DF — Canal 162: https://ouvidoria.df.gov.br/canal-atendimento-162/
 - SEDUH — Criação das RAs Arapoanga e Água Quente: https://www.seduh.df.gov.br/w/aprovada-a-criacao-das-regioes-administrativas-de-arapoanga-e-agua-quente
 - Regiões administrativas do DF (lista das 35 RAs): https://en.wikipedia.org/wiki/Administrative_regions_of_the_Federal_District_(Brazil)
+- Participa DF — o que é a Ouvidoria: https://www.participa.df.gov.br/static/o-que-e-ouvidoria
+- Fala.BR (CGU) — API de integração: https://falabr.cgu.gov.br/help e https://wiki.cgu.gov.br/index.php?title=Fala.BR_-_API_Faq
+- Open311 GeoReport v2 (padrão aberto de reporte urbano): https://wiki.open311.org/GeoReport_v2/
+- Ollama — saídas estruturadas (JSON Schema): https://docs.ollama.com/capabilities/structured-outputs
