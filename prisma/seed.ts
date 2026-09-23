@@ -1,28 +1,9 @@
 // Popula o banco com os dados de referência (data/*.json) e usuários fictícios.
 // Idempotente: pode rodar várias vezes (upsert).
 import "dotenv/config";
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
 import bcrypt from "bcryptjs";
-import { z } from "zod";
-import { createPrismaClient } from "../src/server/db";
-
-const regioesSchema = z.object({
-  regioes: z.array(
-    z.object({ codigo: z.string(), numero: z.number().int(), nome: z.string(), slug: z.string() }),
-  ),
-});
-
-const categoriasSchema = z.object({
-  orgaos: z.array(z.object({ sigla: z.string(), nome: z.string() })),
-  categorias: z.array(
-    z.object({ slug: z.string(), nome: z.string(), descricao: z.string(), orgaoPadrao: z.string() }),
-  ),
-});
-
-function readJson<T>(file: string, schema: z.ZodType<T>): T {
-  return schema.parse(JSON.parse(readFileSync(join(process.cwd(), "data", file), "utf-8")));
-}
+import { createPrismaClient } from "../src/server/prisma";
+import { seedReferencia } from "./seed-referencia";
 
 async function main() {
   const senhaDemo = process.env.SEED_SENHA_DEMO;
@@ -31,25 +12,7 @@ async function main() {
   }
 
   const db = createPrismaClient();
-  const { regioes } = readJson("regioes-administrativas.json", regioesSchema);
-  const { orgaos, categorias } = readJson("categorias.json", categoriasSchema);
-
-  for (const ra of regioes) {
-    await db.regiaoAdministrativa.upsert({ where: { codigo: ra.codigo }, update: ra, create: ra });
-  }
-
-  const orgaoIdBySigla = new Map<string, string>();
-  for (const o of orgaos) {
-    const row = await db.orgao.upsert({ where: { sigla: o.sigla }, update: o, create: o });
-    orgaoIdBySigla.set(o.sigla, row.id);
-  }
-
-  for (const c of categorias) {
-    const orgaoPadraoId = orgaoIdBySigla.get(c.orgaoPadrao);
-    if (!orgaoPadraoId) throw new Error(`Categoria ${c.slug}: órgão ${c.orgaoPadrao} inexistente`);
-    const data = { slug: c.slug, nome: c.nome, descricao: c.descricao, orgaoPadraoId };
-    await db.categoria.upsert({ where: { slug: c.slug }, update: data, create: data });
-  }
+  const ref = await seedReferencia(db);
 
   // Usuários fictícios (domínio reservado .example — RFC 2606).
   const senhaHash = await bcrypt.hash(senhaDemo, 10);
@@ -62,7 +25,7 @@ async function main() {
   }
 
   console.log(
-    `Seed ok: ${regioes.length} RAs, ${orgaos.length} órgãos, ${categorias.length} categorias, ${usuarios.length} usuários.`,
+    `Seed ok: ${ref.regioes} RAs, ${ref.orgaos} órgãos, ${ref.categorias} categorias, ${usuarios.length} usuários.`,
   );
   await db.$disconnect();
 }

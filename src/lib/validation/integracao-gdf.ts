@@ -1,7 +1,7 @@
 // Contrato da integração Voz DF ⇄ GDF (docs/ARQUITETURA.md §2).
 // Usado por quem envia (Voz DF), por quem recebe (simulador) e no callback.
 import { z } from "zod";
-import { STATUS } from "@/domain/status";
+import type { Status } from "@/domain/status";
 import { PROTOCOLO_REGEX } from "@/domain/protocolo";
 
 const protocolo = z.string().regex(PROTOCOLO_REGEX, "Protocolo inválido");
@@ -42,15 +42,19 @@ export const payloadGdfV1Schema = z
 export type PayloadGdfV1 = z.infer<typeof payloadGdfV1Schema>;
 
 // Status que o GDF pode informar (RECEBIDA/ENVIADA_GDF são internos do Voz DF).
-const STATUS_GDF = STATUS.filter((s) => s !== "RECEBIDA" && s !== "ENVIADA_GDF") as [
-  (typeof STATUS)[number],
-  ...(typeof STATUS)[number][],
-];
+export const STATUS_INFORMADOS_PELO_GDF = [
+  "EM_ANALISE",
+  "ENCAMINHADA",
+  "EM_EXECUCAO",
+  "RESOLVIDA",
+  "NAO_PROCEDENTE",
+  "DUPLICADA",
+] as const satisfies readonly Status[];
 
 export const callbackGdfSchema = z.object({
   eventoId: z.string().min(1).max(100),
   protocolo,
-  status: z.enum(STATUS_GDF),
+  status: z.enum(STATUS_INFORMADOS_PELO_GDF),
   orgaoSigla: z.string().min(1).max(30).optional(),
   texto: z.string().max(2000).optional(),
   ocorridoEm: z.iso.datetime(),
