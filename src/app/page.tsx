@@ -38,6 +38,19 @@ export default async function Home({ searchParams }: PageProps<"/">) {
         <BuscaProtocolo />
       </section>
 
+      <Link
+        href="/mapa"
+        className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-5 shadow-sm hover:border-blue-400"
+      >
+        <span>
+          <span className="block text-lg font-semibold text-slate-900">Mapa das denúncias</span>
+          <span className="block text-sm text-slate-600">Veja o que já foi registrado na sua região e o andamento.</span>
+        </span>
+        <span aria-hidden className="text-2xl text-blue-700">
+          →
+        </span>
+      </Link>
+
       <section aria-labelledby="titulo-como">
         <h2 id="titulo-como" className="mb-4 text-lg font-semibold text-slate-900">
           Como funciona

@@ -6,7 +6,7 @@ O cidadão descreve um problema urbano com as próprias palavras (texto, foto, l
 
 ## Estado atual
 
-Fase 1 (MVP web) em andamento — ver `docs/ROADMAP.md`. Prontos: domínio (status, protocolo, contrato JSON), IA com fallback, integração push + callback, login, fotos sem EXIF, assistente de denúncia, acompanhamento por protocolo, "Minhas denúncias", Simulador GDF, confirmação/contestação da resolução pelo cidadão e avaliação da IA pelo operador. Faltam: mapa público e teste E2E.
+Fase 1 (MVP web) em andamento — ver `docs/ROADMAP.md`. Prontos: domínio (status, protocolo, contrato JSON), IA com fallback, integração push + callback, login, fotos sem EXIF, assistente de denúncia, acompanhamento por protocolo, "Minhas denúncias", Simulador GDF, confirmação/contestação da resolução pelo cidadão e avaliação da IA pelo operador, mapa público. Falta: teste E2E.
 
 ## Como rodar (máquina limpa)
 

@@ -274,7 +274,7 @@ GET    /api/v1/categorias
 POST   /api/v1/classificacoes                 { descricao } → sugestão (rate limit)
 POST   /api/v1/denuncias                      criar (auth opcional; multipart com fotos)
 GET    /api/v1/denuncias/{protocolo}          consulta pública (sem dados pessoais)
-GET    /api/v1/denuncias/mapa?ra=&categoria=  pontos públicos
+GET    /api/v1/denuncias/mapa?ra=&categoria=&situacao=  pontos públicos (coordenadas ~100 m, sem relato)
 GET    /api/v1/anexos/{token}                 foto (token aleatório, sem EXIF)
 POST   /api/v1/integracao/gdf/eventos         callback do GDF: status ou AVALIACAO_IA (chave de API)
 POST   /api/v1/integracao/gdf/reenviar        reprocessa envios pendentes (OPERADOR_GDF)
@@ -287,6 +287,7 @@ POST   /api/simulador-gdf/manifestacoes/{protocolo}/avaliacoes-cidadao   recebe 
 ## 9. Segurança e LGPD
 
 - Dados pessoais nunca no mapa público, na consulta por protocolo nem no payload enviado ao GDF.
+- **Mapa público:** coordenadas arredondadas para 3 casas decimais (~100 m) — o ponto exato pode apontar a casa de quem denunciou ou de quem foi denunciado; sem relato nem referência; `NAO_PROCEDENTE` e `DUPLICADA` ficam fora.
 - IA local: o texto do cidadão não é enviado a terceiros.
 - EXIF removido das imagens; arquivo renomeado; tipo real (magic bytes) e tamanho (≤ 5 MB) validados; fotos fora de `src/` e servidas só por token.
 - Chaves de integração (`GDF_WEBHOOK_KEY`, `GDF_CALLBACK_KEY`) só em `.env`; comparação em tempo constante.

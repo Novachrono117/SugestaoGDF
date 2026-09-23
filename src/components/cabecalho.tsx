@@ -16,6 +16,9 @@ export async function Cabecalho() {
               Simulador GDF
             </Link>
           )}
+          <Link href="/mapa" className="font-medium text-slate-700 hover:text-blue-700">
+            Mapa
+          </Link>
           <Link href="/acompanhar" className="font-medium text-slate-700 hover:text-blue-700">
             Acompanhar
           </Link>
