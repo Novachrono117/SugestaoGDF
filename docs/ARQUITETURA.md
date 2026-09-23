@@ -141,6 +141,14 @@ Interface única `Classificador` (`src/server/classificador/`) com duas implemen
 
 Verificação de permissão no servidor em toda leitura e escrita (não apenas esconder botões).
 
+**Autenticação (implementação):**
+- Auth.js / `next-auth@5.0.0-beta.32` com provider de credenciais e sessão JWT em cookie `httpOnly` (8 h). O token guarda só o id do usuário.
+- **Autorização numa DAL** (`src/server/auth/sessao.ts`), como recomenda o guia do Next 16: cada checagem relê o usuário no banco, então papel revogado ou conta removida perde acesso na hora. Sem `proxy.ts` no MVP (seria só checagem otimista).
+- Cadastro público cria sempre `CIDADAO`; `OPERADOR_GDF` só via seed.
+- Login não revela se o e-mail existe (mesma resposta e tempo de bcrypt equivalente).
+- Parâmetro `voltar` aceita só caminhos internos (sem open redirect).
+- **Risco:** a v5 do Auth.js segue em beta e o projeto passou a ser mantido pela equipe do Better Auth. A autenticação está isolada em `src/auth.ts` + `src/server/auth/`, o que limita o custo de trocar de biblioteca.
+
 ## 5. Modelo de dados
 
 ```
@@ -227,7 +235,7 @@ POST   /api/simulador-gdf/manifestacoes       recebe o push (chave de API)
 - IA local: o texto do cidadão não é enviado a terceiros.
 - EXIF removido das imagens; arquivo renomeado; tipo real (magic bytes) e tamanho (≤ 5 MB) validados; fotos fora de `src/` e servidas só por token.
 - Chaves de integração (`GDF_WEBHOOK_KEY`, `GDF_CALLBACK_KEY`) só em `.env`; comparação em tempo constante.
-- Rate limit: criação de denúncia (ex.: 5/hora por IP/usuário), classificação e login.
+- Rate limit em memória (`src/server/limites.ts`): login 5 tentativas/15 min por e-mail e 30/15 min por IP; cadastro 5/h por IP; denúncia 5/h por usuário ou IP; classificação 30/10 min por IP. Vale para um processo só — com várias instâncias, trocar por store compartilhado.
 - Senhas com hash (bcrypt); sessão em cookie `httpOnly`, `secure`, `sameSite=lax`.
 - Aviso fixo: emergências → 190 (PMDF) / 193 (CBMDF); este canal não substitui o atendimento de emergência.
 
