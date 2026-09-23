@@ -1,0 +1,215 @@
+{
+  "_fonte": "Lista das 35 RAs (inclui Arapoanga e Água Quente, criadas em 2022). Validar nomes com fontes oficiais do GDF antes de produção.",
+  "regioes": [
+    {
+      "codigo": "RA-I",
+      "numero": 1,
+      "nome": "Plano Piloto",
+      "slug": "plano-piloto"
+    },
+    {
+      "codigo": "RA-II",
+      "numero": 2,
+      "nome": "Gama",
+      "slug": "gama"
+    },
+    {
+      "codigo": "RA-III",
+      "numero": 3,
+      "nome": "Taguatinga",
+      "slug": "taguatinga"
+    },
+    {
+      "codigo": "RA-IV",
+      "numero": 4,
+      "nome": "Brazlândia",
+      "slug": "brazlandia"
+    },
+    {
+      "codigo": "RA-V",
+      "numero": 5,
+      "nome": "Sobradinho",
+      "slug": "sobradinho"
+    },
+    {
+      "codigo": "RA-VI",
+      "numero": 6,
+      "nome": "Planaltina",
+      "slug": "planaltina"
+    },
+    {
+      "codigo": "RA-VII",
+      "numero": 7,
+      "nome": "Paranoá",
+      "slug": "paranoa"
+    },
+    {
+      "codigo": "RA-VIII",
+      "numero": 8,
+      "nome": "Núcleo Bandeirante",
+      "slug": "nucleo-bandeirante"
+    },
+    {
+      "codigo": "RA-IX",
+      "numero": 9,
+      "nome": "Ceilândia",
+      "slug": "ceilandia"
+    },
+    {
+      "codigo": "RA-X",
+      "numero": 10,
+      "nome": "Guará",
+      "slug": "guara"
+    },
+    {
+      "codigo": "RA-XI",
+      "numero": 11,
+      "nome": "Cruzeiro",
+      "slug": "cruzeiro"
+    },
+    {
+      "codigo": "RA-XII",
+      "numero": 12,
+      "nome": "Samambaia",
+      "slug": "samambaia"
+    },
+    {
+      "codigo": "RA-XIII",
+      "numero": 13,
+      "nome": "Santa Maria",
+      "slug": "santa-maria"
+    },
+    {
+      "codigo": "RA-XIV",
+      "numero": 14,
+      "nome": "São Sebastião",
+      "slug": "sao-sebastiao"
+    },
+    {
+      "codigo": "RA-XV",
+      "numero": 15,
+      "nome": "Recanto das Emas",
+      "slug": "recanto-das-emas"
+    },
+    {
+      "codigo": "RA-XVI",
+      "numero": 16,
+      "nome": "Lago Sul",
+      "slug": "lago-sul"
+    },
+    {
+      "codigo": "RA-XVII",
+      "numero": 17,
+      "nome": "Riacho Fundo",
+      "slug": "riacho-fundo"
+    },
+    {
+      "codigo": "RA-XVIII",
+      "numero": 18,
+      "nome": "Lago Norte",
+      "slug": "lago-norte"
+    },
+    {
+      "codigo": "RA-XIX",
+      "numero": 19,
+      "nome": "Candangolândia",
+      "slug": "candangolandia"
+    },
+    {
+      "codigo": "RA-XX",
+      "numero": 20,
+      "nome": "Águas Claras",
+      "slug": "aguas-claras"
+    },
+    {
+      "codigo": "RA-XXI",
+      "numero": 21,
+      "nome": "Riacho Fundo II",
+      "slug": "riacho-fundo-ii"
+    },
+    {
+      "codigo": "RA-XXII",
+      "numero": 22,
+      "nome": "Sudoeste/Octogonal",
+      "slug": "sudoeste-octogonal"
+    },
+    {
+      "codigo": "RA-XXIII",
+      "numero": 23,
+      "nome": "Varjão",
+      "slug": "varjao"
+    },
+    {
+      "codigo": "RA-XXIV",
+      "numero": 24,
+      "nome": "Park Way",
+      "slug": "park-way"
+    },
+    {
+      "codigo": "RA-XXV",
+      "numero": 25,
+      "nome": "SCIA/Estrutural",
+      "slug": "scia-estrutural"
+    },
+    {
+      "codigo": "RA-XXVI",
+      "numero": 26,
+      "nome": "Sobradinho II",
+      "slug": "sobradinho-ii"
+    },
+    {
+      "codigo": "RA-XXVII",
+      "numero": 27,
+      "nome": "Jardim Botânico",
+      "slug": "jardim-botanico"
+    },
+    {
+      "codigo": "RA-XXVIII",
+      "numero": 28,
+      "nome": "Itapoã",
+      "slug": "itapoa"
+    },
+    {
+      "codigo": "RA-XXIX",
+      "numero": 29,
+      "nome": "SIA",
+      "slug": "sia"
+    },
+    {
+      "codigo": "RA-XXX",
+      "numero": 30,
+      "nome": "Vicente Pires",
+      "slug": "vicente-pires"
+    },
+    {
+      "codigo": "RA-XXXI",
+      "numero": 31,
+      "nome": "Fercal",
+      "slug": "fercal"
+    },
+    {
+      "codigo": "RA-XXXII",
+      "numero": 32,
+      "nome": "Sol Nascente/Pôr do Sol",
+      "slug": "sol-nascente-por-do-sol"
+    },
+    {
+      "codigo": "RA-XXXIII",
+      "numero": 33,
+      "nome": "Arniqueira",
+      "slug": "arniqueira"
+    },
+    {
+      "codigo": "RA-XXXIV",
+      "numero": 34,
+      "nome": "Arapoanga",
+      "slug": "arapoanga"
+    },
+    {
+      "codigo": "RA-XXXV",
+      "numero": 35,
+      "nome": "Água Quente",
+      "slug": "agua-quente"
+    }
+  ]
+}

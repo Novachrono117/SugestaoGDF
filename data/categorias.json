@@ -1,0 +1,147 @@
+{
+  "_aviso": "Órgão padrão é sugestão para roteamento no protótipo; validar competências reais com o GDF. Emergências: 190 (PMDF) / 193 (CBMDF).",
+  "orgaos": [
+    {
+      "sigla": "SLU",
+      "nome": "Serviço de Limpeza Urbana"
+    },
+    {
+      "sigla": "NOVACAP",
+      "nome": "Companhia Urbanizadora da Nova Capital"
+    },
+    {
+      "sigla": "CEB-IPES",
+      "nome": "CEB Iluminação Pública e Serviços"
+    },
+    {
+      "sigla": "CAESB",
+      "nome": "Companhia de Saneamento Ambiental do DF"
+    },
+    {
+      "sigla": "DER-DF",
+      "nome": "Departamento de Estradas de Rodagem do DF"
+    },
+    {
+      "sigla": "DETRAN-DF",
+      "nome": "Departamento de Trânsito do DF"
+    },
+    {
+      "sigla": "SEMOB",
+      "nome": "Secretaria de Transporte e Mobilidade"
+    },
+    {
+      "sigla": "DF-LEGAL",
+      "nome": "Secretaria de Proteção da Ordem Urbanística"
+    },
+    {
+      "sigla": "IBRAM",
+      "nome": "Instituto Brasília Ambiental"
+    },
+    {
+      "sigla": "SES-DF",
+      "nome": "Secretaria de Saúde"
+    },
+    {
+      "sigla": "ADM-RA",
+      "nome": "Administração Regional da RA"
+    }
+  ],
+  "categorias": [
+    {
+      "slug": "lixo-entulho",
+      "nome": "Lixo e entulho",
+      "descricao": "Descarte irregular, lixo acumulado, terreno baldio sujo",
+      "orgaoPadrao": "SLU"
+    },
+    {
+      "slug": "coleta-seletiva",
+      "nome": "Coleta de lixo e coleta seletiva",
+      "descricao": "Coleta não realizada, ausência de coleta seletiva",
+      "orgaoPadrao": "SLU"
+    },
+    {
+      "slug": "iluminacao-publica",
+      "nome": "Iluminação pública",
+      "descricao": "Poste apagado, lâmpada acesa de dia, falta de iluminação",
+      "orgaoPadrao": "CEB-IPES"
+    },
+    {
+      "slug": "buracos-vias",
+      "nome": "Buracos e pavimentação",
+      "descricao": "Buracos, asfalto danificado, calçadas quebradas",
+      "orgaoPadrao": "NOVACAP"
+    },
+    {
+      "slug": "alagamento-drenagem",
+      "nome": "Alagamento e drenagem",
+      "descricao": "Bueiro entupido, boca de lobo danificada, pontos de alagamento",
+      "orgaoPadrao": "NOVACAP"
+    },
+    {
+      "slug": "agua-esgoto",
+      "nome": "Água e esgoto",
+      "descricao": "Vazamento, desperdício de água, esgoto a céu aberto",
+      "orgaoPadrao": "CAESB"
+    },
+    {
+      "slug": "acessibilidade",
+      "nome": "Acessibilidade",
+      "descricao": "Falta de rampas, calçadas obstruídas, piso tátil ausente",
+      "orgaoPadrao": "ADM-RA"
+    },
+    {
+      "slug": "transporte-publico",
+      "nome": "Transporte público",
+      "descricao": "Atrasos, linhas insuficientes, paradas danificadas",
+      "orgaoPadrao": "SEMOB"
+    },
+    {
+      "slug": "transito-sinalizacao",
+      "nome": "Trânsito e sinalização",
+      "descricao": "Semáforo com defeito, sinalização ausente, estacionamento irregular",
+      "orgaoPadrao": "DETRAN-DF"
+    },
+    {
+      "slug": "seguranca-espacos-publicos",
+      "nome": "Segurança em espaços públicos",
+      "descricao": "Praças e paradas inseguras, iluminação e vigilância insuficientes (não emergencial)",
+      "orgaoPadrao": "ADM-RA"
+    },
+    {
+      "slug": "areas-lazer",
+      "nome": "Praças, parques e áreas de lazer",
+      "descricao": "Equipamentos quebrados, falta de manutenção, poda de árvores",
+      "orgaoPadrao": "ADM-RA"
+    },
+    {
+      "slug": "animais",
+      "nome": "Animais",
+      "descricao": "Maus-tratos, animais abandonados, animais soltos em vias",
+      "orgaoPadrao": "IBRAM"
+    },
+    {
+      "slug": "poluicao-sonora",
+      "nome": "Poluição sonora",
+      "descricao": "Som alto recorrente, ruído de estabelecimentos",
+      "orgaoPadrao": "DF-LEGAL"
+    },
+    {
+      "slug": "ocupacao-irregular",
+      "nome": "Ordem urbanística",
+      "descricao": "Obras e ocupações irregulares, invasão de área pública",
+      "orgaoPadrao": "DF-LEGAL"
+    },
+    {
+      "slug": "saude-publica",
+      "nome": "Saúde pública",
+      "descricao": "Focos de dengue, filas e problemas em unidades de saúde",
+      "orgaoPadrao": "SES-DF"
+    },
+    {
+      "slug": "outros",
+      "nome": "Outros",
+      "descricao": "Demandas que não se encaixam nas demais categorias",
+      "orgaoPadrao": "ADM-RA"
+    }
+  ]
+}
