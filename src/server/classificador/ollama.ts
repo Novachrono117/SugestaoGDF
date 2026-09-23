@@ -74,6 +74,9 @@ export class OllamaClassificador implements Classificador {
         model: this.config.modelo,
         stream: false,
         format: this.jsonSchema,
+        // Modelos com "thinking" (ex.: qwen3.5) raciocinam antes de responder: mais lento e
+        // desnecessário para escolher 1 de 16 categorias.
+        think: false,
         options: { temperature: 0 },
         messages: [
           { role: "system", content: this.promptSistema },

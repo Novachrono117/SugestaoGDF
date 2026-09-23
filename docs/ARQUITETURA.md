@@ -117,7 +117,17 @@ Interface única `Classificador` (`src/server/classificador/`) com duas implemen
 - O **órgão sugerido** é derivado da categoria (`Categoria.orgaoPadrao`); `ADM-RA` vira "Administração Regional de <RA da denúncia>".
 - Saída sempre validada com Zod; confiança em `[0, 1]`; `origem` registra qual implementação respondeu.
 - **Por que local:** sem custo, sem chave, e o texto do cidadão não sai da máquina (LGPD). Limite: precisa do Ollama instalado onde o app roda; em deploy serverless (Vercel) não há GPU → cai no fallback ou exige um servidor com Ollama.
-- **Viabilidade medida, não presumida:** `npm run eval:classificador` roda os casos fictícios de `data/casos-classificador.json` e reporta acurácia e latência por modelo. O modelo padrão só é fixado depois dessa medição.
+- **Viabilidade medida, não presumida:** `npm run eval:classificador -- <modelos>` roda os casos fictícios de `data/casos-classificador.json` e reporta acurácia e latência por modelo.
+
+  Medição de 23/09/2026 (48 casos, 16 categorias; notebook com RTX 5070 Laptop 8 GB, Ollama 0.34.3, `think: false`, `temperature: 0`):
+
+  | Classificador | Acurácia | Acerto entre as 3 sugestões | Latência p50 / p95 |
+  |---|---|---|---|
+  | Regras (fallback) | 58,3% | 70,8% | ~0 ms |
+  | `gemma3:4b` | 75,0% | 79,2% | 1,1 s / 1,5 s |
+  | **`qwen3.5:4b` (padrão)** | **93,8%** | **97,9%** | 1,3 s / 1,6 s |
+
+  Limitação: casos escritos pela equipe, não denúncias reais — o número real tende a ser menor. Refazer a medição ao trocar de modelo, de prompt ou de lista de categorias.
 - No envio, o servidor **reclassifica** a descrição (não confia na sugestão vinda do navegador) e grava em `SugestaoIA`.
 
 ## 4. Perfis e permissões

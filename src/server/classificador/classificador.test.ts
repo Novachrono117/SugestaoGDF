@@ -70,7 +70,7 @@ describe("OllamaClassificador", () => {
     const [url, init] = vi.mocked(fetchFn).mock.calls[0];
     expect(url).toBe("http://ollama.test/api/chat");
     const body = JSON.parse(String(init?.body));
-    expect(body).toMatchObject({ model: "modelo-teste", stream: false, options: { temperature: 0 } });
+    expect(body).toMatchObject({ model: "modelo-teste", stream: false, think: false, options: { temperature: 0 } });
     expect(body.format.properties.categoria.enum).toEqual(categorias.map((c) => c.slug));
   });
 
