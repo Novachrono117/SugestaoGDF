@@ -271,7 +271,7 @@ export function PassoLocal({
           id="ra"
           value={raCodigo}
           onChange={(e) => onRa(e.target.value)}
-          className="min-h-11 rounded-lg border border-slate-300 bg-white px-3 py-2 text-base text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/30"
+          className="min-h-11 w-full min-w-0 rounded-lg border border-slate-300 bg-white px-3 py-2 text-base text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/30"
         >
           <option value="">Selecione…</option>
           {regioes.map((r) => (

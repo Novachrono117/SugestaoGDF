@@ -18,6 +18,14 @@ export function FormDecisao({
 }) {
   const [estado, acao, pendente] = useActionState(decidirAcao, undefined);
   const [status, setStatus] = useState<Status>(opcoes[0]);
+  // Após uma decisão, a página revalida e as opções mudam. Ajusta a seleção durante o render
+  // (padrão do React) em vez de remontar o form com `key` — o que apagaria a mensagem de sucesso.
+  const chaveOpcoes = opcoes.join(",");
+  const [chaveAnterior, setChaveAnterior] = useState(chaveOpcoes);
+  if (chaveOpcoes !== chaveAnterior) {
+    setChaveAnterior(chaveOpcoes);
+    setStatus(opcoes[0]);
+  }
   const exigeOrgao = status === "ENCAMINHADA";
   const exigeTexto = status === "RESOLVIDA" || status === "NAO_PROCEDENTE" || status === "DUPLICADA";
 
@@ -36,7 +44,7 @@ export function FormDecisao({
           name="status"
           value={status}
           onChange={(e) => setStatus(e.target.value as Status)}
-          className="min-h-11 rounded-lg border border-slate-300 bg-white px-3 text-base"
+          className="min-h-11 w-full min-w-0 rounded-lg border border-slate-300 bg-white px-3 text-base"
         >
           {opcoes.map((s) => (
             <option key={s} value={s}>
@@ -55,7 +63,7 @@ export function FormDecisao({
             id="orgaoSigla"
             name="orgaoSigla"
             defaultValue={orgaoSugerido}
-            className="min-h-11 rounded-lg border border-slate-300 bg-white px-3 text-base"
+            className="min-h-11 w-full min-w-0 rounded-lg border border-slate-300 bg-white px-3 text-base"
           >
             {orgaos.map((o) => (
               <option key={o.sigla} value={o.sigla}>
@@ -156,7 +164,7 @@ export function FormAvaliacaoIa({
             name="categoriaCorretaSlug"
             required
             defaultValue={atual.categoriaCorretaSlug ?? ""}
-            className="min-h-11 rounded-lg border border-slate-300 bg-white px-3 text-base"
+            className="min-h-11 w-full min-w-0 rounded-lg border border-slate-300 bg-white px-3 text-base"
           >
             <option value="">Selecione…</option>
             {categorias

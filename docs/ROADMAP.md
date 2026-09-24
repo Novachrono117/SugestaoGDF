@@ -19,6 +19,8 @@ Objetivo: fluxo completo cidadão → IA sugere → JSON ao GDF (simulado) → G
 
 **Critério de pronto:** o fluxo do item 10 passa e roda com `npm run dev` numa máquina limpa seguindo o README (com e sem Ollama instalado).
 
+**Status (23/09/2026):** itens 1–10 concluídos. `npm run test:e2e` cobre o fluxo completo (inclusive confirmação e contestação pelo cidadão) em viewport de celular. Pendente para fechar o critério: validar o README numa **máquina limpa** (ex.: notebook de outro integrante).
+
 ## Fase 2 — Produto web + PWA
 
 - PostgreSQL (+ PostGIS se houver consultas espaciais) e storage S3-compatível.

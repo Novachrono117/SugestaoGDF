@@ -52,7 +52,7 @@ export default async function ManifestacaoPage({ params }: PageProps<"/simulador
       )}
 
       <div className="grid gap-4 lg:grid-cols-3">
-        <div className="flex flex-col gap-4 lg:col-span-2">
+        <div className="flex min-w-0 flex-col gap-4 lg:col-span-2">
           <Cartao>
             <h2 className="mb-2 text-lg font-semibold text-slate-900">Relato do cidadão</h2>
             <p className="whitespace-pre-wrap break-words text-slate-800">{p.descricao}</p>
@@ -107,7 +107,7 @@ export default async function ManifestacaoPage({ params }: PageProps<"/simulador
           </details>
         </div>
 
-        <div className="flex flex-col gap-4">
+        <div className="flex min-w-0 flex-col gap-4">
           <Cartao className="border-blue-200 bg-blue-50">
             <h2 className="text-sm font-semibold text-blue-900">Sugestão da IA</h2>
             <p className="mt-2 text-lg font-bold text-slate-900">{s.orgao.nome}</p>
@@ -122,7 +122,6 @@ export default async function ManifestacaoPage({ params }: PageProps<"/simulador
           <Cartao>
             <h2 className="mb-3 text-lg font-semibold text-slate-900">A IA acertou?</h2>
             <FormAvaliacaoIa
-              key={`${m.iaAcertou}-${m.categoriaCorretaSlug}`}
               protocolo={p.protocolo}
               categoriaSugerida={s.categoriaSlug}
               categorias={categorias}
@@ -141,7 +140,6 @@ export default async function ManifestacaoPage({ params }: PageProps<"/simulador
               <Alerta tipo="info">Manifestação encerrada ({rotuloSimulador(m.status)}).</Alerta>
             ) : (
               <FormDecisao
-                key={m.status}
                 protocolo={p.protocolo}
                 opcoes={opcoes}
                 orgaos={orgaos}

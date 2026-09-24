@@ -11,7 +11,7 @@ export const metadata: Metadata = { title: "Mapa das denúncias — Voz DF" };
 const LEGENDA: Status[] = ["ENVIADA_GDF", "EM_ANALISE", "ENCAMINHADA", "EM_EXECUCAO", "REABERTA", "RESOLVIDA"];
 
 const estiloSelect =
-  "min-h-11 rounded-lg border border-slate-300 bg-white px-3 text-base text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/30";
+  "min-h-11 w-full min-w-0 rounded-lg border border-slate-300 bg-white px-3 text-base text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/30";
 
 export default async function MapaPage({ searchParams }: PageProps<"/mapa">) {
   const filtros = filtrosMapaSchema.parse(await searchParams);
