@@ -2,9 +2,10 @@
 
 import { revalidatePath } from "next/cache";
 import { obterUsuarioAtual } from "@/server/auth/sessao";
-import { depsDenuncia } from "@/server/container";
+import { depsDenuncia, obterEnviadorEmail } from "@/server/container";
 import { db } from "@/server/db";
 import { reenviarPendentes } from "@/server/denuncias/envio-gdf";
+import { processarEmailsPendentes } from "@/server/email/notificacoes";
 import { serverEnv } from "@/server/env";
 import { ErroDominio } from "@/server/erros";
 import { avaliacaoIaSchema, decidir, decisaoSchema, registrarAvaliacaoIa } from "@/simulador-gdf/servico";
@@ -54,6 +55,9 @@ export async function reenviarAcao(): Promise<EstadoAcao> {
   const negado = await exigirOperador();
   if (negado) return { erro: negado };
   const r = await reenviarPendentes(depsDenuncia());
+  const e = await processarEmailsPendentes({ db, enviador: obterEnviadorEmail() });
   revalidatePath("/simulador-gdf");
-  return { sucesso: `${r.enviadas} de ${r.pendentes} envio(s) pendente(s) entregue(s).` };
+  return {
+    sucesso: `${r.enviadas} de ${r.pendentes} entrega(s) ao GDF; ${e.semSmtp ? "SMTP não configurado" : `${e.enviados} de ${e.pendentes} e-mail(s)`}.`,
+  };
 }

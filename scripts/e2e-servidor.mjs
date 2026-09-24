@@ -34,6 +34,11 @@ const env = {
   // Sem LLM no E2E: classificador por regras → resultado determinístico e sem depender do Ollama.
   OLLAMA_MODEL: "",
   SEED_SENHA_DEMO: process.env.E2E_SENHA || "senha-e2e-ficticia",
+  // E-mails do E2E vão para o Mailpit do docker compose (o teste confere pela API dele).
+  SMTP_HOST: "localhost",
+  SMTP_PORT: "1025",
+  SMTP_SEGURO: "false",
+  EMAIL_REMETENTE: "Voz DF E2E <e2e@vozdf.example>",
 };
 // next build/start definem o próprio NODE_ENV; herdar "test"/"development" atrapalha.
 delete env.NODE_ENV;

@@ -9,6 +9,13 @@ const envSchema = z.object({
   GDF_TIMEOUT_MS: z.coerce.number().int().positive().default(5000),
   UPLOAD_DIR: z.string().min(1).default("./uploads"),
   MAX_UPLOAD_MB: z.coerce.number().positive().max(20).default(5),
+  // E-mail: sem SMTP_HOST, os e-mails ficam na fila (nada é enviado).
+  SMTP_HOST: z.string().optional().transform((v) => v || undefined),
+  SMTP_PORT: z.coerce.number().int().positive().default(1025),
+  SMTP_SEGURO: z.enum(["true", "false"]).default("false").transform((v) => v === "true"),
+  SMTP_USUARIO: z.string().optional().transform((v) => v || undefined),
+  SMTP_SENHA: z.string().optional().transform((v) => v || undefined),
+  EMAIL_REMETENTE: z.string().default("Voz DF <nao-responda@vozdf.example>"),
 });
 
 export type ServerEnv = z.infer<typeof envSchema>;

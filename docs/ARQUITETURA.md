@@ -177,6 +177,13 @@ Decisão de 23/09/2026: manter só texto na Fase 1 (texto já mede 93,8%; foto �
 - **Medir antes de adotar:** montar um conjunto de fotos fictícias rotuladas (sem pessoas nem placas) e estender `scripts/eval-classificador.ts` para comparar texto vs. texto+foto em acurácia e latência p50/p95.
 - **Privacidade:** continua local (a foto não sai do servidor), mas o modelo passa a "ver" rostos/placas; a justificativa gerada não deve descrevê-los (instruir no prompt e testar).
 
+### E-mail ao cidadão a cada mudança de status
+
+- **Outbox:** `aplicarEventoGdf` cria `NotificacaoEmail` na **mesma transação** do novo status (1 por evento; `eventoId` único). O envio acontece **depois de responder ao GDF** (`after()` do Next) e no "Reenviar pendentes"; falhas ficam na fila (até 5 tentativas), registrando só o tipo do erro (a mensagem do SMTP pode conter o endereço).
+- **Quem recebe:** só o autor com conta e com `Usuario.notificarPorEmail` ativo (desativável em `/minha-conta`, também conferido no envio). Anônimas e a reabertura feita pelo próprio cidadão não geram e-mail.
+- **Conteúdo mínimo (LGPD):** protocolo, novo status, órgão (se encaminhada), mensagem do GDF, link de acompanhamento; em `RESOLVIDA`, convite para confirmar/contestar. **Nunca** o relato, fotos ou localização. O endereço não é copiado para a fila (lido do usuário no envio).
+- **SMTP:** `SMTP_HOST`/`SMTP_PORT`/... no `.env`; sem `SMTP_HOST` nada é enviado (fila acumula). Dev/E2E: Mailpit do `docker compose` (http://localhost:8025).
+
 ## 4. Perfis e permissões
 
 | Perfil | Vê | Pode |
@@ -202,7 +209,7 @@ Verificação de permissão no servidor em toda leitura e escrita (não apenas e
 RegiaoAdministrativa  id, codigo ("RA-IX"), numero (9), nome, slug, limite? (GeoJSON oficial)
 Orgao                 id, sigla (única), nome
 Categoria             id, slug, nome, descricao, orgaoPadraoId, ativa
-Usuario               id, nome, email (único), senhaHash, papel (CIDADAO|OPERADOR_GDF), criadoEm
+Usuario               id, nome, email (único), senhaHash, papel (CIDADAO|OPERADOR_GDF), notificarPorEmail, criadoEm
 
 Denuncia
   id, protocolo (único), descricao
@@ -221,6 +228,7 @@ Anexo             id, denunciaId, token (único, aleatório), caminho, mime, tam
 EventoDenuncia    id, denunciaId, ator (SISTEMA|GDF|CIDADAO), autorId?, tipo,
                   statusDe?, statusPara?, texto?, publico, eventoExternoId? (único), criadoEm
 EnvioGdf          id, denunciaId (único), tentativas, ultimoErro?, enviadoEm?, idExterno?, atualizadoEm
+NotificacaoEmail  id, usuarioId, eventoId (único), assunto, texto, criadoEm, enviadoEm?, tentativas, ultimoErro?   (outbox de e-mail)
 ContadorProtocolo ano (PK), ultimo           (geração atômica do protocolo)
 
 -- módulo simulador-gdf (demonstração) --

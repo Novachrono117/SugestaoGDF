@@ -27,9 +27,9 @@ export async function Cabecalho() {
               <Link href="/minhas-denuncias" className="font-medium text-slate-700 hover:text-blue-700">
                 Minhas denúncias
               </Link>
-              <span className="text-slate-600" aria-label="Usuário conectado">
+              <Link href="/minha-conta" className="text-slate-600 hover:text-blue-700" aria-label={`Minha conta (${usuario.nome})`}>
                 {usuario.nome}
-              </span>
+              </Link>
               <BotaoSair />
             </>
           ) : (

@@ -35,7 +35,7 @@ Usuários fictícios (senha = `SEED_SENHA_DEMO`): `operador@vozdf.example` (aces
 | Comando | O quê |
 |---|---|
 | `npm run dev` | Servidor de desenvolvimento |
-| `docker compose up -d` / `down` | Sobe/para Postgres e Mailpit (dados do Postgres ficam no volume) |
+| `docker compose up -d` / `down` | Sobe/para Postgres e Mailpit (dados do Postgres ficam no volume). Os e-mails do app (um por mudança de status) aparecem em http://localhost:8025 |
 | `npm test` | Testes (Vitest; integração com Postgres real — cada arquivo usa uma cópia descartável do banco) |
 | `npm run test:e2e` | E2E (Playwright, viewport de celular): banco `vozdf_e2e` e build `.next-e2e` isolados, porta 3100, IA por regras. Usa o Edge instalado; sem Edge: `PLAYWRIGHT_CHANNEL=""` + `npx playwright install chromium` |
 | `npm run lint` / `npm run typecheck` | Qualidade |

@@ -84,14 +84,17 @@ model Categoria {
 }
 
 model Usuario {
-  id        String           @id @default(cuid())
-  nome      String
-  email     String           @unique
-  senhaHash String
-  papel     Papel            @default(CIDADAO)
-  criadoEm  DateTime         @default(now())
-  denuncias Denuncia[]
-  eventos   EventoDenuncia[]
+  id                String             @id @default(cuid())
+  nome              String
+  email             String             @unique
+  senhaHash         String
+  papel             Papel              @default(CIDADAO)
+  // Receber e-mail a cada mudança de status (pode desativar em "Minha conta").
+  notificarPorEmail Boolean            @default(true)
+  criadoEm          DateTime           @default(now())
+  denuncias         Denuncia[]
+  eventos           EventoDenuncia[]
+  notificacoes      NotificacaoEmail[]
 }
 
 model Denuncia {
@@ -165,22 +168,41 @@ model Anexo {
 }
 
 model EventoDenuncia {
-  id              String          @id @default(cuid())
+  id              String            @id @default(cuid())
   denunciaId      String
-  denuncia        Denuncia        @relation(fields: [denunciaId], references: [id], onDelete: Cascade)
+  denuncia        Denuncia          @relation(fields: [denunciaId], references: [id], onDelete: Cascade)
   ator            AtorEvento
   autorId         String?
-  autor           Usuario?        @relation(fields: [autorId], references: [id])
+  autor           Usuario?          @relation(fields: [autorId], references: [id])
   tipo            TipoEvento
   statusDe        StatusDenuncia?
   statusPara      StatusDenuncia?
   texto           String?
-  publico         Boolean         @default(true)
+  publico         Boolean           @default(true)
   // Idempotência dos callbacks do GDF.
-  eventoExternoId String?         @unique
-  criadoEm        DateTime        @default(now())
+  eventoExternoId String?           @unique
+  criadoEm        DateTime          @default(now())
+  notificacao     NotificacaoEmail?
 
   @@index([denunciaId, criadoEm])
+}
+
+// Fila de e-mails (outbox): criada na MESMA transação da mudança de status; enviada depois
+// (after() / reenvio). Não guarda o endereço: é lido do usuário na hora de enviar.
+model NotificacaoEmail {
+  id         String         @id @default(cuid())
+  usuarioId  String
+  usuario    Usuario        @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  eventoId   String         @unique // 1 e-mail por evento (idempotência)
+  evento     EventoDenuncia @relation(fields: [eventoId], references: [id], onDelete: Cascade)
+  assunto    String
+  texto      String
+  criadoEm   DateTime       @default(now())
+  enviadoEm  DateTime?
+  tentativas Int            @default(0)
+  ultimoErro String?
+
+  @@index([enviadoEm, criadoEm])
 }
 
 model EnvioGdf {

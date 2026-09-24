@@ -18,7 +18,7 @@ async function entrar(browser: Browser, email: string): Promise<Page> {
   await page.getByLabel("E-mail").fill(email);
   await page.getByLabel("Senha").fill(SENHA);
   await page.getByRole("button", { name: "Entrar" }).click();
-  await expect(page.getByLabel("Usuário conectado")).toBeVisible();
+  await expect(page.getByRole("link", { name: /^Minha conta/ })).toBeVisible();
   return page;
 }
 
@@ -31,6 +31,16 @@ async function semRolagemHorizontal(page: Page) {
   expect(rolagem, `página mais larga que a tela em ${page.url()}`).toBeLessThanOrEqual(janela);
 }
 
+const MAILPIT = process.env.MAILPIT_URL || "http://localhost:8025";
+
+/** Assuntos dos e-mails recebidos pelo Mailpit para um destinatário, criados depois de `desde`. */
+async function assuntosRecebidos(para: string, desde: Date): Promise<string[]> {
+  const res = await fetch(`${MAILPIT}/api/v1/search?query=${encodeURIComponent(`to:${para}`)}&limit=50`);
+  if (!res.ok) return [];
+  const { messages } = (await res.json()) as { messages: { Subject: string; Created: string }[] };
+  return messages.filter((m) => new Date(m.Created) >= desde).map((m) => m.Subject);
+}
+
 async function decidir(page: Page, status: string, extras: { texto?: string } = {}) {
   await page.getByLabel("Novo status").selectOption({ label: status });
   if (extras.texto) await page.getByLabel(/Justificativa|Mensagem ao cidadão/).fill(extras.texto);
@@ -39,6 +49,7 @@ async function decidir(page: Page, status: string, extras: { texto?: string } = 
 }
 
 test("denúncia percorre cidadão → GDF → cidadão e termina confirmada", async ({ browser }) => {
+  const inicio = new Date(Date.now() - 1000);
   // ---------- cidadã registra a denúncia pelo assistente
   const cidada = await entrar(browser, CIDADA);
   await cidada.goto("/denunciar");
@@ -96,6 +107,18 @@ test("denúncia percorre cidadão → GDF → cidadão e termina confirmada", as
   await decidir(operador, "Encaminhada ao órgão"); // órgão pré-preenchido com a sugestão (CEB-IPES)
   await decidir(operador, "Em execução");
   await decidir(operador, "Resolvida", { texto: "Lâmpada substituída." });
+
+  // ---------- a cidadã recebeu um e-mail por mudança de status (Mailpit do docker compose)
+  await expect
+    .poll(() => assuntosRecebidos(CIDADA, inicio), { timeout: 15_000 })
+    .toEqual(
+      expect.arrayContaining([
+        `[Voz DF] ${protocolo}: Em análise pelo GDF`,
+        `[Voz DF] ${protocolo}: Encaminhada ao órgão`,
+        `[Voz DF] ${protocolo}: Em execução`,
+        `[Voz DF] ${protocolo}: Resolvida`,
+      ]),
+    );
 
   // ---------- público (sem login) acompanha pelo protocolo: vê andamento, não vê o relato
   const publico = await (await browser.newContext()).newPage();

@@ -2,11 +2,17 @@
 import { validarTransicao } from "@/domain/status";
 import type { CallbackGdf } from "@/lib/validation/integracao-gdf";
 import { Prisma, type PrismaClient } from "../../../generated/prisma/client";
+import { enfileirarEmailDeStatus } from "../email/notificacoes";
 import { ErroDominio } from "../erros";
 
 export type ResultadoCallback = { aplicado: true } | { aplicado: false; motivo: "DUPLICADO" };
 
-export async function aplicarEventoGdf(db: PrismaClient, evento: CallbackGdf): Promise<ResultadoCallback> {
+/** `notificar`: com appUrl, enfileira o e-mail ao autor na mesma transação (outbox). */
+export async function aplicarEventoGdf(
+  db: PrismaClient,
+  evento: CallbackGdf,
+  notificar?: { appUrl: string },
+): Promise<ResultadoCallback> {
   const jaRecebido = await db.eventoDenuncia.findUnique({ where: { eventoExternoId: evento.eventoId } });
   if (jaRecebido) return { aplicado: false, motivo: "DUPLICADO" };
 
@@ -47,7 +53,7 @@ export async function aplicarEventoGdf(db: PrismaClient, evento: CallbackGdf): P
       if (count === 0) {
         throw new ErroDominio("CONFLITO", "A denúncia mudou de status durante o processamento; reenvie o evento.", 409);
       }
-      await tx.eventoDenuncia.create({
+      const criado = await tx.eventoDenuncia.create({
         data: {
           denunciaId: denuncia.id,
           ator: "GDF",
@@ -58,7 +64,17 @@ export async function aplicarEventoGdf(db: PrismaClient, evento: CallbackGdf): P
           eventoExternoId: evento.eventoId,
           // criadoEm = recebimento (default now): relógio externo não define a ordem do histórico.
         },
+        select: { id: true },
       });
+      if (notificar) {
+        await enfileirarEmailDeStatus(tx, {
+          eventoId: criado.id,
+          denunciaId: denuncia.id,
+          status: evento.status,
+          mensagemGdf: evento.texto,
+          appUrl: notificar.appUrl,
+        });
+      }
     });
   } catch (erro) {
     // Mesmo eventoId chegando em paralelo: a unique constraint barra o segundo.
