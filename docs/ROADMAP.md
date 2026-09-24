@@ -37,6 +37,12 @@ Cada etapa fecha com: testes (unidade/integração + E2E quando houver tela) →
 | 7 | **Acessibilidade WCAG 2.1 AA** | Auditoria depois que as telas pararem de mudar | axe-core no E2E + correções |
 | 8 | **Preparar deploy** (Dockerfile, `.env` por ambiente, guia) | Último: empacota o que existe | Criar contas e publicar é com o usuário. LLM em hospedagem sem GPU → fallback por regras ou VM com Ollama |
 
+**Checkpoint (24/09/2026):** etapas 1–5 concluídas e commitadas (131 testes de unidade/integração verdes).
+Retomar por:
+1. `docker compose up -d` e rodar `npm run test:e2e` — as asserções da etapa 5 (transparência e CSV) **ainda não foram executadas**: o `next build` do E2E ficou sem memória do sistema.
+2. Se o Ollama falhar (CUDA após suspensão), reiniciar o driver de vídeo (Win+Ctrl+Shift+B) ou o Windows.
+3. Seguir para a etapa 6 (PWA), depois 7 (acessibilidade) e 8 (deploy).
+
 **Adiados, com justificativa:**
 - *Storage S3-compatível:* só quando houver deploy com mais de uma instância; no deploy único, disco persistente basta.
 - *PostGIS:* 35 polígonos e buscas num raio de ~100 m se resolvem em JS/SQL simples; PostGIS só com volume real.
