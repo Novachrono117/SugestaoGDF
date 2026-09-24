@@ -1,6 +1,6 @@
 // Porta de saída para o sistema do governo (docs/ARQUITETURA.md §2).
 // No MVP o destino é o Simulador GDF; uma integração real (ex.: Fala.BR) implementa a mesma interface.
-import type { AvaliacaoCidadaoGdf, PayloadGdfV1 } from "@/lib/validation/integracao-gdf";
+import type { ApoiosGdf, AvaliacaoCidadaoGdf, PayloadGdfV1 } from "@/lib/validation/integracao-gdf";
 
 export type ResultadoEnvio = { ok: true; idExterno: string | null } | { ok: false; erro: string };
 
@@ -8,6 +8,8 @@ export interface GovGateway {
   enviar(payload: PayloadGdfV1): Promise<ResultadoEnvio>;
   /** Confirmação/contestação da resolução pelo cidadão. */
   enviarAvaliacao(avaliacao: AvaliacaoCidadaoGdf): Promise<ResultadoEnvio>;
+  /** Total de apoios da comunidade (sinal de prioridade para o GDF). */
+  enviarApoios(apoios: ApoiosGdf): Promise<ResultadoEnvio>;
 }
 
 export type HttpGovGatewayConfig = {
@@ -29,6 +31,11 @@ export class HttpGovGateway implements GovGateway {
     // Sub-recurso da manifestação: {GDF_WEBHOOK_URL}/{protocolo}/avaliacoes-cidadao
     const base = this.config.url.replace(/\/+$/, "");
     return this.post(`${base}/${encodeURIComponent(avaliacao.protocolo)}/avaliacoes-cidadao`, avaliacao);
+  }
+
+  enviarApoios(apoios: ApoiosGdf): Promise<ResultadoEnvio> {
+    const base = this.config.url.replace(/\/+$/, "");
+    return this.post(`${base}/${encodeURIComponent(apoios.protocolo)}/apoios`, apoios);
   }
 
   private async post(url: string, corpoJson: unknown): Promise<ResultadoEnvio> {

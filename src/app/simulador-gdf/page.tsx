@@ -126,6 +126,7 @@ export default async function SimuladorPage({ searchParams }: PageProps<"/simula
                     {m.payload.categoria.nome} · {m.payload.local.ra.nome} · {formatarData(m.recebidoEm)}
                   </p>
                   <p className="mt-1 text-xs text-slate-600">
+                    {m.totalApoios > 0 && <strong className="text-amber-800">👍 {m.totalApoios} apoio(s) · </strong>}
                     IA sugere <strong>{s.orgao.sigla}</strong>
                     {m.iaAcertou !== null && (m.iaAcertou ? " ✓ acertou" : " ✗ errou")}
                     {!s.cidadaoConfirmou && " · cidadão trocou a categoria sugerida"}

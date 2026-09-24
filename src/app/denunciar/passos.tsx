@@ -6,6 +6,8 @@ import { Alerta, Botao, Campo } from "@/components/ui";
 import type { Ponto } from "@/components/mapa-seletor";
 import { LIMITES_DF } from "@/lib/validation/denuncia";
 import type { SugestaoClassificacao } from "@/server/classificador/tipos";
+import type { DenunciaProxima } from "@/server/denuncias/apoios";
+import { CartaoDuplicatas } from "./duplicatas";
 import { FOTOS, type CategoriaOpcao, type Foto, type RegiaoOpcao } from "./tipos";
 
 const TIPOS_ACEITOS: readonly string[] = FOTOS.tiposAceitos;
@@ -214,7 +216,11 @@ export function PassoLocal({
   endereco,
   onEndereco,
   regioes,
+  categoria,
+  logado,
 }: {
+  categoria: { slug: string; nome: string };
+  logado: boolean;
   ponto: Ponto | null;
   onPonto: (p: Ponto) => void;
   raCodigo: string;
@@ -229,12 +235,24 @@ export function PassoLocal({
     estado: "ocioso",
   });
   const ultimaConsulta = useRef(0);
+  const [proximas, setProximas] = useState<DenunciaProxima[]>([]);
+  const [ignorouDuplicatas, setIgnorouDuplicatas] = useState(false);
 
   // Sugere a RA pelo ponto (limites oficiais). Só sugere: o select continua editável.
   async function marcar(p: Ponto) {
     onPonto(p);
     const id = ++ultimaConsulta.current; // descarta respostas de cliques anteriores
     setDeteccao({ estado: "buscando" });
+    // Possíveis duplicatas (mesma categoria, perto do ponto) — em paralelo com a detecção da RA.
+    fetch(`/api/v1/denuncias/proximas?lat=${p.lat}&lng=${p.lng}&categoria=${encodeURIComponent(categoria.slug)}`)
+      .then((r) => (r.ok ? (r.json() as Promise<DenunciaProxima[]>) : []))
+      .then((lista) => {
+        if (id === ultimaConsulta.current) {
+          setProximas(lista);
+          setIgnorouDuplicatas(false);
+        }
+      })
+      .catch(() => {});
     try {
       const res = await fetch(`/api/v1/regioes/detectar?lat=${p.lat}&lng=${p.lng}`);
       const { ra } = (await res.json()) as { ra: { codigo: string; nome: string } | null };
@@ -286,6 +304,15 @@ export function PassoLocal({
           {ponto ? `Local marcado: ${ponto.lat.toFixed(5)}, ${ponto.lng.toFixed(5)}` : "Nenhum local marcado ainda."}
         </p>
       </div>
+
+      {proximas.length > 0 && !ignorouDuplicatas && (
+        <CartaoDuplicatas
+          itens={proximas}
+          categoriaNome={categoria.nome}
+          logado={logado}
+          onIgnorar={() => setIgnorouDuplicatas(true)}
+        />
+      )}
 
       <div className="flex flex-col gap-1">
         <label htmlFor="ra" className="text-sm font-medium text-slate-800">

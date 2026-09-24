@@ -228,6 +228,7 @@ Anexo             id, denunciaId, token (único, aleatório), caminho, mime, tam
 EventoDenuncia    id, denunciaId, ator (SISTEMA|GDF|CIDADAO), autorId?, tipo,
                   statusDe?, statusPara?, texto?, publico, eventoExternoId? (único), criadoEm
 EnvioGdf          id, denunciaId (único), tentativas, ultimoErro?, enviadoEm?, idExterno?, atualizadoEm
+Apoio             (denunciaId, usuarioId) PK, criadoEm, enviadoEm?   (1 por pessoa; enviadoEm null = total ainda não informado ao GDF)
 NotificacaoEmail  id, usuarioId, eventoId (único), assunto, texto, criadoEm, enviadoEm?, tentativas, ultimoErro?   (outbox de e-mail)
 ContadorProtocolo ano (PK), ultimo           (geração atômica do protocolo)
 
@@ -267,6 +268,8 @@ Estados finais: `NAO_PROCEDENTE`, `DUPLICADA`. `RESOLVIDA` pode ser reaberta pel
 **Criar denúncia (wizard):**
 ① Descrição + até 3 fotos → ② IA sugere categoria (e órgão, só informativo) → cidadão confirma ou troca → ③ local no mapa + RA (seleção no MVP) → ④ revisar e enviar.
 Servidor: valida (Zod) → reclassifica → transação {protocolo, `Denuncia(RECEBIDA)`, `SugestaoIA`, `EventoDenuncia(CRIADA)`, `EnvioGdf`} → tenta o push → exibe protocolo.
+
+**Duplicatas e apoios:** depois de marcar o local, `GET /api/v1/denuncias/proximas` lista denúncias **em andamento** da mesma categoria num raio de 150 m (últimos 90 dias; caixa envolvente no SQL + Haversine em JS) — só categoria, distância (~10 m), data, status e apoios, **sem relato**. O cidadão pode **apoiar** em vez de duplicar (`POST /api/v1/denuncias/{protocolo}/apoios`: exige login, 1 por pessoa, não na própria, só em andamento; também pela página do protocolo). O GDF recebe o **total** de apoios em `POST {GDF_WEBHOOK_URL}/{protocolo}/apoios` (`{ versao, protocolo, totalApoios, ocorridoEm }`); por ser total, o reenvio é idempotente (pendentes entram no "Reenviar pendentes").
 
 **Envio ao GDF:** push síncrono após criar (timeout curto). Se falhar, a denúncia fica `RECEBIDA` com `EnvioGdf.ultimoErro`; `POST /api/v1/integracao/gdf/reenviar` (operador) ou nova tentativa na próxima criação reprocessa os pendentes.
 

@@ -81,6 +81,12 @@ export default async function ManifestacaoPage({ params }: PageProps<"/simulador
                 <dd className="text-slate-900">{formatarData(m.recebidoEm)}</dd>
               </div>
               <div>
+                <dt className="text-slate-600">Apoios da comunidade</dt>
+                <dd className="font-medium text-slate-900">
+                  {m.totalApoios === 0 ? "Nenhum" : `👍 ${m.totalApoios} pessoa(s) relataram o mesmo problema`}
+                </dd>
+              </div>
+              <div>
                 <dt className="text-slate-600">Identificação</dt>
                 <dd className="text-slate-900">
                   {p.anonima ? "Anônima" : "Cidadão identificado no Voz DF"} — nenhum dado pessoal recebido

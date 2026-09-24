@@ -9,7 +9,7 @@ import type { GovGateway } from "../server/gov-gateway";
 import { avaliarResolucao, consultarSituacaoAvaliacao } from "../server/denuncias/avaliacao-cidadao";
 import { aplicarAvaliacaoIa } from "../server/integracao/avaliacao-ia";
 import { aplicarEventoGdf } from "../server/integracao/callback-gdf";
-import { receberAvaliacaoCidadao, receberManifestacao } from "./receber";
+import { receberApoios, receberAvaliacaoCidadao, receberManifestacao } from "./receber";
 import { decidir, obterManifestacao, opcoesDeStatus, registrarAvaliacaoIa, resumo } from "./servico";
 
 const banco = await criarBancoDeTeste();
@@ -21,6 +21,10 @@ const gateway: GovGateway = {
   enviar: async (p) => ({ ok: true, ...(await receberManifestacao(db, p)) }),
   enviarAvaliacao: async (a) => {
     await receberAvaliacaoCidadao(db, a);
+    return { ok: true, idExterno: null };
+  },
+  enviarApoios: async (a) => {
+    await receberApoios(db, a);
     return { ok: true, idExterno: null };
   },
 };

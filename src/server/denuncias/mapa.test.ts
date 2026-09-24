@@ -15,6 +15,7 @@ async function nova(extra: { categoriaSlug: string; raCodigo: string; latitude: 
       gateway: {
         enviar: async () => ({ ok: true, idExterno: null }),
         enviarAvaliacao: async () => ({ ok: true, idExterno: null }),
+        enviarApoios: async () => ({ ok: true, idExterno: null }),
       },
       classificador: {
         nome: "fixo",

@@ -101,3 +101,15 @@ export const avaliacaoCidadaoGdfSchema = z
   });
 
 export type AvaliacaoCidadaoGdf = z.infer<typeof avaliacaoCidadaoGdfSchema>;
+
+/** Voz DF → GDF: total atual de apoios da comunidade (total, não incremento: reenvio é idempotente). */
+export const apoiosGdfSchema = z
+  .object({
+    versao: z.literal("1"),
+    protocolo,
+    totalApoios: z.number().int().min(0),
+    ocorridoEm: z.iso.datetime(),
+  })
+  .strict();
+
+export type ApoiosGdf = z.infer<typeof apoiosGdfSchema>;

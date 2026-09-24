@@ -9,4 +9,5 @@ export const limites = {
   cadastroPorIp: criarRateLimiter({ limite: 5, janelaMs: 60 * MINUTO }),
   denunciaPorOrigem: criarRateLimiter({ limite: 5, janelaMs: 60 * MINUTO }),
   classificacaoPorIp: criarRateLimiter({ limite: 30, janelaMs: 10 * MINUTO }),
+  apoioPorUsuario: criarRateLimiter({ limite: 30, janelaMs: 60 * MINUTO }),
 };

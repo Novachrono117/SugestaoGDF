@@ -34,6 +34,7 @@ export type PontoPublico = {
   categoria: string;
   ra: string;
   criadoEm: string;
+  totalApoios: number;
 };
 
 export async function pontosPublicos(db: PrismaClient, filtros: FiltrosMapa): Promise<PontoPublico[]> {
@@ -60,6 +61,7 @@ export async function pontosPublicos(db: PrismaClient, filtros: FiltrosMapa): Pr
       criadoEm: true,
       categoria: { select: { nome: true } },
       ra: { select: { nome: true } },
+      _count: { select: { apoios: true } },
     },
   });
 
@@ -72,5 +74,6 @@ export async function pontosPublicos(db: PrismaClient, filtros: FiltrosMapa): Pr
     categoria: d.categoria.nome,
     ra: d.ra.nome,
     criadoEm: d.criadoEm.toISOString(),
+    totalApoios: d._count.apoios,
   }));
 }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { caixaDaGeometria, detectarRa, pontoNaGeometria, type Geometria, type RegiaoComLimite } from "./geo";
+import { caixaDaGeometria, detectarRa, distanciaEmMetros, pontoNaGeometria, type Geometria, type RegiaoComLimite } from "./geo";
 
 // Quadrado 0..10 com buraco 4..6 (coordenadas [lng, lat]).
 const comBuraco: Geometria = {
@@ -54,5 +54,19 @@ describe("detectarRa", () => {
 
   it("calcula a caixa envolvente", () => {
     expect(caixaDaGeometria(duasIlhas)).toEqual({ minLng: 20, minLat: 20, maxLng: 32, maxLat: 32 });
+  });
+});
+
+describe("distanciaEmMetros", () => {
+  it("0 no mesmo ponto; ~111 m por 0,001° de latitude", () => {
+    const p = { lat: -15.7939, lng: -47.8828 };
+    expect(distanciaEmMetros(p, p)).toBe(0);
+    expect(distanciaEmMetros(p, { lat: p.lat + 0.001, lng: p.lng })).toBeCloseTo(111.2, 0);
+  });
+
+  it("Esplanada → Taguatinga ≈ 19 km", () => {
+    const d = distanciaEmMetros({ lat: -15.7998, lng: -47.8645 }, { lat: -15.834, lng: -48.0565 });
+    expect(d / 1000).toBeGreaterThan(18);
+    expect(d / 1000).toBeLessThan(22);
   });
 });

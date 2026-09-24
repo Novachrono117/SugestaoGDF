@@ -16,6 +16,7 @@ export async function consultarPorProtocolo(db: PrismaClient, protocolo: string)
       ra: { select: { codigo: true, nome: true } },
       orgaoResponsavel: { select: { sigla: true, nome: true } },
       sugestao: { select: { orgao: { select: { sigla: true, nome: true } } } },
+      _count: { select: { apoios: true } },
       eventos: {
         where: { publico: true, statusPara: { not: null } },
         orderBy: { criadoEm: "asc" },
@@ -35,6 +36,7 @@ export async function consultarPorProtocolo(db: PrismaClient, protocolo: string)
     ra: d.ra,
     orgaoResponsavel: d.orgaoResponsavel, // decisão do GDF (null até o encaminhamento)
     orgaoSugeridoIA: d.sugestao?.orgao ?? null,
+    totalApoios: d._count.apoios,
     historico: d.eventos.map((e) => ({
       status: e.statusPara!,
       statusRotulo: ROTULO_STATUS[e.statusPara!],

@@ -22,7 +22,7 @@ async function denunciaEnviada(autorId: string | null) {
     {
       db,
       appUrl: "http://voz.test",
-      gateway: { enviar: async () => ({ ok: true, idExterno: null }), enviarAvaliacao: async () => ({ ok: true, idExterno: null }) },
+      gateway: { enviar: async () => ({ ok: true, idExterno: null }), enviarAvaliacao: async () => ({ ok: true, idExterno: null }), enviarApoios: async () => ({ ok: true, idExterno: null }) },
       classificador: {
         nome: "fixo",
         classificar: async () => ({

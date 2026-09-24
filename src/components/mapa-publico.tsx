@@ -31,6 +31,7 @@ export default function MapaPublico({ pontos }: { pontos: PontoPublico[] }) {
             <strong>{p.categoria}</strong>
             <br />
             {p.ra} · {p.statusRotulo}
+            {p.totalApoios > 0 && ` · ${p.totalApoios} apoio(s)`}
             <br />
             <Link href={`/acompanhar/${p.protocolo}`}>{p.protocolo}</Link>
           </Popup>

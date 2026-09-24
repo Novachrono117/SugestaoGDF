@@ -4,6 +4,7 @@ import { validarTransicao } from "@/domain/status";
 import { payloadGdfV1Schema } from "@/lib/validation/integracao-gdf";
 import type { PrismaClient } from "../../../generated/prisma/client";
 import type { GovGateway } from "../gov-gateway";
+import { reenviarApoiosPendentes } from "./apoios";
 import { reenviarAvaliacoesPendentes } from "./avaliacao-cidadao";
 
 export type EnvioDeps = { db: PrismaClient; gateway: GovGateway; appUrl: string };
@@ -107,5 +108,9 @@ export async function reenviarPendentes(deps: EnvioDeps, limite = 50) {
     if ((await enviarDenunciaAoGdf(deps, denunciaId)).enviada) enviadas++;
   }
   const avaliacoes = await reenviarAvaliacoesPendentes(deps, limite);
-  return { pendentes: pendentes.length + avaliacoes.pendentes, enviadas: enviadas + avaliacoes.enviadas };
+  const apoios = await reenviarApoiosPendentes(deps, limite);
+  return {
+    pendentes: pendentes.length + avaliacoes.pendentes + apoios.pendentes,
+    enviadas: enviadas + avaliacoes.enviadas + apoios.enviados,
+  };
 }

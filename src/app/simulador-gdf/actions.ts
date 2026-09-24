@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { ROTULO_STATUS } from "@/domain/status";
 import { obterUsuarioAtual } from "@/server/auth/sessao";
 import { depsDenuncia, obterEnviadorEmail } from "@/server/container";
 import { db } from "@/server/db";
@@ -27,7 +28,7 @@ export async function decidirAcao(_anterior: EstadoAcao, formData: FormData): Pr
   try {
     const r = await decidir({ db, chaveCallback: serverEnv().GDF_CALLBACK_KEY }, parsed.data);
     revalidatePath("/simulador-gdf", "layout");
-    return { sucesso: `Status atualizado para ${r.status}. O cidadão já vê a mudança pelo protocolo.` };
+    return { sucesso: `Status atualizado para ${ROTULO_STATUS[r.status]}. O cidadão já vê a mudança pelo protocolo.` };
   } catch (erro) {
     if (erro instanceof ErroDominio) return { erro: erro.message };
     throw erro;

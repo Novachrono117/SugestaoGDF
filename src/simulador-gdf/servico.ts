@@ -30,6 +30,7 @@ export type Manifestacao = {
   justificativaCidadao: string | null;
   iaAcertou: boolean | null;
   categoriaCorretaSlug: string | null;
+  totalApoios: number;
   recebidoEm: Date;
   atualizadoEm: Date;
   payload: PayloadGdfV1;

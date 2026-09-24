@@ -2,7 +2,7 @@
 // cidadã denuncia → chega no Simulador GDF → "GDF" encaminha e resolve → público vê "Resolvida"
 // → a cidadã confirma a solução. Banco e build isolados (scripts/e2e-servidor.mjs).
 import { existsSync } from "node:fs";
-import { expect, test, type Browser, type Page } from "@playwright/test";
+import { expect, test, type Browser, type BrowserContext, type Page } from "@playwright/test";
 
 // Com `npm run ras:baixar`, o seed do E2E grava os limites oficiais e a RA é detectada pelo ponto.
 const TEM_LIMITES = existsSync("data/cache/ras-oficiais.geojson");
@@ -11,9 +11,20 @@ const SENHA = process.env.E2E_SENHA || "senha-e2e-ficticia"; // usuários fictí
 const CIDADA = "cidada@vozdf.example";
 const OPERADOR = "operador@vozdf.example";
 
-async function entrar(browser: Browser, email: string): Promise<Page> {
+// Contextos criados à mão precisam ser fechados: senão as páginas de um teste continuam vivas nos seguintes.
+const contextos: BrowserContext[] = [];
+test.afterEach(async () => {
+  await Promise.all(contextos.splice(0).map((c) => c.close()));
+});
+
+async function novaPagina(browser: Browser): Promise<Page> {
   const contexto = await browser.newContext();
-  const page = await contexto.newPage();
+  contextos.push(contexto);
+  return contexto.newPage();
+}
+
+async function entrar(browser: Browser, email: string): Promise<Page> {
+  const page = await novaPagina(browser);
   await page.goto("/entrar");
   await page.getByLabel("E-mail").fill(email);
   await page.getByLabel("Senha").fill(SENHA);
@@ -45,7 +56,8 @@ async function decidir(page: Page, status: string, extras: { texto?: string } = 
   await page.getByLabel("Novo status").selectOption({ label: status });
   if (extras.texto) await page.getByLabel(/Justificativa|Mensagem ao cidadão/).fill(extras.texto);
   await page.getByRole("button", { name: "Registrar decisão" }).click();
-  await expect(page.getByText("Status atualizado para")).toBeVisible();
+  // Texto específico da decisão: a mensagem da decisão anterior continua na tela.
+  await expect(page.getByText(`Status atualizado para ${status}.`)).toBeVisible();
 }
 
 test("denúncia percorre cidadão → GDF → cidadão e termina confirmada", async ({ browser }) => {
@@ -121,7 +133,7 @@ test("denúncia percorre cidadão → GDF → cidadão e termina confirmada", as
     );
 
   // ---------- público (sem login) acompanha pelo protocolo: vê andamento, não vê o relato
-  const publico = await (await browser.newContext()).newPage();
+  const publico = await novaPagina(browser);
   await publico.goto("/acompanhar");
   await publico.getByLabel("Número do protocolo").fill(protocolo.toLowerCase());
   await publico.getByRole("button", { name: "Acompanhar" }).click();
@@ -181,4 +193,56 @@ test("contestação exige justificativa e reabre a denúncia no GDF", async ({ b
   await expect(operador.getByText("O cidadão reabriu esta denúncia:")).toBeVisible();
   await expect(operador.getByText("Taparam só metade")).toBeVisible();
   await expect(operador.getByLabel("Novo status")).toContainText("Em análise pelo GDF");
+});
+
+test("pessoa nova se cadastra e apoia uma denúncia próxima em vez de duplicar", async ({ browser }) => {
+  // Denúncia já existente no centro do mapa (onde o assistente abre), em andamento.
+  const cidada = await entrar(browser, CIDADA);
+  const resposta = await cidada.request.post("/api/v1/denuncias", {
+    data: {
+      descricao: "Poste apagado no Eixo Monumental, perto da Torre de TV.",
+      categoriaSlug: "iluminacao-publica",
+      raCodigo: "RA-I",
+      latitude: -15.7939,
+      longitude: -47.8828,
+    },
+  });
+  expect(resposta.status()).toBe(201);
+  const { protocolo } = await resposta.json();
+
+  // Cadastro pela tela.
+  const vizinho = await novaPagina(browser);
+  await vizinho.goto("/cadastro");
+  await vizinho.getByLabel("Nome").fill("Vizinho E2E (fictício)");
+  await vizinho.getByLabel("E-mail").fill(`vizinho-${Date.now()}@vozdf.example`);
+  await vizinho.getByLabel("Senha").fill("senha-do-vizinho-123");
+  await vizinho.getByRole("button", { name: "Criar conta" }).click();
+  await expect(vizinho.getByRole("link", { name: /^Minha conta/ })).toBeVisible();
+
+  // Começa a denunciar o mesmo problema no mesmo lugar → o assistente oferece apoiar.
+  await vizinho.goto("/denunciar");
+  await vizinho.getByLabel("O que está acontecendo?").fill("O poste da esquina está apagado há dias e a rua fica escura.");
+  await vizinho.getByRole("button", { name: "Continuar" }).click();
+  await vizinho.getByRole("button", { name: "Sim, é isso" }).click();
+  const mapa = vizinho.locator(".leaflet-container");
+  await expect(mapa.locator(".leaflet-tile-loaded").first()).toBeVisible({ timeout: 20_000 });
+  const caixa = (await mapa.boundingBox())!;
+  await mapa.click({ position: { x: caixa.width / 2, y: caixa.height / 2 } });
+
+  await expect(vizinho.getByRole("heading", { name: "Pode ser o mesmo problema?" })).toBeVisible();
+  await semRolagemHorizontal(vizinho);
+  await vizinho
+    .getByRole("listitem")
+    .filter({ hasText: protocolo })
+    .getByRole("button", { name: "Apoiar esta denúncia" })
+    .click();
+
+  await expect(vizinho).toHaveURL(`/acompanhar/${protocolo}?apoio=1`);
+  await expect(vizinho.getByText("Apoio registrado!")).toBeVisible();
+  await expect(vizinho.getByText("1 pessoa(s) também têm esse problema — inclusive você")).toBeVisible();
+
+  // O "GDF" recebeu o total de apoios.
+  const operador = await entrar(browser, OPERADOR);
+  await operador.goto(`/simulador-gdf/${protocolo}`);
+  await expect(operador.getByText("👍 1 pessoa(s) relataram o mesmo problema")).toBeVisible();
 });

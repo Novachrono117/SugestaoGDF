@@ -6,8 +6,10 @@ import { Alerta, Cartao } from "@/components/ui";
 import { normalizarProtocolo } from "@/domain/protocolo";
 import { obterUsuarioAtual } from "@/server/auth/sessao";
 import { db } from "@/server/db";
+import { situacaoApoio } from "@/server/denuncias/apoios";
 import { consultarSituacaoAvaliacao, ultimaJustificativa } from "@/server/denuncias/avaliacao-cidadao";
 import { consultarPorProtocolo, detalheDoAutor } from "@/server/denuncias/consulta";
+import { BotaoApoiar } from "./apoio";
 import { CartaoAvaliacao } from "./avaliacao";
 
 export async function generateMetadata({ params }: PageProps<"/acompanhar/[protocolo]">): Promise<Metadata> {
@@ -23,7 +25,7 @@ export default async function AcompanharProtocoloPage({ params, searchParams }: 
   if (!protocolo) notFound();
   if (protocolo !== bruto) redirect(`/acompanhar/${protocolo}`);
 
-  const [consulta, usuario, { nova }] = await Promise.all([
+  const [consulta, usuario, { nova, apoio }] = await Promise.all([
     consultarPorProtocolo(db, protocolo),
     obterUsuarioAtual(),
     searchParams,
@@ -31,6 +33,7 @@ export default async function AcompanharProtocoloPage({ params, searchParams }: 
   if (!consulta) notFound();
   // Descrição e fotos só para a pessoa que denunciou (consulta pública não mostra).
   const detalhe = usuario ? await detalheDoAutor(db, protocolo, usuario.id) : null;
+  const apoios = await situacaoApoio(db, protocolo, usuario?.id ?? null);
   const [avaliacao, contestacao] =
     detalhe && usuario
       ? await Promise.all([
@@ -47,6 +50,12 @@ export default async function AcompanharProtocoloPage({ params, searchParams }: 
           {consulta.status === "RECEBIDA"
             ? " Estamos tentando entregá-la ao GDF; o status muda assim que for recebida."
             : " Ela já foi enviada ao GDF."}
+        </Alerta>
+      )}
+
+      {apoio === "1" && (
+        <Alerta tipo="sucesso">
+          <strong>Apoio registrado!</strong> O GDF passa a ver que mais gente tem esse problema.
         </Alerta>
       )}
 
@@ -71,6 +80,13 @@ export default async function AcompanharProtocoloPage({ params, searchParams }: 
               {consulta.orgaoResponsavel ? `${consulta.orgaoResponsavel.nome} (${consulta.orgaoResponsavel.sigla})` : "Aguardando decisão do GDF"}
             </dd>
           </div>
+          <div className="sm:col-span-2">
+            <dt className="text-slate-600">Apoios da comunidade</dt>
+            <dd className="font-medium text-slate-900">
+              {consulta.totalApoios === 0 ? "Nenhum ainda" : `${consulta.totalApoios} pessoa(s) também têm esse problema`}
+              {apoios?.apoiou && " — inclusive você"}
+            </dd>
+          </div>
           {consulta.orgaoSugeridoIA && (
             <div className="sm:col-span-2">
               <dt className="text-slate-600">Sugestão da IA</dt>
@@ -81,6 +97,17 @@ export default async function AcompanharProtocoloPage({ params, searchParams }: 
           )}
         </dl>
       </Cartao>
+
+      {apoios?.podeApoiar && <BotaoApoiar protocolo={protocolo} />}
+      {!usuario && ["ENVIADA_GDF", "EM_ANALISE", "ENCAMINHADA", "EM_EXECUCAO", "REABERTA"].includes(consulta.status) && (
+        <p className="text-sm text-slate-600">
+          Tem o mesmo problema?{" "}
+          <Link href={`/entrar?voltar=/acompanhar/${protocolo}`} className="font-semibold text-blue-700 underline">
+            Entre para apoiar esta denúncia
+          </Link>
+          .
+        </p>
+      )}
 
       {avaliacao?.pode && <CartaoAvaliacao protocolo={protocolo} prazoAte={formatarData(avaliacao.prazoAte)} />}
       {avaliacao && !avaliacao.pode && avaliacao.motivo === "JA_AVALIADA" && (

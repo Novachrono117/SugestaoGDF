@@ -153,6 +153,8 @@ export function AssistenteDenuncia({ categorias, regioes, usuario }: Props) {
       {passo === 2 && (
         <>
           <PassoLocal
+            categoria={{ slug: categoriaSlug, nome: categoria?.nome ?? "" }}
+            logado={Boolean(usuario)}
             ponto={ponto}
             onPonto={setPonto}
             raCodigo={raCodigo}

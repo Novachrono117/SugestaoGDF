@@ -59,6 +59,8 @@ Regras do Next.js 16 (a doc da versão instalada fica em `node_modules/next/dist
 - Ollama pode quebrar o CUDA após suspensão do notebook ("cudaMalloc failed"): o app cai no fallback por regras; resolver com Win+Ctrl+Shift+B (reinicia o driver) ou reboot.
 - Form com `useActionState` + `revalidatePath`: não remontar com `key` (apaga a mensagem de sucesso); ajustar estado durante o render.
 - `<select>` dentro de grid no celular: usar `w-full min-w-0` (a opção mais longa alarga a página).
+- E2E: fechar os contextos criados com `browser.newContext()` (helper `novaPagina`) e esperar mensagens **específicas** (a anterior pode continuar na tela).
+- Pouca memória livre derruba o `next build` do E2E ("heap out of memory"): as VMs do Docker/WSL consomem vários GB.
 
 ## Definição de pronto
 Lint, typecheck e testes passando; fluxo testado manualmente no navegador; README/CLAUDE.md atualizados se comandos ou arquitetura mudarem.

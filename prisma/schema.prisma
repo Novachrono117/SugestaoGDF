@@ -95,6 +95,7 @@ model Usuario {
   denuncias         Denuncia[]
   eventos           EventoDenuncia[]
   notificacoes      NotificacaoEmail[]
+  apoios            Apoio[]
 }
 
 model Denuncia {
@@ -124,6 +125,7 @@ model Denuncia {
   eventos    EventoDenuncia[]
   envio      EnvioGdf?
   avaliacoes AvaliacaoCidadao[]
+  apoios     Apoio[]
 
   @@index([raId, status])
   @@index([categoriaId, status])
@@ -236,6 +238,20 @@ model AvaliacaoCidadao {
   @@index([enviadoEm])
 }
 
+// "Também tenho esse problema": 1 apoio por pessoa (com conta) por denúncia; o autor não apoia a própria.
+// enviadoEm null = total de apoios ainda não informado ao GDF (reenvio manda o TOTAL: idempotente).
+model Apoio {
+  denunciaId String
+  denuncia   Denuncia  @relation(fields: [denunciaId], references: [id], onDelete: Cascade)
+  usuarioId  String
+  usuario    Usuario   @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  criadoEm   DateTime  @default(now())
+  enviadoEm  DateTime?
+
+  @@id([denunciaId, usuarioId])
+  @@index([enviadoEm])
+}
+
 model ContadorProtocolo {
   ano    Int @id
   ultimo Int
@@ -256,6 +272,7 @@ model ManifestacaoGdf {
   justificativaCidadao String?
   iaAcertou            Boolean?
   categoriaCorretaSlug String?
+  totalApoios          Int      @default(0)
   recebidoEm           DateTime @default(now())
   atualizadoEm         DateTime @updatedAt
 }

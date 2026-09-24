@@ -32,6 +32,7 @@ function gatewayQueResponde(resultado: ResultadoEnvio) {
       return resultado;
     }),
     enviarAvaliacao: vi.fn(async () => resultado),
+    enviarApoios: vi.fn(async () => resultado),
   };
   return { gateway, enviados };
 }
