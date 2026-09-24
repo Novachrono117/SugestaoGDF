@@ -148,6 +148,20 @@ test("denúncia percorre cidadão → GDF → cidadão e termina confirmada", as
   await expect(publico.getByText(/denúncia\(s\) no mapa/)).toBeVisible();
   await semRolagemHorizontal(publico);
 
+  await publico.goto("/transparencia");
+  await expect(publico.getByRole("heading", { name: "Por Região Administrativa" })).toBeVisible();
+  await expect(publico.getByRole("rowheader", { name: "Plano Piloto" })).toBeVisible();
+  await semRolagemHorizontal(publico);
+
+  // CSV do simulador: só operador; sem o relato.
+  expect((await publico.request.get("/api/simulador-gdf/relatorio")).status()).toBe(401);
+  const csv = await operador.request.get("/api/simulador-gdf/relatorio");
+  expect(csv.status()).toBe(200);
+  expect(csv.headers()["content-type"]).toContain("text/csv");
+  const conteudo = await csv.text();
+  expect(conteudo).toContain(protocolo);
+  expect(conteudo).not.toContain("O poste da minha rua");
+
   // ---------- a cidadã confirma que foi resolvido
   await cidada.goto(`/acompanhar/${protocolo}`);
   await expect(cidada.getByText("O GDF informou que o problema foi resolvido. Foi mesmo?")).toBeVisible();

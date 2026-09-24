@@ -84,7 +84,15 @@ export default async function SimuladorPage({ searchParams }: PageProps<"/simula
         <Contagem titulo="Por categoria" itens={r.porCategoria} />
       </section>
 
-      <BotaoReenviar pendentes={pendentes} />
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <BotaoReenviar pendentes={pendentes} />
+        <a
+          href="/api/simulador-gdf/relatorio"
+          className="inline-flex min-h-11 items-center rounded-lg border border-slate-300 bg-white px-4 font-semibold text-slate-800 hover:bg-slate-50"
+        >
+          ⬇ Exportar CSV
+        </a>
+      </div>
 
       <nav className="flex flex-wrap gap-2" aria-label="Filtrar por status">
         {FILTROS.map(([valor, rotulo]) => (

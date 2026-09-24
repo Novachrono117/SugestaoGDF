@@ -290,6 +290,8 @@ POST   /api/v1/denuncias                      criar (auth opcional; multipart co
 GET    /api/v1/denuncias/{protocolo}          consulta pública (sem dados pessoais)
 GET    /api/v1/denuncias/mapa?ra=&categoria=&situacao=  pontos públicos (coordenadas ~100 m, sem relato)
 GET    /api/v1/anexos/{token}                 foto (token aleatório, sem EXIF)
+GET    /transparencia                         (página) indicadores agregados por RA/categoria/órgão, sem dados pessoais
+GET    /api/simulador-gdf/relatorio           CSV das manifestações (operador; sem o relato; protegido contra formula injection)
 POST   /api/v1/integracao/gdf/eventos         callback do GDF: status ou AVALIACAO_IA (chave de API)
 POST   /api/v1/integracao/gdf/reenviar        reprocessa envios pendentes (OPERADOR_GDF)
 

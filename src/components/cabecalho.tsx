@@ -22,6 +22,9 @@ export async function Cabecalho() {
           <Link href="/acompanhar" className="font-medium text-slate-700 hover:text-blue-700">
             Acompanhar
           </Link>
+          <Link href="/transparencia" className="font-medium text-slate-700 hover:text-blue-700">
+            Transparência
+          </Link>
           {usuario ? (
             <>
               <Link href="/minhas-denuncias" className="font-medium text-slate-700 hover:text-blue-700">

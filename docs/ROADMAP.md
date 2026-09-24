@@ -32,7 +32,7 @@ Cada etapa fecha com: testes (unidade/integração + E2E quando houver tela) →
 | 2 ✅ | **Detecção automática da RA** (ponto no polígono) | Tira um passo do assistente; independente das demais | Depende dos limites oficiais das RAs (Geoportal DF/SEDUH): licença, formato e se já incluem Arapoanga/Água Quente. Seleção manual continua como fallback e para corrigir perto das divisas |
 | 3 ✅ | **E-mail a cada mudança de status** | Fecha o retorno ao cidadão (queixa central do problema) | Fila no banco (outbox) + reenvio; SMTP falso (Mailpit) no dev; só para quem tem conta; conteúdo mínimo (protocolo, status, link — sem relato) |
 | 4 ✅ | **Duplicatas por proximidade + apoios** | Evita retrabalho no GDF e mostra urgência | Muda schema e contrato (GDF precisa saber o total de apoios); apoiar exige login (anti-spam) |
-| 5 | **Transparência e relatórios** | Usa dados das etapas anteriores | Página pública só com agregados (sem dados pessoais); CSV para o operador |
+| 5 ✅ | **Transparência e relatórios** | Usa dados das etapas anteriores | Página pública só com agregados (sem dados pessoais); CSV para o operador |
 | 6 | **PWA** (instalável, câmera, rascunho offline) | Só faz sentido com as telas estáveis | Rascunho no `localStorage` (por aparelho); service worker mínimo |
 | 7 | **Acessibilidade WCAG 2.1 AA** | Auditoria depois que as telas pararem de mudar | axe-core no E2E + correções |
 | 8 | **Preparar deploy** (Dockerfile, `.env` por ambiente, guia) | Último: empacota o que existe | Criar contas e publicar é com o usuário. LLM em hospedagem sem GPU → fallback por regras ou VM com Ollama |
