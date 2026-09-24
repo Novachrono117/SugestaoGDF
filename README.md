@@ -10,17 +10,18 @@ Fase 1 (MVP web) concluída — ver `docs/ROADMAP.md`. Prontos: domínio (status
 
 ## Como rodar (máquina limpa)
 
-Requisitos: **Node.js 22+**. Opcional: **[Ollama](https://ollama.com)** para a IA (sem ele, o app usa um classificador por palavras-chave).
+Requisitos: **Node.js 22+** e **Docker** (Postgres e Mailpit). Opcional: **[Ollama](https://ollama.com)** para a IA (sem ele, o app usa um classificador por palavras-chave).
 
 ```bash
 npm install
 cp .env.example .env        # PowerShell: Copy-Item .env.example .env
 ```
 
-Preencha no `.env`: `AUTH_SECRET`, `GDF_WEBHOOK_KEY`, `GDF_CALLBACK_KEY` (valores longos e aleatórios — o próprio arquivo mostra como gerar) e `SEED_SENHA_DEMO` (senha dos usuários fictícios).
+Preencha no `.env`: `POSTGRES_PASSWORD` (e a mesma senha dentro de `DATABASE_URL`), `AUTH_SECRET`, `GDF_WEBHOOK_KEY`, `GDF_CALLBACK_KEY` (valores longos e aleatórios — o próprio arquivo mostra como gerar) e `SEED_SENHA_DEMO` (senha dos usuários fictícios).
 
 ```bash
-npm run db:migrate          # cria o banco SQLite (dev.db) e gera o Prisma Client
+docker compose up -d        # Postgres (localhost:5432) + Mailpit (e-mails em http://localhost:8025)
+npm run db:migrate          # aplica as migrações no Postgres e gera o Prisma Client
 npm run db:seed             # 35 RAs, órgãos, categorias e 2 usuários fictícios
 ollama pull qwen3.5:4b      # opcional: modelo usado pela IA (~3,4 GB)
 npm run dev                 # http://localhost:3000
@@ -33,8 +34,9 @@ Usuários fictícios (senha = `SEED_SENHA_DEMO`): `operador@vozdf.example` (aces
 | Comando | O quê |
 |---|---|
 | `npm run dev` | Servidor de desenvolvimento |
-| `npm test` | Testes (Vitest; inclui integração com SQLite real) |
-| `npm run test:e2e` | E2E (Playwright, viewport de celular): banco `e2e.db` e build `.next-e2e` isolados, porta 3100, IA por regras. Usa o Edge instalado; sem Edge: `PLAYWRIGHT_CHANNEL=""` + `npx playwright install chromium` |
+| `docker compose up -d` / `down` | Sobe/para Postgres e Mailpit (dados do Postgres ficam no volume) |
+| `npm test` | Testes (Vitest; integração com Postgres real — cada arquivo usa uma cópia descartável do banco) |
+| `npm run test:e2e` | E2E (Playwright, viewport de celular): banco `vozdf_e2e` e build `.next-e2e` isolados, porta 3100, IA por regras. Usa o Edge instalado; sem Edge: `PLAYWRIGHT_CHANNEL=""` + `npx playwright install chromium` |
 | `npm run lint` / `npm run typecheck` | Qualidade |
 | `npm run db:migrate` | Aplica migrações **e** gera o client (no Prisma 7 o `migrate dev` não gera sozinho). Pare o `npm run dev` antes |
 | `npm run db:seed` | Dados de referência + usuários fictícios (idempotente) |

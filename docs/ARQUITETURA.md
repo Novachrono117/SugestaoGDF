@@ -23,7 +23,7 @@ O Voz DF é a **porta de entrada** da denúncia, não o sistema de gestão do go
               │
      Camada de domínio (src/domain): status, protocolo, payload
               │
-     Prisma ─► SQLite (dev) / PostgreSQL (prod)
+     Prisma ─► PostgreSQL (dev/testes via docker compose; prod: gerenciado)
      Fotos  ─► disco local (dev) / S3-compatível (prod)
 
    Simulador GDF (/simulador-gdf) — SOMENTE para demonstração: faz o papel do

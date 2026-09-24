@@ -19,7 +19,6 @@ next-env.d.ts
 generated/
 *.db
 *.db-journal
-e2e.db
 
 # uploads (fotos de denúncias — nunca versionar)
 uploads/

@@ -24,7 +24,7 @@ export default async function DenunciarPage() {
         categorias={categorias
           .map(({ orgaoPadrao, ...c }) => ({ ...c, orgao: orgaoPadrao }))
           .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"))}
-        // Ordena em JS: o SQLite ordena por byte e jogaria "Águas Claras" para o fim da lista.
+        // Ordena em JS: a collation do banco varia entre ambientes e pode jogar "Águas Claras" para o fim.
         regioes={regioes.sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"))}
         usuario={usuario ? { nome: usuario.nome } : null}
       />

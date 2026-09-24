@@ -1,23 +1,23 @@
-// Prepara uma vez o banco-modelo dos testes de integração: aplica as migrações e o seed de referência.
+// Prepara uma vez o banco-modelo dos testes de integração (Postgres): migrações + seed de referência.
+// Cada arquivo de teste recebe uma cópia instantânea dele (CREATE DATABASE ... TEMPLATE) — ver db.ts.
 import { execFileSync } from "node:child_process";
-import { mkdirSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { seedReferencia } from "../../prisma/seed-referencia";
 import { createPrismaClient } from "../server/prisma";
+import { apagarBancosDeTeste, recriarBanco, urlDoBanco } from "./pg-admin";
 
-export const TMP_DIR = join(process.cwd(), ".tmp");
-export const TEMPLATE_DB = join(TMP_DIR, "test-template.db");
+export const BANCO_TEMPLATE = "vozdf_test_template";
 
 export default async function setup() {
-  rmSync(TMP_DIR, { recursive: true, force: true });
-  mkdirSync(TMP_DIR, { recursive: true });
-  const url = `file:${TEMPLATE_DB}`;
+  await apagarBancosDeTeste(); // sobras de execuções interrompidas
+  await recriarBanco(BANCO_TEMPLATE);
+  const url = urlDoBanco(BANCO_TEMPLATE);
   execFileSync(process.execPath, [join("node_modules", "prisma", "build", "index.js"), "migrate", "deploy"], {
     env: { ...process.env, DATABASE_URL: url },
     stdio: "pipe",
   });
   const db = createPrismaClient(url);
   await seedReferencia(db);
-  await db.$disconnect();
-  return () => rmSync(TMP_DIR, { recursive: true, force: true });
+  await db.$disconnect(); // o template não pode ter conexões abertas para ser copiado
+  return () => apagarBancosDeTeste();
 }

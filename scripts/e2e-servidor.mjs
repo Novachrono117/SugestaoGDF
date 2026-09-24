@@ -1,15 +1,28 @@
-// Sobe o app para o E2E com banco e build ISOLADOS (nunca toca no dev.db nem na .next do `npm run dev`):
-// recria e2e.db → migrações → seed → next build (em .next-e2e) → next start na porta do E2E.
+// Sobe o app para o E2E com banco e build ISOLADOS (nunca toca no banco de desenvolvimento nem na .next do `npm run dev`):
+// recria o banco vozdf_e2e (Postgres do docker compose) → migrações → seed → next build (em .next-e2e) → next start.
 // Todos os valores abaixo são fictícios e só valem para este banco descartável.
+import "dotenv/config";
 import { spawn, spawnSync } from "node:child_process";
 import { rmSync } from "node:fs";
+import pg from "pg";
 
 export const PORTA_E2E = Number(process.env.E2E_PORTA || 3100);
 const base = `http://localhost:${PORTA_E2E}`;
 
+const BANCO_E2E = "vozdf_e2e"; // só este nome; nunca o banco de desenvolvimento
+if (!process.env.DATABASE_URL?.startsWith("postgres")) {
+  console.error("[e2e] DATABASE_URL do .env precisa apontar para o Postgres (docker compose up -d).");
+  process.exit(1);
+}
+function urlDoBanco(nome) {
+  const u = new URL(process.env.DATABASE_URL);
+  u.pathname = `/${nome}`;
+  return u.toString();
+}
+
 const env = {
   ...process.env,
-  DATABASE_URL: "file:./e2e.db",
+  DATABASE_URL: urlDoBanco(BANCO_E2E),
   NEXT_DIST_DIR: ".next-e2e",
   APP_URL: base,
   AUTH_URL: base,
@@ -37,8 +50,11 @@ function rodar(cli, args) {
   }
 }
 
-rmSync("e2e.db", { force: true });
-rmSync("e2e.db-journal", { force: true });
+const admin = new pg.Client({ connectionString: urlDoBanco("postgres") });
+await admin.connect();
+await admin.query(`DROP DATABASE IF EXISTS "${BANCO_E2E}" WITH (FORCE)`);
+await admin.query(`CREATE DATABASE "${BANCO_E2E}"`);
+await admin.end();
 rmSync(".tmp/e2e-uploads", { recursive: true, force: true });
 
 rodar(PRISMA, ["migrate", "deploy"]);

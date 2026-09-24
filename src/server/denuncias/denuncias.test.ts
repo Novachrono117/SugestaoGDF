@@ -1,4 +1,4 @@
-// Integração com banco SQLite real (cópia do modelo migrado + seed de referência).
+// Integração com Postgres real (cópia do banco-template migrado + seed de referência).
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { criarBancoDeTeste } from "@/test/db";
 import type { CallbackGdf, PayloadGdfV1 } from "@/lib/validation/integracao-gdf";
@@ -8,7 +8,7 @@ import { aplicarEventoGdf } from "../integracao/callback-gdf";
 import { criarDenuncia, type CriarDenunciaDeps } from "./criar";
 import { reenviarPendentes } from "./envio-gdf";
 
-const banco = criarBancoDeTeste();
+const banco = await criarBancoDeTeste();
 const db = banco.db;
 afterAll(() => banco.fechar());
 

@@ -64,8 +64,11 @@ export function criarClassificador(env: NodeJS.ProcessEnv = process.env): Classi
         timeoutMs: Number(env.CLASSIFICADOR_TIMEOUT_MS) || 8000,
       })
     : null;
-  // Loga só o tipo do erro — nunca o texto da denúncia (pode conter dados pessoais).
-  return new ClassificadorComFallback(llm, regras, (erro) =>
-    console.warn(`[classificador] LLM indisponível, usando regras: ${erro instanceof Error ? erro.name : "erro"}`),
-  );
+  // Loga só o tipo do erro — nunca o texto da denúncia (pode conter dados pessoais). A mensagem só
+  // entra quando é nossa e segura (status HTTP do Ollama); erros de validação podem ecoar a saída do modelo.
+  return new ClassificadorComFallback(llm, regras, (erro) => {
+    const detalhe =
+      erro instanceof Error && erro.message.startsWith("Ollama respondeu HTTP") ? erro.message : erro instanceof Error ? erro.name : "erro";
+    console.warn(`[classificador] LLM indisponível, usando regras: ${detalhe}`);
+  });
 }

@@ -1,19 +1,19 @@
-// Banco isolado por arquivo de teste: cópia do modelo preparado em global-setup.ts.
+// Banco isolado por arquivo de teste: cópia do template preparado em global-setup.ts.
 import { randomUUID } from "node:crypto";
-import { copyFileSync, rmSync } from "node:fs";
-import { join } from "node:path";
 import { createPrismaClient } from "../server/prisma";
+import { apagarBanco, recriarBanco, urlDoBanco } from "./pg-admin";
 
-export function criarBancoDeTeste() {
-  const tmp = join(process.cwd(), ".tmp");
-  const arquivo = join(tmp, `test-${randomUUID()}.db`);
-  copyFileSync(join(tmp, "test-template.db"), arquivo);
-  const db = createPrismaClient(`file:${arquivo}`);
+const BANCO_TEMPLATE = "vozdf_test_template";
+
+export async function criarBancoDeTeste() {
+  const nome = `vozdf_test_${randomUUID().replace(/-/g, "").slice(0, 16)}`;
+  await recriarBanco(nome, BANCO_TEMPLATE);
+  const db = createPrismaClient(urlDoBanco(nome));
   return {
     db,
     async fechar() {
       await db.$disconnect();
-      rmSync(arquivo, { force: true });
+      await apagarBanco(nome);
     },
   };
 }

@@ -12,7 +12,7 @@ import { aplicarEventoGdf } from "../server/integracao/callback-gdf";
 import { receberAvaliacaoCidadao, receberManifestacao } from "./receber";
 import { decidir, obterManifestacao, opcoesDeStatus, registrarAvaliacaoIa, resumo } from "./servico";
 
-const banco = criarBancoDeTeste();
+const banco = await criarBancoDeTeste();
 const db = banco.db;
 afterAll(() => banco.fechar());
 

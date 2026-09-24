@@ -4,7 +4,7 @@ import { criarBancoDeTeste } from "@/test/db";
 import { criarRateLimiter } from "../rate-limit";
 import { buscarUsuarioSessao, cadastrarCidadao, verificarCredenciais } from "./usuarios";
 
-const banco = criarBancoDeTeste();
+const banco = await criarBancoDeTeste();
 afterAll(() => banco.fechar());
 
 describe("cadastro e login", () => {

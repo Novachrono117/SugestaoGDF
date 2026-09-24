@@ -3,7 +3,7 @@ import { criarBancoDeTeste } from "@/test/db";
 import { criarDenuncia } from "./criar";
 import { arredondarCoordenada, filtrosMapaSchema, pontosPublicos } from "./mapa";
 
-const banco = criarBancoDeTeste();
+const banco = await criarBancoDeTeste();
 const db = banco.db;
 afterAll(() => banco.fechar());
 

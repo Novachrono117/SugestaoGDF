@@ -3,7 +3,7 @@ import { criarBancoDeTeste } from "@/test/db";
 import { consultarPorProtocolo, detalheDoAutor, listarDoAutor } from "./consulta";
 import { criarDenuncia } from "./criar";
 
-const banco = criarBancoDeTeste();
+const banco = await criarBancoDeTeste();
 afterAll(() => banco.fechar());
 
 let autora: string;

@@ -12,7 +12,7 @@ Regras do Next.js 16 (a doc da versão instalada fica em `node_modules/next/dist
 
 ## Stack (decidida — não trocar sem justificar)
 - Next.js (App Router) + TypeScript (strict) + React
-- Prisma ORM; **SQLite no desenvolvimento**, PostgreSQL em produção
+- Prisma ORM + **PostgreSQL** em todos os ambientes (dev/testes/E2E via `docker compose`; desde a Fase 2 — antes era SQLite)
 - Zod para validação em todas as fronteiras (forms, route handlers, server actions)
 - Auth.js (NextAuth) com credenciais; senhas com hash (bcrypt/argon2)
 - Leaflet + OpenStreetMap para mapas (sem chave paga)
@@ -42,18 +42,20 @@ Regras do Next.js 16 (a doc da versão instalada fica em `node_modules/next/dist
 - Sem segredos no repositório; usar `.env` (e manter `.env.example` atualizado).
 
 ## Comandos
+- `docker compose up -d` — Postgres + Mailpit (SMTP falso, http://localhost:8025) para desenvolvimento
 - `npm run dev` — servidor local (http://localhost:3000)
 - `npm run lint` / `npm run typecheck` / `npm test`
-- `npm run test:e2e` — Playwright (fluxo completo; banco/build isolados, não toca no `dev.db`)
+- `npm run test:e2e` — Playwright (fluxo completo; banco `vozdf_e2e` e build isolados)
 - `npm run db:migrate -- --name <nome>` — `prisma migrate dev`; o hook `postdb:migrate` roda `prisma generate` (no Prisma 7 o migrate não gera o client sozinho)
 - `npm run db:seed` — dados de referência + usuários fictícios (idempotente)
 - `npm run eval:classificador -- <modelo>` — acurácia/latência da IA (casos fictícios); `-- --fonte=gdf <modelo>` usa as avaliações do operador como gabarito
 
 ## Armadilhas conhecidas
 - next-auth v5: `auth()` lê a sessão de `headers()`. Não usar `signIn`/`signOut` com redirect dentro de server action (renderiza o destino sem o cookie novo → loop); usar `redirect: false` + navegação completa no cliente (`src/app/(auth)/navegacao.tsx`).
-- SQLite ordena texto por byte: ordenar nomes com acento em JS (`localeCompare("pt-BR")`).
+- Ordenar nomes com acento em JS (`localeCompare("pt-BR")`): a collation do banco pode variar entre ambientes.
 - O singleton do Prisma fica em `globalThis` no dev: após `db:migrate`, reiniciar o `npm run dev`.
-- Migração com o `npm run dev` rodando pode falhar com "database is locked" (SQLite): pare o servidor antes.
+- Testes criam bancos `vozdf_test_*` (cópia de template) e o E2E usa `vozdf_e2e`; `src/test/pg-admin.ts` recusa apagar qualquer outro nome.
+- Ollama pode quebrar o CUDA após suspensão do notebook ("cudaMalloc failed"): o app cai no fallback por regras; resolver com Win+Ctrl+Shift+B (reinicia o driver) ou reboot.
 - Form com `useActionState` + `revalidatePath`: não remontar com `key` (apaga a mensagem de sucesso); ajustar estado durante o render.
 - `<select>` dentro de grid no celular: usar `w-full min-w-0` (a opção mais longa alarga a página).
 

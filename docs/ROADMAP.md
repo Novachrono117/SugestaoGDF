@@ -23,14 +23,27 @@ Objetivo: fluxo completo cidadão → IA sugere → JSON ao GDF (simulado) → G
 
 ## Fase 2 — Produto web + PWA
 
-- PostgreSQL (+ PostGIS se houver consultas espaciais) e storage S3-compatível.
-- Detecção automática da RA por polígono.
-- Sugestão de duplicatas por proximidade; apoios.
-- Notificações por e-mail a cada mudança de status.
-- PWA: manifest, instalação, câmera, rascunho offline da denúncia.
-- Relatórios: tempo médio de resolução por RA/órgão; exportação CSV.
-- Acessibilidade (WCAG 2.1 AA) revisada; rate limit; moderação.
-- Deploy (ex.: Vercel/Render + Postgres gerenciado) com `.env` por ambiente.
+Plano definido em 24/09/2026. Ordem = dependências primeiro, depois valor para o cidadão/demo.
+Cada etapa fecha com: testes (unidade/integração + E2E quando houver tela) → verificação no navegador → docs → commit.
+
+| # | Etapa | Por que nesta posição | Risco principal / mitigação |
+|---|---|---|---|
+| 1 ✅ | **PostgreSQL via Docker** (dev, testes e E2E) + Mailpit no compose | Base de tudo: trocar o banco depois de criar mais tabelas custaria refazer migrações duas vezes | Migrações do SQLite não servem no Postgres → nova migração-base; testes passam a usar *template database* (cópia rápida por arquivo de teste) |
+| 2 | **Detecção automática da RA** (ponto no polígono) | Tira um passo do assistente; independente das demais | Depende dos limites oficiais das RAs (Geoportal DF/SEDUH): licença, formato e se já incluem Arapoanga/Água Quente. Seleção manual continua como fallback e para corrigir perto das divisas |
+| 3 | **E-mail a cada mudança de status** | Fecha o retorno ao cidadão (queixa central do problema) | Fila no banco (outbox) + reenvio; SMTP falso (Mailpit) no dev; só para quem tem conta; conteúdo mínimo (protocolo, status, link — sem relato) |
+| 4 | **Duplicatas por proximidade + apoios** | Evita retrabalho no GDF e mostra urgência | Muda schema e contrato (GDF precisa saber o total de apoios); apoiar exige login (anti-spam) |
+| 5 | **Transparência e relatórios** | Usa dados das etapas anteriores | Página pública só com agregados (sem dados pessoais); CSV para o operador |
+| 6 | **PWA** (instalável, câmera, rascunho offline) | Só faz sentido com as telas estáveis | Rascunho no `localStorage` (por aparelho); service worker mínimo |
+| 7 | **Acessibilidade WCAG 2.1 AA** | Auditoria depois que as telas pararem de mudar | axe-core no E2E + correções |
+| 8 | **Preparar deploy** (Dockerfile, `.env` por ambiente, guia) | Último: empacota o que existe | Criar contas e publicar é com o usuário. LLM em hospedagem sem GPU → fallback por regras ou VM com Ollama |
+
+**Adiados, com justificativa:**
+- *Storage S3-compatível:* só quando houver deploy com mais de uma instância; no deploy único, disco persistente basta.
+- *PostGIS:* 35 polígonos e buscas num raio de ~100 m se resolvem em JS/SQL simples; PostGIS só com volume real.
+- *Rate limit compartilhado:* o atual é em memória e vale para uma instância; trocar só com escala horizontal.
+- *Moderação:* nenhum texto do cidadão é público (só categoria/status/RA); reavaliar se um dia o relato for exibido.
+
+Paralelo, fora do código: **validar o README numa máquina limpa** (integrante do grupo) antes da apresentação.
 
 ## Fase 3 — App mobile
 
