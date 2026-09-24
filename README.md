@@ -22,7 +22,8 @@ Preencha no `.env`: `POSTGRES_PASSWORD` (e a mesma senha dentro de `DATABASE_URL
 ```bash
 docker compose up -d        # Postgres (localhost:5432) + Mailpit (e-mails em http://localhost:8025)
 npm run db:migrate          # aplica as migrações no Postgres e gera o Prisma Client
-npm run db:seed             # 35 RAs, órgãos, categorias e 2 usuários fictícios
+npm run ras:baixar          # opcional: limites oficiais das RAs (detecção automática no mapa)
+npm run db:seed             # 37 RAs, órgãos, categorias e 2 usuários fictícios
 ollama pull qwen3.5:4b      # opcional: modelo usado pela IA (~3,4 GB)
 npm run dev                 # http://localhost:3000
 ```
@@ -39,7 +40,8 @@ Usuários fictícios (senha = `SEED_SENHA_DEMO`): `operador@vozdf.example` (aces
 | `npm run test:e2e` | E2E (Playwright, viewport de celular): banco `vozdf_e2e` e build `.next-e2e` isolados, porta 3100, IA por regras. Usa o Edge instalado; sem Edge: `PLAYWRIGHT_CHANNEL=""` + `npx playwright install chromium` |
 | `npm run lint` / `npm run typecheck` | Qualidade |
 | `npm run db:migrate` | Aplica migrações **e** gera o client (no Prisma 7 o `migrate dev` não gera sozinho). Pare o `npm run dev` antes |
-| `npm run db:seed` | Dados de referência + usuários fictícios (idempotente) |
+| `npm run ras:baixar` | Baixa os limites oficiais das 37 RAs (IDE-DF/SEDUH) para `data/cache/` — **não versionado** (licença não declarada pela fonte). Sem ele, a RA é escolhida manualmente |
+| `npm run db:seed` | Dados de referência + usuários fictícios (idempotente); grava os limites se o cache existir |
 | `npm run eval:classificador -- qwen3.5:4b` | Mede acurácia/latência da IA em 48 casos fictícios (`-- --fonte=gdf qwen3.5:4b`: nos casos avaliados pelo operador) |
 
 ## Estrutura

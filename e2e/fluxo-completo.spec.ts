@@ -1,7 +1,11 @@
 // Fluxo principal da Fase 1 (docs/ROADMAP.md item 10), no navegador, com viewport de celular:
 // cidadã denuncia → chega no Simulador GDF → "GDF" encaminha e resolve → público vê "Resolvida"
 // → a cidadã confirma a solução. Banco e build isolados (scripts/e2e-servidor.mjs).
+import { existsSync } from "node:fs";
 import { expect, test, type Browser, type Page } from "@playwright/test";
+
+// Com `npm run ras:baixar`, o seed do E2E grava os limites oficiais e a RA é detectada pelo ponto.
+const TEM_LIMITES = existsSync("data/cache/ras-oficiais.geojson");
 
 const SENHA = process.env.E2E_SENHA || "senha-e2e-ficticia"; // usuários fictícios do seed do e2e.db
 const CIDADA = "cidada@vozdf.example";
@@ -56,7 +60,13 @@ test("denúncia percorre cidadão → GDF → cidadão e termina confirmada", as
   await mapa.click({ position: { x: caixa.width / 2, y: caixa.height / 2 } });
   await expect(cidada.getByText(/^Local marcado:/)).toBeVisible();
   await semRolagemHorizontal(cidada);
-  await cidada.getByLabel("Região Administrativa").selectOption({ label: "Plano Piloto" });
+  if (TEM_LIMITES) {
+    // O centro do mapa (Eixo Monumental) fica no Plano Piloto.
+    await expect(cidada.getByText("Identificamos Plano Piloto pelo local marcado.", { exact: false })).toBeVisible();
+    await expect(cidada.getByLabel("Região Administrativa")).toHaveValue("RA-I");
+  } else {
+    await cidada.getByLabel("Região Administrativa").selectOption({ label: "Plano Piloto" });
+  }
   await cidada.getByRole("button", { name: "Revisar" }).click();
 
   await expect(cidada.getByText("Órgão provável (o GDF decide)")).toBeVisible();

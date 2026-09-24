@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useState, type ChangeEvent } from "react";
+import { useRef, useState, type ChangeEvent } from "react";
 import { Alerta, Botao, Campo } from "@/components/ui";
 import type { Ponto } from "@/components/mapa-seletor";
 import { LIMITES_DF } from "@/lib/validation/denuncia";
@@ -225,6 +225,30 @@ export function PassoLocal({
 }) {
   const [gps, setGps] = useState<{ estado: "ocioso" | "buscando" | "erro"; msg?: string }>({ estado: "ocioso" });
   const [centralizar, setCentralizar] = useState<Ponto | null>(null);
+  const [deteccao, setDeteccao] = useState<{ estado: "ocioso" | "buscando" | "achou" | "nao-achou"; nome?: string }>({
+    estado: "ocioso",
+  });
+  const ultimaConsulta = useRef(0);
+
+  // Sugere a RA pelo ponto (limites oficiais). Só sugere: o select continua editável.
+  async function marcar(p: Ponto) {
+    onPonto(p);
+    const id = ++ultimaConsulta.current; // descarta respostas de cliques anteriores
+    setDeteccao({ estado: "buscando" });
+    try {
+      const res = await fetch(`/api/v1/regioes/detectar?lat=${p.lat}&lng=${p.lng}`);
+      const { ra } = (await res.json()) as { ra: { codigo: string; nome: string } | null };
+      if (id !== ultimaConsulta.current) return;
+      if (ra) {
+        onRa(ra.codigo);
+        setDeteccao({ estado: "achou", nome: ra.nome });
+      } else {
+        setDeteccao({ estado: "nao-achou" });
+      }
+    } catch {
+      if (id === ultimaConsulta.current) setDeteccao({ estado: "nao-achou" });
+    }
+  }
 
   function usarMinhaLocalizacao() {
     if (!navigator.geolocation) return setGps({ estado: "erro", msg: "Seu navegador não informa a localização." });
@@ -234,7 +258,7 @@ export function PassoLocal({
         const p = { lat: coords.latitude, lng: coords.longitude };
         if (!dentroDoDf(p)) return setGps({ estado: "erro", msg: "Sua localização parece estar fora do DF. Marque no mapa." });
         setGps({ estado: "ocioso" });
-        onPonto(p);
+        void marcar(p);
         setCentralizar(p);
       },
       () => setGps({ estado: "erro", msg: "Não foi possível obter sua localização. Marque no mapa." }),
@@ -245,7 +269,7 @@ export function PassoLocal({
   function selecionar(p: Ponto) {
     if (!dentroDoDf(p)) return setGps({ estado: "erro", msg: "Esse ponto está fora do DF." });
     setGps({ estado: "ocioso" });
-    onPonto(p);
+    void marcar(p);
   }
 
   return (
@@ -267,8 +291,18 @@ export function PassoLocal({
         <label htmlFor="ra" className="text-sm font-medium text-slate-800">
           Região Administrativa
         </label>
+        <p id="ra-dica" className="text-xs text-slate-600" aria-live="polite">
+          {deteccao.estado === "buscando" && "Identificando a região pelo mapa…"}
+          {deteccao.estado === "achou" && (
+            <>
+              Identificamos <strong>{deteccao.nome}</strong> pelo local marcado. Se estiver errado, troque abaixo.
+            </>
+          )}
+          {deteccao.estado === "nao-achou" && "Não conseguimos identificar a região por esse ponto. Selecione abaixo."}
+        </p>
         <select
           id="ra"
+          aria-describedby="ra-dica"
           value={raCodigo}
           onChange={(e) => onRa(e.target.value)}
           className="min-h-11 w-full min-w-0 rounded-lg border border-slate-300 bg-white px-3 py-2 text-base text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/30"

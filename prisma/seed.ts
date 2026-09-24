@@ -25,7 +25,7 @@ async function main() {
   }
 
   console.log(
-    `Seed ok: ${ref.regioes} RAs, ${ref.orgaos} órgãos, ${ref.categorias} categorias, ${usuarios.length} usuários.`,
+    `Seed ok: ${ref.regioes} RAs (${ref.limites} com limite oficial), ${ref.orgaos} órgãos, ${ref.categorias} categorias, ${usuarios.length} usuários.`,
   );
   await db.$disconnect();
 }

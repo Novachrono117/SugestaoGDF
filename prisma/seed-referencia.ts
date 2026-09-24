@@ -1,6 +1,6 @@
 // Dados de referência (RAs, órgãos, categorias) a partir de data/*.json.
 // Compartilhado entre o seed e os testes de integração. Idempotente (upsert).
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { z } from "zod";
 import type { PrismaClient } from "../generated/prisma/client";
@@ -29,6 +29,7 @@ export async function seedReferencia(db: PrismaClient) {
   for (const ra of regioes) {
     await db.regiaoAdministrativa.upsert({ where: { codigo: ra.codigo }, update: ra, create: ra });
   }
+  const limites = await gravarLimitesSeExistirem(db);
 
   const orgaoIdBySigla = new Map<string, string>();
   for (const o of orgaos) {
@@ -43,5 +44,28 @@ export async function seedReferencia(db: PrismaClient) {
     await db.categoria.upsert({ where: { slug: c.slug }, update: data, create: data });
   }
 
-  return { regioes: regioes.length, orgaos: orgaos.length, categorias: categorias.length };
+  return { regioes: regioes.length, orgaos: orgaos.length, categorias: categorias.length, limites };
+}
+
+const cacheLimitesSchema = z.object({
+  features: z.array(
+    z.object({
+      properties: z.object({ codigo: z.string() }),
+      geometry: z.object({ type: z.enum(["Polygon", "MultiPolygon"]), coordinates: z.array(z.unknown()) }),
+    }),
+  ),
+});
+
+/** Limites oficiais das RAs, se `npm run ras:baixar` já foi rodado (arquivo fora do git). */
+async function gravarLimitesSeExistirem(db: PrismaClient): Promise<number> {
+  const arquivo = join(process.cwd(), "data", "cache", "ras-oficiais.geojson");
+  if (!existsSync(arquivo)) return 0;
+  const { features } = cacheLimitesSchema.parse(JSON.parse(readFileSync(arquivo, "utf-8")));
+  for (const f of features) {
+    await db.regiaoAdministrativa.update({
+      where: { codigo: f.properties.codigo },
+      data: { limite: f.geometry as object },
+    });
+  }
+  return features.length;
 }

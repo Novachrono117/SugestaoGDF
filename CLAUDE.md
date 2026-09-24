@@ -6,7 +6,7 @@ Regras do Next.js 16 (a doc da versão instalada fica em `node_modules/next/dist
 @AGENTS.md
 
 ## Contexto
-- Web app de denúncias cidadãs do DF, segmentado pelas 35 Regiões Administrativas e por categoria. O cidadão só descreve o problema; uma IA local **sugere** categoria/órgão; a denúncia é enviada como JSON ao GDF, que **decide** o órgão e devolve o status. O lado do GDF é um simulador no MVP.
+- Web app de denúncias cidadãs do DF, segmentado pelas 37 Regiões Administrativas e por categoria. O cidadão só descreve o problema; uma IA local **sugere** categoria/órgão; a denúncia é enviada como JSON ao GDF, que **decide** o órgão e devolve o status. O lado do GDF é um simulador no MVP.
 - Projeto acadêmico: priorize um MVP demonstrável e simples de rodar localmente. Evite infraestrutura que não seja necessária para a fase atual.
 - Idioma da interface e do domínio: **português (pt-BR)**. Código (variáveis, funções) em inglês; termos de domínio podem manter nomes em português quando mais claros (ex.: `RegiaoAdministrativa`) — manter consistência depois de escolhido.
 
@@ -47,7 +47,8 @@ Regras do Next.js 16 (a doc da versão instalada fica em `node_modules/next/dist
 - `npm run lint` / `npm run typecheck` / `npm test`
 - `npm run test:e2e` — Playwright (fluxo completo; banco `vozdf_e2e` e build isolados)
 - `npm run db:migrate -- --name <nome>` — `prisma migrate dev`; o hook `postdb:migrate` roda `prisma generate` (no Prisma 7 o migrate não gera o client sozinho)
-- `npm run db:seed` — dados de referência + usuários fictícios (idempotente)
+- `npm run ras:baixar` — baixa os limites oficiais das RAs (IDE-DF) para `data/cache/` (fora do git: licença não declarada); rodar `db:seed` depois
+- `npm run db:seed` — dados de referência + usuários fictícios (idempotente); grava os limites se o cache existir
 - `npm run eval:classificador -- <modelo>` — acurácia/latência da IA (casos fictícios); `-- --fonte=gdf <modelo>` usa as avaliações do operador como gabarito
 
 ## Armadilhas conhecidas

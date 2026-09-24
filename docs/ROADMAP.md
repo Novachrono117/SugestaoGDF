@@ -29,7 +29,7 @@ Cada etapa fecha com: testes (unidade/integração + E2E quando houver tela) →
 | # | Etapa | Por que nesta posição | Risco principal / mitigação |
 |---|---|---|---|
 | 1 ✅ | **PostgreSQL via Docker** (dev, testes e E2E) + Mailpit no compose | Base de tudo: trocar o banco depois de criar mais tabelas custaria refazer migrações duas vezes | Migrações do SQLite não servem no Postgres → nova migração-base; testes passam a usar *template database* (cópia rápida por arquivo de teste) |
-| 2 | **Detecção automática da RA** (ponto no polígono) | Tira um passo do assistente; independente das demais | Depende dos limites oficiais das RAs (Geoportal DF/SEDUH): licença, formato e se já incluem Arapoanga/Água Quente. Seleção manual continua como fallback e para corrigir perto das divisas |
+| 2 ✅ | **Detecção automática da RA** (ponto no polígono) | Tira um passo do assistente; independente das demais | Depende dos limites oficiais das RAs (Geoportal DF/SEDUH): licença, formato e se já incluem Arapoanga/Água Quente. Seleção manual continua como fallback e para corrigir perto das divisas |
 | 3 | **E-mail a cada mudança de status** | Fecha o retorno ao cidadão (queixa central do problema) | Fila no banco (outbox) + reenvio; SMTP falso (Mailpit) no dev; só para quem tem conta; conteúdo mínimo (protocolo, status, link — sem relato) |
 | 4 | **Duplicatas por proximidade + apoios** | Evita retrabalho no GDF e mostra urgência | Muda schema e contrato (GDF precisa saber o total de apoios); apoiar exige login (anti-spam) |
 | 5 | **Transparência e relatórios** | Usa dados das etapas anteriores | Página pública só com agregados (sem dados pessoais); CSV para o operador |

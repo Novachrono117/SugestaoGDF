@@ -33,3 +33,6 @@ test-results/
 .DS_Store
 *.pem
 npm-debug.log*
+
+# dados baixados de fontes externas (licença a confirmar) — não versionar
+data/cache/

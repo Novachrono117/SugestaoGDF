@@ -199,7 +199,7 @@ Verificação de permissão no servidor em toda leitura e escrita (não apenas e
 ## 5. Modelo de dados
 
 ```
-RegiaoAdministrativa  id, codigo ("RA-IX"), numero (9), nome, slug
+RegiaoAdministrativa  id, codigo ("RA-IX"), numero (9), nome, slug, limite? (GeoJSON oficial)
 Orgao                 id, sigla (única), nome
 Categoria             id, slug, nome, descricao, orgaoPadraoId, ativa
 Usuario               id, nome, email (único), senhaHash, papel (CIDADAO|OPERADOR_GDF), criadoEm
@@ -264,12 +264,15 @@ Servidor: valida (Zod) → reclassifica → transação {protocolo, `Denuncia(RE
 
 **Retorno do GDF:** callback → valida chave e payload → ignora `eventoId` repetido → valida transição → atualiza `Denuncia` + grava `EventoDenuncia(ator=GDF)`.
 
-**Detecção automática da RA (fase 2):** point-in-polygon com os limites oficiais (Geoportal DF/SEDUH — verificar licença). No MVP a RA é escolhida pelo usuário.
+**Detecção automática da RA:** ao marcar o ponto (mapa ou GPS), `GET /api/v1/regioes/detectar` faz point-in-polygon (`src/domain/geo.ts`, ray casting com buracos e multipolígonos) nos limites oficiais e **pré-preenche** a RA; o cidadão pode trocar (perto de divisas o ponto pode estar impreciso). Sem limites carregados → seleção manual.
+- **Fonte:** IDE-DF/SEDUH, geoserviço `Publico/LIMITES`, camada 1 (conferida em 24/09/2026: **37 RAs**, incluindo 26 de Setembro e Ponte Alta, sancionadas em 03/07/2026).
+- **Licença não declarada** pela fonte → os polígonos **não são versionados**: `npm run ras:baixar` salva em `data/cache/` (gitignored), simplificados a ~10 m (357 KB), e o seed grava em `RegiaoAdministrativa.limite` (JSON). Citar a fonte em apresentações.
 
 ## 8. API (v1)
 
 ```
 GET    /api/v1/regioes
+GET    /api/v1/regioes/detectar?lat=&lng=     RA que contém o ponto (ou null)
 GET    /api/v1/categorias
 POST   /api/v1/classificacoes                 { descricao } → sugestão (rate limit)
 POST   /api/v1/denuncias                      criar (auth opcional; multipart com fotos)

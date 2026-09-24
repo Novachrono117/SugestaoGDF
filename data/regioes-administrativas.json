@@ -1,5 +1,5 @@
 {
-  "_fonte": "Lista das 35 RAs (inclui Arapoanga e Água Quente, criadas em 2022). Validar nomes com fontes oficiais do GDF antes de produção.",
+  "_fonte": "Lista oficial de 37 RAs (inclui Arapoanga e Água Quente, criadas em 2022, e 26 de Setembro e Ponte Alta, sancionadas em 03/07/2026). Conferida em 24/09/2026 com a camada LIMITES/Regiões Administrativas da IDE-DF (SEDUH).",
   "regioes": [
     {
       "codigo": "RA-I",
@@ -210,6 +210,18 @@
       "numero": 35,
       "nome": "Água Quente",
       "slug": "agua-quente"
+    },
+    {
+      "codigo": "RA-XXXVI",
+      "numero": 36,
+      "nome": "26 de Setembro",
+      "slug": "26-de-setembro"
+    },
+    {
+      "codigo": "RA-XXXVII",
+      "numero": 37,
+      "nome": "Ponte Alta",
+      "slug": "ponte-alta"
     }
   ]
 }

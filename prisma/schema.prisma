@@ -56,6 +56,8 @@ model RegiaoAdministrativa {
   numero    Int        @unique
   nome      String
   slug      String     @unique
+  // Limite oficial (GeoJSON Polygon/MultiPolygon, WGS84) vindo de `npm run ras:baixar`; null = não baixado.
+  limite    Json?
   denuncias Denuncia[]
 }
 

@@ -12,7 +12,7 @@
 A falta de um canal único, simples e transparente para o cidadão denunciar problemas urbanos e acompanhar se algo foi feito. Hoje a demanda se perde entre vários órgãos e o morador não sabe a quem recorrer.
 
 **2. Onde esse problema acontece?**
-Em todo o Distrito Federal, nas **35 Regiões Administrativas** (Plano Piloto, Ceilândia, Taguatinga, Samambaia, Sol Nascente/Pôr do Sol, Arapoanga, Água Quente etc.), com mais impacto nas RAs periféricas e de crescimento recente.
+Em todo o Distrito Federal, nas **37 Regiões Administrativas** (Plano Piloto, Ceilândia, Taguatinga, Samambaia, Sol Nascente/Pôr do Sol, Arapoanga, Água Quente, 26 de Setembro, Ponte Alta etc.), com mais impacto nas RAs periféricas e de crescimento recente.
 
 **3. Quem é afetado?**
 - Moradores, trabalhadores e comerciantes de todas as RAs;
@@ -72,8 +72,8 @@ Em todo o Distrito Federal, nas **35 Regiões Administrativas** (Plano Piloto, C
 |------|----------|
 | **Nome da solução** | Voz DF — Rede Central de Denúncias do Distrito Federal |
 | **Problema que será resolvido** | Falta de um canal único e simples para o cidadão denunciar problemas urbanos sem precisar saber qual órgão é responsável, e dificuldade do GDF em receber essas demandas de forma organizada. |
-| **Público beneficiado** | Moradores das 35 RAs do DF e o GDF (Ouvidoria, Administrações Regionais e órgãos executores), que passa a receber as denúncias já organizadas. |
-| **Como a tecnologia irá funcionar?** | 1) O cidadão abre o site e **descreve o problema com as próprias palavras** (ex.: "o poste da minha rua está apagado"), anexa foto e marca o **local no mapa** com a RA. 2) Uma **IA sugere a categoria** (ex.: Iluminação pública) e o **órgão provável** (ex.: CEB-IPES); o cidadão confirma ou troca com um toque. 3) Recebe um **número de protocolo** (ex.: `DF-2026-000123`). 4) O Voz DF **envia a denúncia ao GDF em formato JSON** (uma API): descrição, categoria, local, RA, fotos e a sugestão da IA, **sem dados pessoais** do denunciante. 5) **O GDF decide** o órgão responsável e informa cada mudança de status de volta ao Voz DF. 6) O cidadão acompanha pelo protocolo até a resolução. 7) Quando o GDF marca como resolvida, **o cidadão confirma se foi mesmo resolvido** — se não foi, explica o motivo e a denúncia é **reaberta** e volta ao GDF. |
+| **Público beneficiado** | Moradores das 37 RAs do DF e o GDF (Ouvidoria, Administrações Regionais e órgãos executores), que passa a receber as denúncias já organizadas. |
+| **Como a tecnologia irá funcionar?** | 1) O cidadão abre o site e **descreve o problema com as próprias palavras** (ex.: "o poste da minha rua está apagado"), anexa foto e marca o **local no mapa** — a **RA é identificada automaticamente** pelos limites oficiais do GDF (e pode ser corrigida). 2) Uma **IA sugere a categoria** (ex.: Iluminação pública) e o **órgão provável** (ex.: CEB-IPES); o cidadão confirma ou troca com um toque. 3) Recebe um **número de protocolo** (ex.: `DF-2026-000123`). 4) O Voz DF **envia a denúncia ao GDF em formato JSON** (uma API): descrição, categoria, local, RA, fotos e a sugestão da IA, **sem dados pessoais** do denunciante. 5) **O GDF decide** o órgão responsável e informa cada mudança de status de volta ao Voz DF. 6) O cidadão acompanha pelo protocolo até a resolução. 7) Quando o GDF marca como resolvida, **o cidadão confirma se foi mesmo resolvido** — se não foi, explica o motivo e a denúncia é **reaberta** e volta ao GDF. |
 | **Quais recursos tecnológicos serão utilizados?** | Site responsivo (Next.js/React + TypeScript), banco de dados PostgreSQL (via Docker no desenvolvimento), mapa com OpenStreetMap/Leaflet, **IA local** (modelo de linguagem Qwen 3.5 rodando no próprio servidor via Ollama, sem custo e sem enviar o texto a empresas externas), **API REST com JSON** para a integração com o GDF, login seguro. Fase 2: PWA (instalável). Fase 3: aplicativo Android/iOS (React Native/Expo). |
 | **Quem utilizará a solução?** | **Cidadão** (registra e acompanha, com ou sem login — denúncia anônima é permitida) e o **sistema do GDF** (recebe as denúncias pela API e devolve o status). No protótipo, um **Simulador do GDF** faz o papel do governo. |
 | **Quais benefícios serão gerados?** | O cidadão não precisa conhecer a estrutura do governo; denúncias chegam ao GDF padronizadas e com uma sugestão de órgão, reduzindo o tempo de triagem; o governo **não precisa trocar de sistema**, só receber os dados; transparência com protocolo e status; proteção de dados (o GDF recebe a denúncia sem dados pessoais). |
@@ -90,7 +90,7 @@ O protótipo será o próprio site em desenvolvimento, com dados fictícios. Tel
 **Área do cidadão**
 1. **Tela inicial** — botão "Fazer denúncia", campo "Acompanhar protocolo", mapa público das denúncias e aviso de emergência (190/193).
 2. **Cadastro/Login** — nome, e-mail, senha; opção "denunciar sem me identificar".
-3. **Nova denúncia (passo a passo)** — ① "O que está acontecendo?" (texto livre + foto) → ② **Sugestão da IA**: categoria e órgão provável, com botão para confirmar ou trocar → ③ Local no mapa + RA → ④ Revisar e enviar.
+3. **Nova denúncia (passo a passo)** — ① "O que está acontecendo?" (texto livre + foto) → ② **Sugestão da IA**: categoria e órgão provável, com botão para confirmar ou trocar → ③ Local no mapa (a RA é identificada automaticamente) → ④ Revisar e enviar.
 4. **Confirmação** — número de protocolo (ex.: `DF-2026-000123`) e aviso de que a denúncia foi enviada ao GDF.
 5. **Acompanhar / Minhas denúncias** — status: Recebida → Enviada ao GDF → Em análise → Encaminhada ao órgão → Em execução → Resolvida.
 6. **Confirmação da solução** — quando o GDF marca como resolvida, quem denunciou com conta responde "Foi mesmo resolvido?" (até 30 dias). "Não" exige justificativa e **reabre** a denúncia no GDF.
@@ -123,7 +123,8 @@ O protótipo será o próprio site em desenvolvimento, com dados fictícios. Tel
 - Ouvidoria-Geral do DF — Canais de atendimento: https://www.ouvidoria.df.gov.br/canais-de-atendimento/
 - Ouvidoria-Geral do DF — Canal 162: https://ouvidoria.df.gov.br/canal-atendimento-162/
 - SEDUH — Criação das RAs Arapoanga e Água Quente: https://www.seduh.df.gov.br/w/aprovada-a-criacao-das-regioes-administrativas-de-arapoanga-e-agua-quente
-- Regiões administrativas do DF (lista das 35 RAs): https://en.wikipedia.org/wiki/Administrative_regions_of_the_Federal_District_(Brazil)
+- Regiões administrativas do DF — limites oficiais (IDE-DF/SEDUH, camada LIMITES): https://www.geoservicos.ide.df.gov.br/arcgis/rest/services/Publico/LIMITES/FeatureServer
+- Criação das RAs 26 de Setembro e Ponte Alta (CLDF, 2026): https://www.cl.df.gov.br/-/cldf-aprova-criacao-das-regioes-administrativas-de-26-de-setembro-e-ponte-alta
 - Participa DF — o que é a Ouvidoria: https://www.participa.df.gov.br/static/o-que-e-ouvidoria
 - Fala.BR (CGU) — API de integração: https://falabr.cgu.gov.br/help e https://wiki.cgu.gov.br/index.php?title=Fala.BR_-_API_Faq
 - Open311 GeoReport v2 (padrão aberto de reporte urbano): https://wiki.open311.org/GeoReport_v2/

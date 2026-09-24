@@ -16,7 +16,8 @@
     "eval:classificador": "tsx scripts/eval-classificador.ts",
     "postinstall": "prisma generate",
     "postdb:migrate": "prisma generate",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "ras:baixar": "tsx scripts/baixar-ras.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.10.0",
