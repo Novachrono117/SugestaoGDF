@@ -31,8 +31,17 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col font-sans">
+        <a
+          href="#conteudo"
+          // Fora da tela até receber foco (sr-only + not-sr-only zeraria o padding do botão).
+          className="fixed left-4 top-3 z-50 -translate-y-[200%] rounded-lg bg-blue-700 px-4 py-2 font-semibold text-white focus:translate-y-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-300"
+        >
+          Pular para o conteúdo
+        </a>
         <Cabecalho />
-        {children}
+        <div id="conteudo" tabIndex={-1} className="flex flex-1 flex-col focus:outline-none">
+          {children}
+        </div>
         <RegistrarServiceWorker />
       </body>
     </html>

@@ -306,7 +306,10 @@ export function PassoLocal({
     <div className="flex flex-col gap-5">
       <div className="flex flex-col gap-2">
         <span className="text-base font-semibold text-slate-900">Onde fica o problema?</span>
-        <p className="text-sm text-slate-600">Toque no mapa para marcar o local, ou use sua localização atual.</p>
+        <p className="text-sm text-slate-600">
+          Toque no mapa para marcar o local, ou use sua localização atual. Pelo teclado: entre no mapa, mova com as setas
+          e use “Marcar o centro do mapa”.
+        </p>
         <Botao type="button" variante="secundario" onClick={usarMinhaLocalizacao} disabled={gps.estado === "buscando"} className="self-start">
           {gps.estado === "buscando" ? "Buscando localização…" : "📍 Usar minha localização"}
         </Botao>

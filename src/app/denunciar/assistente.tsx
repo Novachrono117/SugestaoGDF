@@ -89,10 +89,14 @@ function Assistente({
   const ra = regioes.find((r) => r.codigo === raCodigo);
   const orgaoProvavel = categoria && ra ? resolverOrgaoSugerido(categoria.orgao, ra.nome) : categoria?.orgao;
 
+  const tituloPasso = useRef<HTMLHeadingElement>(null);
+
   function irPara(n: number) {
     setErro(null);
     setPasso(n);
     window.scrollTo({ top: 0, behavior: "smooth" });
+    // Leva o foco ao título do passo novo (depois do render): leitor de tela anuncia onde a pessoa está.
+    requestAnimationFrame(() => tituloPasso.current?.focus({ preventScroll: true }));
   }
 
   async function analisar() {
@@ -162,6 +166,9 @@ function Assistente({
 
   return (
     <div className="flex flex-col gap-6">
+      <h2 ref={tituloPasso} tabIndex={-1} className="sr-only">
+        Passo {passo + 1} de {PASSOS.length}: {PASSOS[passo]}
+      </h2>
       <ol className="grid grid-cols-4 gap-2" aria-label="Etapas">
         {PASSOS.map((nome, i) => (
           <li key={nome} aria-current={i === passo ? "step" : undefined} className="flex flex-col gap-1">

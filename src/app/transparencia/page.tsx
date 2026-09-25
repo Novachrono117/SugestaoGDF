@@ -18,7 +18,13 @@ function Tabela({ titulo, itens, rotuloNome }: { titulo: string; itens: Indicado
       {itens.length === 0 ? (
         <p className="p-5 text-sm text-slate-600">Ainda sem dados.</p>
       ) : (
-        <div className="mt-3 overflow-x-auto">
+        // Focável e rotulada: no celular a tabela rola na horizontal e precisa rolar pelo teclado também.
+        <div
+          className="mt-3 overflow-x-auto focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-600"
+          tabIndex={0}
+          role="region"
+          aria-label={`${titulo} (tabela; role para os lados se não couber)`}
+        >
           <table className="w-full min-w-[36rem] text-left text-sm">
             <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-600">
               <tr>
