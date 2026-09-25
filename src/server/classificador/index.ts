@@ -1,7 +1,7 @@
 // Ponto de entrada: tenta o LLM local e cai nas regras em qualquer falha.
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
 import { z } from "zod";
+// Import estático (entra no bundle): ler do disco via process.cwd() escaparia do rastreamento do build standalone.
+import categoriasJson from "../../../data/categorias.json";
 import { OllamaClassificador } from "./ollama";
 import { RegrasClassificador } from "./regras";
 import type { CategoriaInfo, Classificador, SugestaoClassificacao } from "./tipos";
@@ -24,9 +24,7 @@ let categoriasCache: CategoriaInfo[] | undefined;
 
 /** Categorias de referência (data/categorias.json), mesma fonte do seed. */
 export function carregarCategorias(): CategoriaInfo[] {
-  categoriasCache ??= categoriasJsonSchema.parse(
-    JSON.parse(readFileSync(join(process.cwd(), "data", "categorias.json"), "utf-8")),
-  ).categorias;
+  categoriasCache ??= categoriasJsonSchema.parse(categoriasJson).categorias;
   return categoriasCache;
 }
 
