@@ -1,0 +1,12 @@
+# Proxy reverso com HTTPS automático (Let's Encrypt) para o domínio em DOMINIO.
+# Com DOMINIO=localhost, o Caddy usa um certificado local (bom para testar o PWA em HTTPS).
+{$DOMINIO} {
+	encode zstd gzip
+	# Fotos até 5 MB × 3 + campos: acima disso nem chega ao app.
+	request_body {
+		max_size 20MB
+	}
+	header Strict-Transport-Security "max-age=31536000"
+	# O Caddy substitui o X-Forwarded-For vindo de fora pelo IP real da conexão (só confia em trusted_proxies).
+	reverse_proxy app:3000
+}

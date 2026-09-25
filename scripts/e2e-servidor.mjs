@@ -1,9 +1,11 @@
 // Sobe o app para o E2E com banco e build ISOLADOS (nunca toca no banco de desenvolvimento nem na .next do `npm run dev`):
-// recria o banco vozdf_e2e (Postgres do docker compose) → migrações → seed → next build (em .next-e2e) → next start.
+// recria o banco vozdf_e2e (Postgres do docker compose) → migrações → seed → next build (em .next-e2e) → server.js
+// standalone — o mesmo artefato que vai para a imagem Docker.
 // Todos os valores abaixo são fictícios e só valem para este banco descartável.
 import "dotenv/config";
 import { spawn, spawnSync } from "node:child_process";
-import { rmSync } from "node:fs";
+import { cpSync, rmSync } from "node:fs";
+import { resolve } from "node:path";
 import pg from "pg";
 
 export const PORTA_E2E = Number(process.env.E2E_PORTA || 3100);
@@ -30,7 +32,9 @@ const env = {
   GDF_WEBHOOK_URL: `${base}/api/simulador-gdf/manifestacoes`,
   GDF_WEBHOOK_KEY: "e2e-chave-push-somente-para-testes-0123456789",
   GDF_CALLBACK_KEY: "e2e-chave-callback-somente-para-testes-0123456789",
-  UPLOAD_DIR: "./.tmp/e2e-uploads",
+  // Absoluto: o server.js standalone muda o diretório de trabalho para a própria pasta.
+  UPLOAD_DIR: resolve(".tmp/e2e-uploads"),
+  PORT: String(PORTA_E2E),
   // Sem LLM no E2E: classificador por regras → resultado determinístico e sem depender do Ollama.
   OLLAMA_MODEL: "",
   SEED_SENHA_DEMO: process.env.E2E_SENHA || "senha-e2e-ficticia",
@@ -42,6 +46,7 @@ const env = {
 };
 // next build/start definem o próprio NODE_ENV; herdar "test"/"development" atrapalha.
 delete env.NODE_ENV;
+delete env.HOSTNAME; // alguns shells definem HOSTNAME=<nome da máquina>; o server.js usaria para escutar
 
 // Chama as CLIs direto pelo node (sem shell): igual em Windows e Linux e sem o aviso DEP0190.
 const PRISMA = "node_modules/prisma/build/index.js";
@@ -66,6 +71,10 @@ rodar(PRISMA, ["migrate", "deploy"]);
 rodar(PRISMA, ["db", "seed"]);
 rodar(NEXT, ["build"]);
 
-const servidor = spawn(process.execPath, [NEXT, "start", "-p", String(PORTA_E2E)], { env, stdio: "inherit" });
+// Como no Dockerfile: o standalone não inclui public/ nem os estáticos do build.
+cpSync("public", ".next-e2e/standalone/public", { recursive: true });
+cpSync(".next-e2e/static", ".next-e2e/standalone/.next-e2e/static", { recursive: true });
+
+const servidor = spawn(process.execPath, [".next-e2e/standalone/server.js"], { env, stdio: "inherit" });
 servidor.on("exit", (code) => process.exit(code ?? 0));
 for (const sinal of ["SIGINT", "SIGTERM"]) process.on(sinal, () => servidor.kill(sinal));

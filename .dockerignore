@@ -1,0 +1,17 @@
+# Fica fora da imagem: dependências e builds locais (são refeitos lá dentro), segredos e dados.
+node_modules
+.next
+.next-e2e
+generated
+.env
+.env.*
+uploads
+data/cache
+coverage
+playwright-report
+test-results
+.git
+.claude
+*.db
+*.db-journal
+npm-debug.log*

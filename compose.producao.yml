@@ -1,0 +1,85 @@
+# Deploy em um servidor (VPS) com Docker: Postgres + migração/seed + app + Caddy (HTTPS automático).
+#   cp .env.producao.example .env.producao   # e preencha
+#   docker compose -f compose.producao.yml --env-file .env.producao up -d --build
+# Guia completo: docs/DEPLOY.md. (O docker-compose.yml da raiz é só para desenvolvimento.)
+name: voz-df-producao
+
+x-app-env: &app-env
+  DATABASE_URL: postgresql://${POSTGRES_USER:?}:${POSTGRES_PASSWORD:?}@postgres:5432/${POSTGRES_DB:-vozdf}?schema=public
+  APP_URL: https://${DOMINIO:?defina DOMINIO}
+  AUTH_URL: https://${DOMINIO}
+  AUTH_SECRET: ${AUTH_SECRET:?}
+  AUTH_TRUST_HOST: "true" # atrás do Caddy
+  # Simulador GDF no próprio container (MVP). Com o GDF real, trocar pela URL dele.
+  GDF_WEBHOOK_URL: ${GDF_WEBHOOK_URL:-http://127.0.0.1:3000/api/simulador-gdf/manifestacoes}
+  GDF_WEBHOOK_KEY: ${GDF_WEBHOOK_KEY:?}
+  GDF_CALLBACK_KEY: ${GDF_CALLBACK_KEY:?}
+  MAX_UPLOAD_MB: ${MAX_UPLOAD_MB:-5}
+  OLLAMA_URL: ${OLLAMA_URL:-}
+  OLLAMA_MODEL: ${OLLAMA_MODEL:-} # vazio = classificador por regras (servidor sem GPU)
+  CLASSIFICADOR_TIMEOUT_MS: ${CLASSIFICADOR_TIMEOUT_MS:-8000}
+  SMTP_HOST: ${SMTP_HOST:-} # vazio = e-mails ficam na fila
+  SMTP_PORT: ${SMTP_PORT:-587}
+  SMTP_SEGURO: ${SMTP_SEGURO:-false}
+  SMTP_USUARIO: ${SMTP_USUARIO:-}
+  SMTP_SENHA: ${SMTP_SENHA:-}
+  EMAIL_REMETENTE: ${EMAIL_REMETENTE:-Voz DF <nao-responda@vozdf.example>}
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:?}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?}
+      POSTGRES_DB: ${POSTGRES_DB:-vozdf}
+    volumes:
+      - postgres-dados:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    # Sem "ports": o banco só é acessível pela rede interna do compose.
+
+  migrador:
+    build: { context: ., target: migrador }
+    environment:
+      <<: *app-env
+      SEED_SENHA_DEMO: ${SEED_SENHA_DEMO:?}
+    depends_on:
+      postgres: { condition: service_healthy }
+    restart: "no"
+
+  app:
+    build: { context: ., target: app }
+    restart: unless-stopped
+    environment: *app-env
+    volumes:
+      - uploads:/app/uploads
+    depends_on:
+      migrador: { condition: service_completed_successfully }
+    # Sem "ports": só o Caddy fala com o app (o X-Forwarded-For confiável vem dele).
+    stop_grace_period: 30s # termina requisições e callbacks after() pendentes
+
+  caddy:
+    image: caddy:2.10-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      DOMINIO: ${DOMINIO}
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-dados:/data
+      - caddy-config:/config
+    depends_on:
+      app: { condition: service_healthy }
+
+volumes:
+  postgres-dados:
+  uploads:
+  caddy-dados:
+  caddy-config:
