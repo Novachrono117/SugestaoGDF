@@ -33,15 +33,14 @@ Cada etapa fecha com: testes (unidade/integração + E2E quando houver tela) →
 | 3 ✅ | **E-mail a cada mudança de status** | Fecha o retorno ao cidadão (queixa central do problema) | Fila no banco (outbox) + reenvio; SMTP falso (Mailpit) no dev; só para quem tem conta; conteúdo mínimo (protocolo, status, link — sem relato) |
 | 4 ✅ | **Duplicatas por proximidade + apoios** | Evita retrabalho no GDF e mostra urgência | Muda schema e contrato (GDF precisa saber o total de apoios); apoiar exige login (anti-spam) |
 | 5 ✅ | **Transparência e relatórios** | Usa dados das etapas anteriores | Página pública só com agregados (sem dados pessoais); CSV para o operador |
-| 6 | **PWA** (instalável, câmera, rascunho offline) | Só faz sentido com as telas estáveis | Rascunho no `localStorage` (por aparelho); service worker mínimo |
+| 6 ✅ | **PWA** (instalável, câmera, rascunho offline) | Só faz sentido com as telas estáveis | Rascunho no `localStorage` (por aparelho); service worker mínimo |
 | 7 | **Acessibilidade WCAG 2.1 AA** | Auditoria depois que as telas pararem de mudar | axe-core no E2E + correções |
 | 8 | **Preparar deploy** (Dockerfile, `.env` por ambiente, guia) | Último: empacota o que existe | Criar contas e publicar é com o usuário. LLM em hospedagem sem GPU → fallback por regras ou VM com Ollama |
 
-**Checkpoint (24/09/2026):** etapas 1–5 concluídas e commitadas (131 testes de unidade/integração verdes).
-Retomar por:
-1. `docker compose up -d` e rodar `npm run test:e2e` — as asserções da etapa 5 (transparência e CSV) **ainda não foram executadas**: o `next build` do E2E ficou sem memória do sistema.
-2. Se o Ollama falhar (CUDA após suspensão), reiniciar o driver de vídeo (Win+Ctrl+Shift+B) ou o Windows.
-3. Seguir para a etapa 6 (PWA), depois 7 (acessibilidade) e 8 (deploy).
+**Checkpoint (25/09/2026):** etapas 1–6 concluídas (137 testes de unidade/integração e 6 E2E verdes, incluindo transparência/CSV e PWA offline).
+Próximo: etapa 7 (acessibilidade), depois 8 (deploy). Se o Ollama falhar (CUDA após suspensão), reiniciar o driver de vídeo (Win+Ctrl+Shift+B) ou o Windows.
+
+PWA — fora do escopo por decisão: fotos no rascunho (exigiria IndexedDB), envio em segundo plano (Background Sync não existe no Safari/iOS) e push notifications (o e-mail já cobre o retorno; push exigiria chaves VAPID e guardar inscrições).
 
 **Adiados, com justificativa:**
 - *Storage S3-compatível:* só quando houver deploy com mais de uma instância; no deploy único, disco persistente basta.

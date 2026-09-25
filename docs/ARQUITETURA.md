@@ -310,6 +310,7 @@ POST   /api/simulador-gdf/manifestacoes/{protocolo}/avaliacoes-cidadao   recebe 
 - Rate limit em memória (`src/server/limites.ts`): login 5 tentativas/15 min por e-mail e 30/15 min por IP; cadastro 5/h por IP; denúncia 5/h por usuário ou IP; classificação 30/10 min por IP. Vale para um processo só — com várias instâncias, trocar por store compartilhado.
 - Senhas com hash (bcrypt); sessão em cookie `httpOnly`, `secure`, `sameSite=lax`.
 - Aviso fixo: emergências → 190 (PMDF) / 193 (CBMDF); este canal não substitui o atendimento de emergência.
+- **PWA:** o service worker (`public/sw.js`) só troca navegações que falham por falta de rede pela página `public/offline.html`; **não guarda páginas nem respostas da API** (relato e dados da conta não ficam em cache no aparelho). O rascunho da denúncia fica no `localStorage` (`src/lib/rascunho-denuncia.ts`): sem fotos, validado ao ler, expira em 7 dias e é apagado ao enviar, ao descartar e ao sair da conta (aparelho compartilhado).
 
 ## 10. Relação com os canais existentes
 

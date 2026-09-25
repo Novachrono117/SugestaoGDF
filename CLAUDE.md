@@ -60,6 +60,9 @@ Regras do Next.js 16 (a doc da versão instalada fica em `node_modules/next/dist
 - Form com `useActionState` + `revalidatePath`: não remontar com `key` (apaga a mensagem de sucesso); ajustar estado durante o render.
 - `<select>` dentro de grid no celular: usar `w-full min-w-0` (a opção mais longa alarga a página).
 - E2E: fechar os contextos criados com `browser.newContext()` (helper `novaPagina`) e esperar mensagens **específicas** (a anterior pode continuar na tela).
+- Ícones: usar só a convenção de arquivos (`src/app/icon.svg`, `src/app/apple-icon.png`). Declarar `icons` no `metadata` faz o Next ignorar os arquivos (some o `<link rel="icon">`).
+- Service worker só registra em produção (`src/components/registrar-sw.tsx`): testar PWA/offline pelo E2E ou `npm run build && npm start`, não no `npm run dev`.
+- Estado vindo do `localStorage` (rascunho): não ler no render inicial (diverge do HTML do servidor). O assistente remonta com `key` após hidratar (`useSyncExternalStore`) e só salva depois disso — antes, o estado vazio apagaria o rascunho.
 - Pouca memória livre derruba o `next build` do E2E ("heap out of memory"): as VMs do Docker/WSL consomem vários GB.
 
 ## Definição de pronto
