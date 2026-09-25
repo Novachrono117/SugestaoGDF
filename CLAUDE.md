@@ -49,6 +49,7 @@ Regras do Next.js 16 (a doc da versão instalada fica em `node_modules/next/dist
 - `npm run db:migrate -- --name <nome>` — `prisma migrate dev`; o hook `postdb:migrate` roda `prisma generate` (no Prisma 7 o migrate não gera o client sozinho)
 - `npm run ras:baixar` — baixa os limites oficiais das RAs (IDE-DF) para `data/cache/` (fora do git: licença não declarada); rodar `db:seed` depois
 - `npm run db:seed` — dados de referência + usuários fictícios (idempotente); grava os limites se o cache existir
+- `docker compose -f compose.producao.yml --env-file .env.producao up -d --build` — stack de produção (ver `docs/DEPLOY.md`)
 - `npm run eval:classificador -- <modelo>` — acurácia/latência da IA (casos fictícios); `-- --fonte=gdf <modelo>` usa as avaliações do operador como gabarito
 
 ## Armadilhas conhecidas
@@ -63,6 +64,9 @@ Regras do Next.js 16 (a doc da versão instalada fica em `node_modules/next/dist
 - Ícones: usar só a convenção de arquivos (`src/app/icon.svg`, `src/app/apple-icon.png`). Declarar `icons` no `metadata` faz o Next ignorar os arquivos (some o `<link rel="icon">`).
 - Service worker só registra em produção (`src/components/registrar-sw.tsx`): testar PWA/offline pelo E2E ou `npm run build && npm start`, não no `npm run dev`.
 - Estado vindo do `localStorage` (rascunho): não ler no render inicial (diverge do HTML do servidor). O assistente remonta com `key` após hidratar (`useSyncExternalStore`) e só salva depois disso — antes, o estado vazio apagaria o rascunho.
+- `output: "standalone"`: o E2E roda o `server.js` standalone (mesmo artefato da imagem), não `next start` (sem suporte nesse modo). O `server.js` muda o cwd para a própria pasta → caminhos em env (ex.: `UPLOAD_DIR`) devem ser absolutos. Arquivo lido em runtime precisa ser `import` estático (ler via `process.cwd()` escapa do rastreamento do build).
+- `src/server/db.ts` cria o Prisma Client ao ser importado e exige `DATABASE_URL`: o build Docker usa uma URL fictícia só no `RUN` do build. Página que consultar o banco no build quebra o build de propósito.
+- IP do cliente (rate limit) = **último** item do `X-Forwarded-For` (o do nosso proxy); os anteriores são forjáveis. Não expor o app sem proxy na frente.
 - Pouca memória livre derruba o `next build` do E2E ("heap out of memory"): as VMs do Docker/WSL consomem vários GB.
 
 ## Definição de pronto

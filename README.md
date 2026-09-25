@@ -8,7 +8,7 @@ O cidadão descreve um problema urbano com as próprias palavras (texto, foto, l
 
 Fase 1 (MVP web) concluída — ver `docs/ROADMAP.md`. Prontos: domínio (status, protocolo, contrato JSON), IA com fallback, integração push + callback, login, fotos sem EXIF, assistente de denúncia, acompanhamento por protocolo, "Minhas denúncias", Simulador GDF, confirmação/contestação da resolução pelo cidadão e avaliação da IA pelo operador, mapa público e teste E2E do fluxo completo.
 
-Fase 2 em andamento: Postgres via Docker, detecção automática da RA pelo mapa, e-mail a cada mudança de status, apoios a denúncias próximas (evita duplicatas), página de transparência + CSV do operador, **PWA** (instalável, câmera no celular, rascunho salvo no aparelho e tela offline) e **acessibilidade WCAG 2.1 AA** verificada no E2E (`docs/ACESSIBILIDADE.md`).
+Fase 2 concluída: Postgres via Docker, detecção automática da RA pelo mapa, e-mail a cada mudança de status, apoios a denúncias próximas (evita duplicatas), página de transparência + CSV do operador, **PWA** (instalável, câmera no celular, rascunho salvo no aparelho e tela offline), **acessibilidade WCAG 2.1 AA** verificada no E2E (`docs/ACESSIBILIDADE.md`) e **deploy com Docker** (`docs/DEPLOY.md`).
 
 **Instalar como app:** no celular, abra o site e use "Adicionar à tela inicial" (Android/Chrome oferece "Instalar app"). Precisa de HTTPS; `localhost` vale como seguro para testar no computador. O service worker só é registrado no build de produção (`npm run build && npm start`), não no `npm run dev`.
 
@@ -49,6 +49,16 @@ Usuários fictícios (senha = `SEED_SENHA_DEMO`): `operador@vozdf.example` (aces
 | `npx tsx scripts/gerar-icones.mts` | Regera os ícones do PWA (`public/icons/`, `src/app/icon.svg`, `src/app/apple-icon.png`) — só se o desenho mudar |
 | `npm run eval:classificador -- qwen3.5:4b` | Mede acurácia/latência da IA em 48 casos fictícios (`-- --fonte=gdf qwen3.5:4b`: nos casos avaliados pelo operador) |
 
+## Deploy
+
+Imagem Docker (Next.js standalone) + `compose.producao.yml` com Postgres, migrações/seed automáticos e Caddy
+(HTTPS Let's Encrypt). Passo a passo, backup, IA sem GPU e pendências antes de abrir ao público: [`docs/DEPLOY.md`](docs/DEPLOY.md).
+
+```bash
+cp .env.producao.example .env.producao   # preencha domínio e segredos
+docker compose -f compose.producao.yml --env-file .env.producao up -d --build
+```
+
 ## Estrutura
 
 ```
@@ -56,6 +66,9 @@ ATIVIDADE.md                 Entregáveis da atividade (Etapas 1–5)
 CLAUDE.md / AGENTS.md        Instruções para desenvolvimento assistido
 docs/ARQUITETURA.md          Stack, integração com o GDF, IA, dados, estados, segurança
 docs/ROADMAP.md              Fases: MVP web → PWA → app mobile
+docs/ACESSIBILIDADE.md       WCAG 2.1 AA: o que é testado, o que foi corrigido, checagem manual
+docs/DEPLOY.md               Publicar em servidor com Docker (Caddy + HTTPS), backup, pendências
+Dockerfile, compose.producao.yml, deploy/   Imagem e stack de produção
 data/                        RAs, categorias/órgãos e casos de avaliação da IA (seed)
 prisma/                      Schema, migrações e seed
 src/domain/                  Regras puras (status, protocolo, payload do GDF)

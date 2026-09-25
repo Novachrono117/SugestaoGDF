@@ -35,10 +35,10 @@ Cada etapa fecha com: testes (unidade/integração + E2E quando houver tela) →
 | 5 ✅ | **Transparência e relatórios** | Usa dados das etapas anteriores | Página pública só com agregados (sem dados pessoais); CSV para o operador |
 | 6 ✅ | **PWA** (instalável, câmera, rascunho offline) | Só faz sentido com as telas estáveis | Rascunho no `localStorage` (por aparelho); service worker mínimo |
 | 7 ✅ | **Acessibilidade WCAG 2.1 AA** | Auditoria depois que as telas pararem de mudar | axe-core no E2E + correções |
-| 8 | **Preparar deploy** (Dockerfile, `.env` por ambiente, guia) | Último: empacota o que existe | Criar contas e publicar é com o usuário. LLM em hospedagem sem GPU → fallback por regras ou VM com Ollama |
+| 8 ✅ | **Preparar deploy** (Dockerfile, `.env` por ambiente, guia) | Último: empacota o que existe | Criar contas e publicar é com o usuário. LLM em hospedagem sem GPU → fallback por regras ou VM com Ollama |
 
-**Checkpoint (25/09/2026):** etapas 1–7 concluídas (137 testes de unidade/integração e 20 E2E verdes: fluxo, PWA offline e auditoria axe/teclado/reflow — ver `docs/ACESSIBILIDADE.md`, que lista a verificação manual com leitor de tela ainda pendente).
-Próximo: etapa 8 (deploy). Se o Ollama falhar (CUDA após suspensão), reiniciar o driver de vídeo (Win+Ctrl+Shift+B) ou o Windows.
+**Status (25/09/2026): Fase 2 concluída** — etapas 1–8 (140 testes de unidade/integração e 20 E2E verdes: fluxo, PWA offline e auditoria axe/teclado/reflow). Stack de produção verificada localmente (`docs/DEPLOY.md`).
+Pendente, fora do código: verificação manual com leitor de tela (`docs/ACESSIBILIDADE.md`); antes de abrir ao público, aviso de privacidade (LGPD) e troca dos usuários de demonstração (`docs/DEPLOY.md`, "Pendências"). Se o Ollama falhar (CUDA após suspensão), reiniciar o driver de vídeo (Win+Ctrl+Shift+B) ou o Windows.
 
 PWA — fora do escopo por decisão: fotos no rascunho (exigiria IndexedDB), envio em segundo plano (Background Sync não existe no Safari/iOS) e push notifications (o e-mail já cobre o retorno; push exigiria chaves VAPID e guardar inscrições).
 
