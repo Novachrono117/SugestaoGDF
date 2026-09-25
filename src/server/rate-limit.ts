@@ -30,7 +30,13 @@ export function criarRateLimiter(opcoes: { limite: number; janelaMs: number; ago
   };
 }
 
-/** IP do cliente para chave de rate limit (atrás de proxy, o primeiro de X-Forwarded-For). */
+/**
+ * IP do cliente para chave de rate limit. Usa o ÚLTIMO item de X-Forwarded-For — o que o nosso
+ * proxy reverso acrescentou. Os anteriores vêm do próprio cliente e podem ser forjados (trocar o
+ * "IP" a cada tentativa furaria o limite de login). Pressupõe um único proxy na frente do app
+ * (docs/DEPLOY.md); sem proxy, o cabeçalho inteiro é do cliente — não expor o app direto.
+ */
 export function ipDoCliente(headers: Headers): string {
-  return headers.get("x-forwarded-for")?.split(",")[0]?.trim() || headers.get("x-real-ip") || "local";
+  const cadeia = headers.get("x-forwarded-for")?.split(",").map((s) => s.trim()).filter(Boolean) ?? [];
+  return cadeia.at(-1) || headers.get("x-real-ip") || "local";
 }
