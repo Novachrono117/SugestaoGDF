@@ -13,6 +13,8 @@ import { FOTOS, type CategoriaOpcao, type Foto, type RegiaoOpcao } from "./tipos
 const TIPOS_ACEITOS: readonly string[] = FOTOS.tiposAceitos;
 const MAX_FOTOS = FOTOS.max;
 const MAX_MB = FOTOS.maxMbPadrao;
+const ESTILO_BOTAO_FOTO =
+  "h-24 w-24 cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-slate-300 text-center text-xs font-medium text-slate-600 hover:border-blue-500 hover:text-blue-700 focus-within:ring-2 focus-within:ring-blue-600";
 
 const MapaSeletor = dynamic(() => import("@/components/mapa-seletor"), {
   ssr: false,
@@ -97,13 +99,23 @@ export function PassoDescricao({
             </div>
           ))}
           {fotos.length < MAX_FOTOS && (
-            <label className="flex h-24 w-24 cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-slate-300 text-center text-xs font-medium text-slate-600 hover:border-blue-500 hover:text-blue-700 focus-within:ring-2 focus-within:ring-blue-600">
-              <span className="text-2xl" aria-hidden>
-                +
-              </span>
-              Adicionar
-              <input type="file" accept={TIPOS_ACEITOS.join(",")} multiple onChange={adicionar} className="sr-only" />
-            </label>
+            <>
+              {/* Câmera só em tela de toque: no computador `capture` é ignorado e viraria um 2º "escolher arquivo". */}
+              <label className={`${ESTILO_BOTAO_FOTO} hidden pointer-coarse:flex`}>
+                <span className="text-2xl" aria-hidden>
+                  📷
+                </span>
+                Câmera
+                <input type="file" accept={TIPOS_ACEITOS.join(",")} capture="environment" onChange={adicionar} className="sr-only" />
+              </label>
+              <label className={`${ESTILO_BOTAO_FOTO} flex`}>
+                <span className="text-2xl" aria-hidden>
+                  +
+                </span>
+                Galeria
+                <input type="file" accept={TIPOS_ACEITOS.join(",")} multiple onChange={adicionar} className="sr-only" />
+              </label>
+            </>
           )}
         </div>
       </div>

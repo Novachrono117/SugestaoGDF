@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { Alerta, Botao } from "@/components/ui";
 import type { Ponto } from "@/components/mapa-seletor";
 import { resolverOrgaoSugerido } from "@/domain/orgao";
+import { apagarRascunho, lerRascunho, salvarRascunho, type RascunhoDenuncia } from "@/lib/rascunho-denuncia";
 import { classificacaoSchema, novaDenunciaSchema } from "@/lib/validation/denuncia";
 import type { SugestaoClassificacao } from "@/server/classificador/tipos";
 import { PassoDescricao, PassoLocal, PassoSugestao } from "./passos";
@@ -24,20 +25,65 @@ async function mensagemDeErro(res: Response): Promise<string> {
   return corpo?.error?.message ?? "Algo deu errado. Tente novamente.";
 }
 
-export function AssistenteDenuncia({ categorias, regioes, usuario }: Props) {
+const semAssinatura = () => () => {};
+
+function assinarConexao(avisar: () => void) {
+  window.addEventListener("online", avisar);
+  window.addEventListener("offline", avisar);
+  return () => {
+    window.removeEventListener("online", avisar);
+    window.removeEventListener("offline", avisar);
+  };
+}
+
+/**
+ * O rascunho só existe no navegador. O servidor renderiza o assistente vazio; depois da
+ * hidratação ele é remontado (nova `key`) já com o rascunho — sem divergência de HTML.
+ */
+export function AssistenteDenuncia(props: Props) {
+  const hidratado = useSyncExternalStore(semAssinatura, () => true, () => false);
+  const [versao, setVersao] = useState(0);
+  const rascunho = hidratado ? lerRascunho(localStorage) : null;
+
+  function descartar() {
+    apagarRascunho(localStorage);
+    setVersao((v) => v + 1);
+  }
+
+  return (
+    <Assistente key={`${hidratado}-${versao}`} {...props} persistir={hidratado} rascunho={rascunho} onDescartar={descartar} />
+  );
+}
+
+function Assistente({
+  categorias,
+  regioes,
+  usuario,
+  persistir,
+  rascunho,
+  onDescartar,
+}: Props & { persistir: boolean; rascunho: RascunhoDenuncia | null; onDescartar: () => void }) {
   const router = useRouter();
-  const [passo, setPasso] = useState(0);
+  const online = useSyncExternalStore(assinarConexao, () => navigator.onLine, () => true);
+  const [passo, setPasso] = useState(rascunho?.passo ?? 0);
   const [erro, setErro] = useState<string | null>(null);
   const [ocupado, setOcupado] = useState(false);
 
-  const [descricao, setDescricao] = useState("");
+  const [descricao, setDescricao] = useState(rascunho?.descricao ?? "");
   const [fotos, setFotos] = useState<Foto[]>([]);
-  const [sugestao, setSugestao] = useState<SugestaoClassificacao | null>(null);
-  const [categoriaSlug, setCategoriaSlug] = useState("");
-  const [ponto, setPonto] = useState<Ponto | null>(null);
-  const [raCodigo, setRaCodigo] = useState("");
-  const [endereco, setEndereco] = useState("");
-  const [anonima, setAnonima] = useState(false);
+  const [sugestao, setSugestao] = useState<SugestaoClassificacao | null>(rascunho?.sugestao ?? null);
+  const [categoriaSlug, setCategoriaSlug] = useState(rascunho?.categoriaSlug ?? "");
+  const [ponto, setPonto] = useState<Ponto | null>(rascunho?.ponto ?? null);
+  const [raCodigo, setRaCodigo] = useState(rascunho?.raCodigo ?? "");
+  const [endereco, setEndereco] = useState(rascunho?.endereco ?? "");
+  const [anonima, setAnonima] = useState(rascunho?.anonima ?? false);
+  const enviada = useRef(false);
+
+  // Guarda a cada mudança. Antes da hidratação não: o estado vazio apagaria o rascunho existente.
+  useEffect(() => {
+    if (!persistir || enviada.current) return;
+    salvarRascunho(localStorage, { passo, descricao, sugestao, categoriaSlug, ponto, raCodigo, endereco, anonima });
+  }, [persistir, passo, descricao, sugestao, categoriaSlug, ponto, raCodigo, endereco, anonima]);
 
   const categoria = categorias.find((c) => c.slug === categoriaSlug);
   const ra = regioes.find((r) => r.codigo === raCodigo);
@@ -66,7 +112,7 @@ export function AssistenteDenuncia({ categorias, regioes, usuario }: Props) {
       setCategoriaSlug(s.categoriaSlug);
       irPara(1);
     } catch {
-      setErro("Sem conexão. Verifique sua internet e tente de novo.");
+      setErro("Sem conexão. O que você escreveu fica salvo neste aparelho; tente de novo quando a internet voltar.");
     } finally {
       setOcupado(false);
     }
@@ -103,10 +149,12 @@ export function AssistenteDenuncia({ categorias, regioes, usuario }: Props) {
       const res = await fetch("/api/v1/denuncias", { method: "POST", body: form });
       if (!res.ok) return setErro(await mensagemDeErro(res));
       const { protocolo } = await res.json();
+      enviada.current = true;
+      apagarRascunho(localStorage);
       fotos.forEach((f) => URL.revokeObjectURL(f.url));
       router.push(`/acompanhar/${protocolo}?nova=1`);
     } catch {
-      setErro("Sem conexão. Sua denúncia não foi enviada; tente de novo.");
+      setErro("Sem conexão. Sua denúncia ainda não foi enviada; o rascunho fica salvo neste aparelho. Tente de novo.");
     } finally {
       setOcupado(false);
     }
@@ -124,6 +172,27 @@ export function AssistenteDenuncia({ categorias, regioes, usuario }: Props) {
           </li>
         ))}
       </ol>
+
+      {rascunho && (
+        <Alerta tipo="info">
+          <span className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <span>
+              Continuando o rascunho salvo neste aparelho em{" "}
+              {new Date(rascunho.salvoEm).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" })}.
+              {" "}Fotos precisam ser adicionadas de novo.
+            </span>
+            <button type="button" onClick={onDescartar} className="shrink-0 self-start font-semibold underline sm:self-auto">
+              Começar do zero
+            </button>
+          </span>
+        </Alerta>
+      )}
+
+      {!online && (
+        <Alerta tipo="info">
+          Você está sem internet. Pode continuar preenchendo: fica salvo neste aparelho para enviar quando a conexão voltar.
+        </Alerta>
+      )}
 
       {erro && <Alerta>{erro}</Alerta>}
 
@@ -204,7 +273,7 @@ export function AssistenteDenuncia({ categorias, regioes, usuario }: Props) {
               <Link href="/entrar?voltar=/denunciar" className="font-semibold underline">
                 Entrar
               </Link>{" "}
-              para ver em “Minhas denúncias” (o texto preenchido será perdido).
+              para ver em “Minhas denúncias” (o que você preencheu fica salvo neste aparelho, menos as fotos).
             </Alerta>
           )}
 

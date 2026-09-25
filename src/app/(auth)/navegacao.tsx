@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useTransition } from "react";
+import { apagarRascunho } from "@/lib/rascunho-denuncia";
 import { sair } from "./actions";
 
 /**
@@ -22,6 +23,8 @@ export function BotaoSair() {
       onClick={() =>
         iniciar(async () => {
           await sair();
+          // Aparelho pode ser compartilhado: o relato em rascunho não fica para a próxima pessoa.
+          apagarRascunho(localStorage);
           // Intencional: navegação completa para descartar o estado de sessão em cache (ver acima).
           // eslint-disable-next-line @next/next/no-location-assign-relative-destination
           window.location.assign("/");
