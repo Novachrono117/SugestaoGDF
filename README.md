@@ -8,7 +8,7 @@ O cidadão descreve um problema urbano com as próprias palavras (texto, foto, l
 
 Fase 1 (MVP web) concluída — ver `docs/ROADMAP.md`. Prontos: domínio (status, protocolo, contrato JSON), IA com fallback, integração push + callback, login, fotos sem EXIF, assistente de denúncia, acompanhamento por protocolo, "Minhas denúncias", Simulador GDF, confirmação/contestação da resolução pelo cidadão e avaliação da IA pelo operador, mapa público e teste E2E do fluxo completo.
 
-Fase 2 em andamento: Postgres via Docker, detecção automática da RA pelo mapa, e-mail a cada mudança de status, apoios a denúncias próximas (evita duplicatas), página de transparência + CSV do operador e **PWA** (instalável, câmera no celular, rascunho salvo no aparelho e tela offline).
+Fase 2 em andamento: Postgres via Docker, detecção automática da RA pelo mapa, e-mail a cada mudança de status, apoios a denúncias próximas (evita duplicatas), página de transparência + CSV do operador, **PWA** (instalável, câmera no celular, rascunho salvo no aparelho e tela offline) e **acessibilidade WCAG 2.1 AA** verificada no E2E (`docs/ACESSIBILIDADE.md`).
 
 **Instalar como app:** no celular, abra o site e use "Adicionar à tela inicial" (Android/Chrome oferece "Instalar app"). Precisa de HTTPS; `localhost` vale como seguro para testar no computador. O service worker só é registrado no build de produção (`npm run build && npm start`), não no `npm run dev`.
 

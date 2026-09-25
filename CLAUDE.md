@@ -45,7 +45,7 @@ Regras do Next.js 16 (a doc da versão instalada fica em `node_modules/next/dist
 - `docker compose up -d` — Postgres + Mailpit (SMTP falso, http://localhost:8025) para desenvolvimento
 - `npm run dev` — servidor local (http://localhost:3000)
 - `npm run lint` / `npm run typecheck` / `npm test`
-- `npm run test:e2e` — Playwright (fluxo completo; banco `vozdf_e2e` e build isolados)
+- `npm run test:e2e` — Playwright (fluxo completo, PWA e acessibilidade com axe-core; banco `vozdf_e2e` e build isolados). Tela nova → incluir em `e2e/acessibilidade.spec.ts`
 - `npm run db:migrate -- --name <nome>` — `prisma migrate dev`; o hook `postdb:migrate` roda `prisma generate` (no Prisma 7 o migrate não gera o client sozinho)
 - `npm run ras:baixar` — baixa os limites oficiais das RAs (IDE-DF) para `data/cache/` (fora do git: licença não declarada); rodar `db:seed` depois
 - `npm run db:seed` — dados de referência + usuários fictícios (idempotente); grava os limites se o cache existir

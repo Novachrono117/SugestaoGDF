@@ -34,11 +34,11 @@ Cada etapa fecha com: testes (unidade/integração + E2E quando houver tela) →
 | 4 ✅ | **Duplicatas por proximidade + apoios** | Evita retrabalho no GDF e mostra urgência | Muda schema e contrato (GDF precisa saber o total de apoios); apoiar exige login (anti-spam) |
 | 5 ✅ | **Transparência e relatórios** | Usa dados das etapas anteriores | Página pública só com agregados (sem dados pessoais); CSV para o operador |
 | 6 ✅ | **PWA** (instalável, câmera, rascunho offline) | Só faz sentido com as telas estáveis | Rascunho no `localStorage` (por aparelho); service worker mínimo |
-| 7 | **Acessibilidade WCAG 2.1 AA** | Auditoria depois que as telas pararem de mudar | axe-core no E2E + correções |
+| 7 ✅ | **Acessibilidade WCAG 2.1 AA** | Auditoria depois que as telas pararem de mudar | axe-core no E2E + correções |
 | 8 | **Preparar deploy** (Dockerfile, `.env` por ambiente, guia) | Último: empacota o que existe | Criar contas e publicar é com o usuário. LLM em hospedagem sem GPU → fallback por regras ou VM com Ollama |
 
-**Checkpoint (25/09/2026):** etapas 1–6 concluídas (137 testes de unidade/integração e 6 E2E verdes, incluindo transparência/CSV e PWA offline).
-Próximo: etapa 7 (acessibilidade), depois 8 (deploy). Se o Ollama falhar (CUDA após suspensão), reiniciar o driver de vídeo (Win+Ctrl+Shift+B) ou o Windows.
+**Checkpoint (25/09/2026):** etapas 1–7 concluídas (137 testes de unidade/integração e 20 E2E verdes: fluxo, PWA offline e auditoria axe/teclado/reflow — ver `docs/ACESSIBILIDADE.md`, que lista a verificação manual com leitor de tela ainda pendente).
+Próximo: etapa 8 (deploy). Se o Ollama falhar (CUDA após suspensão), reiniciar o driver de vídeo (Win+Ctrl+Shift+B) ou o Windows.
 
 PWA — fora do escopo por decisão: fotos no rascunho (exigiria IndexedDB), envio em segundo plano (Background Sync não existe no Safari/iOS) e push notifications (o e-mail já cobre o retorno; push exigiria chaves VAPID e guardar inscrições).
 
