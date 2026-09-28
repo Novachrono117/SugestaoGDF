@@ -32,11 +32,12 @@ export function Botao({
   variante = "primario",
   className = "",
   ...props
-}: { variante?: "primario" | "secundario" } & ComponentProps<"button">) {
-  const estilos =
-    variante === "primario"
-      ? "bg-blue-700 text-white hover:bg-blue-800 disabled:bg-blue-300"
-      : "border border-slate-300 bg-white text-slate-800 hover:bg-slate-50 disabled:text-slate-400";
+}: { variante?: "primario" | "secundario" | "perigo" } & ComponentProps<"button">) {
+  const estilos = {
+    primario: "bg-blue-700 text-white hover:bg-blue-800 disabled:bg-blue-300",
+    secundario: "border border-slate-300 bg-white text-slate-800 hover:bg-slate-50 disabled:text-slate-400",
+    perigo: "bg-red-700 text-white hover:bg-red-800 disabled:bg-red-300",
+  }[variante];
   return (
     <button
       className={`inline-flex min-h-11 items-center justify-center rounded-lg px-4 py-2 font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:cursor-not-allowed ${estilos} ${className}`}

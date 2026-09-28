@@ -24,6 +24,7 @@ x-app-env: &app-env
   SMTP_USUARIO: ${SMTP_USUARIO:-}
   SMTP_SENHA: ${SMTP_SENHA:-}
   EMAIL_REMETENTE: ${EMAIL_REMETENTE:-Voz DF <nao-responda@vozdf.example>}
+  CONTATO_PRIVACIDADE: ${CONTATO_PRIVACIDADE:-}
 
 services:
   postgres:

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ApagarRascunho } from "@/components/apagar-rascunho";
 import { AvisoEmergencia } from "@/components/aviso-emergencia";
 import { BuscaProtocolo } from "@/components/busca-protocolo";
 import { Alerta } from "@/components/ui";
@@ -10,10 +11,16 @@ const PASSOS = [
 ] as const;
 
 export default async function Home({ searchParams }: PageProps<"/">) {
-  const { erro } = await searchParams;
+  const { erro, conta } = await searchParams;
   return (
     <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-8 p-4 sm:p-6">
       {erro === "acesso-negado" && <Alerta>Você não tem permissão para acessar aquela página.</Alerta>}
+      {conta === "excluida" && (
+        <>
+          <ApagarRascunho />
+          <Alerta tipo="sucesso">Sua conta foi excluída. Suas denúncias seguem no GDF, sem ligação com você.</Alerta>
+        </>
+      )}
 
       <section className="flex flex-col gap-4 pt-4">
         <h1 className="text-3xl font-bold leading-tight text-slate-900 sm:text-4xl">
@@ -67,10 +74,6 @@ export default async function Home({ searchParams }: PageProps<"/">) {
           ))}
         </ol>
       </section>
-
-      <p className="text-xs text-slate-500">
-        Projeto acadêmico — não é um serviço oficial do GDF. A integração com o governo é simulada.
-      </p>
     </main>
   );
 }

@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Cartao } from "@/components/ui";
 import { exigirUsuario } from "@/server/auth/sessao";
 import { db } from "@/server/db";
-import { FormPreferencias } from "./formulario";
+import { FormExcluirConta, FormPreferencias } from "./formulario";
 
 export const metadata: Metadata = { title: "Minha conta — Voz DF" };
 
@@ -31,6 +32,28 @@ export default async function MinhaContaPage() {
       <Cartao>
         <h2 className="mb-3 text-lg font-semibold text-slate-900">Notificações</h2>
         <FormPreferencias notificarPorEmail={notificarPorEmail} />
+      </Cartao>
+      <Cartao>
+        <h2 className="mb-1 text-lg font-semibold text-slate-900">Seus dados</h2>
+        <p className="mb-3 text-sm text-slate-600">
+          Tudo o que guardamos ligado à sua conta: dados da conta, denúncias (com o relato) e apoios. Veja o{" "}
+          <Link href="/privacidade" className="font-semibold text-blue-700 underline">
+            aviso de privacidade
+          </Link>
+          .
+        </p>
+        {/* <a> e não <Link>: é um download, não uma navegação */}
+        <a
+          href="/api/v1/minha-conta/dados"
+          download
+          className="inline-flex min-h-11 items-center rounded-lg border border-slate-300 bg-white px-4 font-semibold text-slate-800 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
+        >
+          Baixar meus dados (JSON)
+        </a>
+      </Cartao>
+      <Cartao>
+        <h2 className="mb-3 text-lg font-semibold text-slate-900">Excluir conta</h2>
+        <FormExcluirConta />
       </Cartao>
     </main>
   );

@@ -284,8 +284,12 @@ function Assistente({
             </Alerta>
           )}
 
-          <p className="text-xs text-slate-500">
-            Seus dados pessoais não são enviados ao GDF nem aparecem no mapa público.
+          <p className="text-xs text-slate-600">
+            Seu nome e e-mail não vão para o GDF nem aparecem no mapa público. O relato, as fotos e o local vão para o GDF
+            — não inclua dados de outras pessoas.{" "}
+            <Link href="/privacidade" target="_blank" className="font-semibold underline">
+              Aviso de privacidade
+            </Link>
           </p>
 
           <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-between">

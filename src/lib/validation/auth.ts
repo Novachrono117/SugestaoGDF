@@ -18,3 +18,8 @@ export const cadastroSchema = z.object({
 });
 
 export type Cadastro = z.infer<typeof cadastroSchema>;
+
+// Consentimento (LGPD art. 7º, I) explícito no cadastro: a caixa precisa vir marcada.
+export const aceitePrivacidadeSchema = z.literal("on", {
+  error: "Para criar a conta, confirme que leu o aviso de privacidade.",
+});

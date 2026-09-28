@@ -4,7 +4,7 @@ import { AuthError, CredentialsSignin } from "next-auth";
 import { headers } from "next/headers";
 import { signIn, signOut } from "@/auth";
 import { destinoSeguro } from "@/lib/destino-seguro";
-import { cadastroSchema } from "@/lib/validation/auth";
+import { aceitePrivacidadeSchema, cadastroSchema } from "@/lib/validation/auth";
 import { cadastrarCidadao } from "@/server/auth/usuarios";
 import { db } from "@/server/db";
 import { ErroDominio } from "@/server/erros";
@@ -45,6 +45,8 @@ export async function cadastrar(_anterior: EstadoForm, formData: FormData): Prom
   }
   const parsed = cadastroSchema.safeParse(bruto);
   if (!parsed.success) return { erro: parsed.error.issues[0]?.message ?? "Dados inválidos.", campos };
+  const aceite = aceitePrivacidadeSchema.safeParse(formData.get("aceitePrivacidade"));
+  if (!aceite.success) return { erro: aceite.error.issues[0]?.message, campos };
 
   try {
     await cadastrarCidadao(db, parsed.data);

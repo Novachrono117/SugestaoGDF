@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import Link from "next/link";
 import { Cabecalho } from "@/components/cabecalho";
 import { RegistrarServiceWorker } from "@/components/registrar-sw";
 import "./globals.css";
@@ -42,6 +43,17 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <div id="conteudo" tabIndex={-1} className="flex flex-1 flex-col focus:outline-none">
           {children}
         </div>
+        <footer className="border-t border-slate-200 bg-white">
+          <div className="mx-auto flex w-full max-w-5xl flex-wrap items-center gap-x-4 gap-y-1 px-4 py-4 text-sm text-slate-600">
+            <Link href="/privacidade" className="font-medium underline hover:text-blue-700">
+              Aviso de privacidade
+            </Link>
+            <Link href="/transparencia" className="font-medium underline hover:text-blue-700">
+              Transparência
+            </Link>
+            <span>Projeto acadêmico — não é um serviço oficial do GDF.</span>
+          </div>
+        </footer>
         <RegistrarServiceWorker />
       </body>
     </html>

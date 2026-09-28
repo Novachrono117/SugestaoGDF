@@ -110,8 +110,9 @@ Use o `Dockerfile` (alvo `app`) com Postgres gerenciado:
 
 Classificação: **HIGH** = resolver antes de abrir ao público; **MEDIUM** = logo depois.
 
-- **HIGH — Aviso de privacidade (LGPD):** o site coleta nome, e-mail, relato, foto e local. Falta uma página
-  de privacidade explicando finalidade, base legal, retenção e contato do controlador, com link no cadastro e no assistente.
+- ✅ **Aviso de privacidade (LGPD):** `/privacidade` (link no rodapé, no cadastro e no assistente), aceite explícito no
+  cadastro, "Baixar meus dados" e "Excluir conta" em Minha conta. **Falta preencher `CONTATO_PRIVACIDADE`** (canal
+  do titular) e, num uso real, revisar o texto com quem responde juridicamente pelo serviço.
 - **HIGH — Usuários de demonstração:** o seed cria operador e cidadã fictícios com `SEED_SENHA_DEMO`. Num
   uso real, trocar por contas nominais e remover os fictícios.
 - **MEDIUM — Content-Security-Policy:** os outros cabeçalhos de segurança já saem em toda resposta; CSP exige

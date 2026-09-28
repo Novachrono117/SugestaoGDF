@@ -58,6 +58,8 @@ Regras do Next.js 16 (a doc da versão instalada fica em `node_modules/next/dist
 - O singleton do Prisma fica em `globalThis` no dev: após `db:migrate`, reiniciar o `npm run dev`.
 - Testes criam bancos `vozdf_test_*` (cópia de template) e o E2E usa `vozdf_e2e`; `src/test/pg-admin.ts` recusa apagar qualquer outro nome.
 - Ollama pode quebrar o CUDA após suspensão do notebook ("cudaMalloc failed"): o app cai no fallback por regras; resolver com Win+Ctrl+Shift+B (reinicia o driver) ou reboot.
+- Action que apaga o próprio usuário (excluir conta): terminar com `redirect()` para uma página pública. Sem isso o Next re-renderiza a página atual (protegida) e manda para `/entrar` antes de o cliente ver a resposta.
+- Mudou o que se coleta, para onde vai ou quanto tempo fica? Atualizar `src/app/privacidade/page.tsx` (e a data) no mesmo commit.
 - Form com `useActionState` + `revalidatePath`: não remontar com `key` (apaga a mensagem de sucesso); ajustar estado durante o render.
 - `<select>` dentro de grid no celular: usar `w-full min-w-0` (a opção mais longa alarga a página).
 - E2E: fechar os contextos criados com `browser.newContext()` (helper `novaPagina`) e esperar mensagens **específicas** (a anterior pode continuar na tela).

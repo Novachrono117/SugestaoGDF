@@ -48,6 +48,16 @@ export function FormCadastro({ voltar }: { voltar: string }) {
         minLength={8}
         dica="Mínimo de 8 caracteres."
       />
+      <label className="flex items-start gap-3 rounded-lg border border-slate-200 bg-white p-3">
+        <input type="checkbox" name="aceitePrivacidade" required className="mt-1 h-5 w-5 shrink-0" />
+        <span className="text-sm text-slate-800">
+          Li o{" "}
+          <Link href="/privacidade" target="_blank" className="font-semibold text-blue-700 underline">
+            aviso de privacidade
+          </Link>{" "}
+          e concordo com o uso dos meus dados como descrito nele.
+        </span>
+      </label>
       <Botao type="submit" disabled={ocupado}>
         {ocupado ? "Criando conta…" : "Criar conta"}
       </Botao>

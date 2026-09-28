@@ -230,6 +230,7 @@ test("pessoa nova se cadastra e apoia uma denúncia próxima em vez de duplicar"
   await vizinho.getByLabel("Nome").fill("Vizinho E2E (fictício)");
   await vizinho.getByLabel("E-mail").fill(`vizinho-${Date.now()}@vozdf.example`);
   await vizinho.getByLabel("Senha").fill("senha-do-vizinho-123");
+  await vizinho.getByLabel(/Li o aviso de privacidade/).check();
   await vizinho.getByRole("button", { name: "Criar conta" }).click();
   await expect(vizinho.getByRole("link", { name: /^Minha conta/ })).toBeVisible();
 

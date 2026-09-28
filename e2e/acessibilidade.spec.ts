@@ -55,7 +55,7 @@ test.beforeAll(async ({ browser }) => {
   protocolo = (await res.json()).protocolo;
 });
 
-for (const rota of ["/", "/entrar", "/cadastro", "/acompanhar", "/mapa", "/transparencia", "/offline.html"]) {
+for (const rota of ["/", "/entrar", "/cadastro", "/acompanhar", "/mapa", "/transparencia", "/privacidade", "/offline.html"]) {
   test(`público ${rota}`, async ({ page }) => {
     await page.goto(rota);
     if (rota === "/mapa") await expect(page.locator(".leaflet-container")).toBeVisible();

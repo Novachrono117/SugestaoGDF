@@ -16,6 +16,12 @@ const envSchema = z.object({
   SMTP_USUARIO: z.string().optional().transform((v) => v || undefined),
   SMTP_SENHA: z.string().optional().transform((v) => v || undefined),
   EMAIL_REMETENTE: z.string().default("Voz DF <nao-responda@vozdf.example>"),
+  // Canal do titular para pedidos LGPD (mostrado em /privacidade). Vazio = texto genérico.
+  CONTATO_PRIVACIDADE: z
+    .string()
+    .optional()
+    .transform((v) => v?.trim() || undefined)
+    .pipe(z.email("CONTATO_PRIVACIDADE deve ser um e-mail").optional()),
 });
 
 export type ServerEnv = z.infer<typeof envSchema>;

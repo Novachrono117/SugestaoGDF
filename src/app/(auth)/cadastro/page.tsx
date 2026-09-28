@@ -17,7 +17,8 @@ export default async function CadastroPage({ searchParams }: PageProps<"/cadastr
       <Cartao>
         <h1 className="mb-1 text-2xl font-bold text-slate-900">Criar conta</h1>
         <p className="mb-6 text-sm text-slate-600">
-          Pedimos só o necessário. Seus dados <strong>não</strong> aparecem no mapa público nem são enviados ao GDF.
+          Pedimos só o necessário. Seu nome e e-mail <strong>não</strong> aparecem no mapa público nem são enviados ao
+          GDF.
         </p>
         <FormCadastro voltar={destino} />
       </Cartao>
