@@ -24,7 +24,7 @@ cp .env.example .env        # PowerShell: Copy-Item .env.example .env
 Preencha no `.env`: `POSTGRES_PASSWORD` (e a mesma senha dentro de `DATABASE_URL`), `AUTH_SECRET`, `GDF_WEBHOOK_KEY`, `GDF_CALLBACK_KEY` (valores longos e aleatórios — o próprio arquivo mostra como gerar) e `SEED_SENHA_DEMO` (senha dos usuários fictícios).
 
 ```bash
-docker compose up -d        # Postgres (localhost:5432) + Mailpit (e-mails em http://localhost:8025)
+docker compose up -d        # Postgres (localhost:5432, ou POSTGRES_PORTA) + Mailpit (e-mails em http://localhost:8025)
 npm run db:migrate          # aplica as migrações no Postgres e gera o Prisma Client
 npm run ras:baixar          # opcional: limites oficiais das RAs (detecção automática no mapa)
 npm run db:seed             # 37 RAs, órgãos, categorias e 2 usuários fictícios
