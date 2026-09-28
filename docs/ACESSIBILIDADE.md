@@ -22,6 +22,7 @@ Ferramentas automáticas acham só parte dos problemas (estimativa comum: 30–5
 | Ao trocar de passo no assistente, o foco ficava no botão antigo (leitor de tela não anunciava o passo novo) | 2.4.3 Ordem do foco (A) / 4.1.3 | Foco vai para o título oculto "Passo X de 4: …" |
 | Até 8 links no cabeçalho antes do conteúdo em toda página | 2.4.1 Pular blocos (A) | Link "Pular para o conteúdo", visível ao receber foco |
 | Tabelas da transparência rolavam na horizontal no celular sem acesso pelo teclado | 2.1.1 (axe `scrollable-region-focusable`) | Região rolável focável e rotulada |
+| Mapa público só com marcadores visuais (28/09/2026) | 1.1.1 Conteúdo não textual (A) | "Ver as N denúncias em lista" abaixo do mapa: tabela com protocolo (link), categoria, região, situação, data e apoios, com os mesmos filtros; funciona sem JavaScript |
 
 Já existia desde a Fase 1: `lang="pt-BR"`, títulos de página distintos, labels associados a todos os campos, erros com `role="alert"`, avisos com `aria-live`, foco visível nos botões, alvos de toque ≥ 44 px nos botões principais, status sempre com texto (não só cor), fotos com texto alternativo.
 
@@ -36,5 +37,4 @@ Não automatizável; **ainda não executada** com tecnologia assistiva real:
 
 ## Limitações conhecidas
 
-- **Mapa público (`/mapa`):** os marcadores são visuais. Em texto há só o agregado (transparência: totais por RA, categoria e status), não a lista ponto a ponto. Se for preciso, a evolução é uma lista das denúncias próximas abaixo do mapa.
 - **Blocos do mapa (OpenStreetMap):** imagens de terceiros, sem descrição; o local marcado é anunciado em texto ("Local marcado: …").

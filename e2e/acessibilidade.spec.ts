@@ -58,7 +58,12 @@ test.beforeAll(async ({ browser }) => {
 for (const rota of ["/", "/entrar", "/cadastro", "/acompanhar", "/mapa", "/transparencia", "/privacidade", "/offline.html"]) {
   test(`público ${rota}`, async ({ page }) => {
     await page.goto(rota);
-    if (rota === "/mapa") await expect(page.locator(".leaflet-container")).toBeVisible();
+    if (rota === "/mapa") {
+      await expect(page.locator(".leaflet-container")).toBeVisible();
+      // Alternativa em texto aos marcadores: a lista abre e leva à consulta do protocolo.
+      await page.getByText(/^Ver as \d+ denúncia\(s\) em lista$/).click();
+      await expect(page.getByRole("link", { name: protocolo })).toBeVisible();
+    }
     await auditar(page);
   });
 }

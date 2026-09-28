@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { COR_STATUS } from "@/components/cores-status";
+import { formatarData } from "@/components/status";
 import { ROTULO_STATUS, type Status } from "@/domain/status";
 import { db } from "@/server/db";
 import { filtrosMapaSchema, pontosPublicos } from "@/server/denuncias/mapa";
@@ -30,7 +31,7 @@ export default async function MapaPage({ searchParams }: PageProps<"/mapa">) {
         <h1 className="text-2xl font-bold text-slate-900">Mapa das denúncias</h1>
         <p className="text-sm text-slate-600">
           Localização <strong>aproximada</strong> (cerca de 100 m) e sem dados pessoais. Toque num ponto para ver o
-          andamento.
+          andamento, ou veja tudo em lista abaixo do mapa.
         </p>
       </div>
 
@@ -93,6 +94,50 @@ export default async function MapaPage({ searchParams }: PageProps<"/mapa">) {
           </li>
         ))}
       </ul>
+
+      {/* Alternativa em texto aos marcadores (leitor de tela, teclado, quem prefere lista). Mesmos filtros. */}
+      {pontos.length > 0 && (
+        <details className="rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <summary className="cursor-pointer px-5 py-4 font-semibold text-slate-900">
+            Ver as {pontos.length} denúncia(s) em lista
+          </summary>
+          <div
+            className="overflow-x-auto border-t border-slate-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-600"
+            tabIndex={0}
+            role="region"
+            aria-label="Denúncias do mapa (tabela; role para os lados se não couber)"
+          >
+            <table className="w-full min-w-[40rem] text-left text-sm">
+              <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-600">
+                <tr>
+                  <th scope="col" className="px-4 py-2">Protocolo</th>
+                  <th scope="col" className="px-4 py-2">Categoria</th>
+                  <th scope="col" className="px-4 py-2">Região</th>
+                  <th scope="col" className="px-4 py-2">Situação</th>
+                  <th scope="col" className="px-4 py-2">Registrada em</th>
+                  <th scope="col" className="px-4 py-2 text-right">Apoios</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {pontos.map((p) => (
+                  <tr key={p.protocolo}>
+                    <th scope="row" className="px-4 py-2 font-medium">
+                      <Link href={`/acompanhar/${p.protocolo}`} className="text-blue-700 underline">
+                        {p.protocolo}
+                      </Link>
+                    </th>
+                    <td className="px-4 py-2">{p.categoria}</td>
+                    <td className="px-4 py-2">{p.ra}</td>
+                    <td className="px-4 py-2">{p.statusRotulo}</td>
+                    <td className="px-4 py-2">{formatarData(new Date(p.criadoEm))}</td>
+                    <td className="px-4 py-2 text-right">{p.totalApoios}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </details>
+      )}
     </main>
   );
 }
