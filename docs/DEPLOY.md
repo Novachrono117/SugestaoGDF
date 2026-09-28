@@ -9,10 +9,11 @@ o domínio e configurar DNS/SMTP ficam com quem for publicar; o repositório já
 Internet ──443/80──► Caddy (HTTPS automático) ──► app (Next.js standalone, porta 3000) ──► Postgres
                                                       │ volume "uploads" (fotos)
                         migrador (roda e sai a cada deploy: migrações → limites das RAs → seed)
+                        agendador (a cada 5 min: POST /api/v1/integracao/gdf/reenviar, pela rede interna)
 ```
 
 - `Dockerfile`: alvo `app` (≈ 400 MB, usuário sem privilégios, health check em `/api/health`) e alvo `migrador`.
-- `compose.producao.yml`: Postgres, migrador, app e Caddy. Só o Caddy publica portas; banco e app ficam na rede interna.
+- `compose.producao.yml`: Postgres, migrador, app, agendador e Caddy. Só o Caddy publica portas; banco e app ficam na rede interna.
 - `deploy/Caddyfile`: certificado Let's Encrypt, HSTS, limite de 20 MB por requisição.
 - O `docker-compose.yml` da raiz continua sendo **só de desenvolvimento**.
 
@@ -20,6 +21,8 @@ Verificado localmente em 25/09/2026 com `DOMINIO=localhost`: build das imagens, 
 limites), health check, cabeçalhos de segurança, redirecionamento HTTP→HTTPS, login com cookie `secure`,
 denúncia com foto (processada pelo `sharp` nativo dentro da imagem e gravada renomeada) e envio ao simulador;
 redeploy sem migrações pendentes. O callback do simulador não fecha com `localhost` (ver "Solução de problemas").
+Em 28/09/2026, de novo: CSP com nonce passando pelo Caddy, seed com `SEED_USUARIOS_DEMO=false`, conta de operador
+criada com `usuario:criar` dentro do container, contato no aviso de privacidade e o agendador rodando a cada ciclo.
 
 ## Pré-requisitos
 
@@ -124,9 +127,9 @@ Use o `Dockerfile` (alvo `app`) com Postgres gerenciado:
 | `Configuração inválida no .env` nos logs do app | Variável obrigatória vazia ou curta demais (chaves ≥ 32 caracteres) |
 | Build falha com "heap out of memory" | Pouca RAM no servidor: gere a imagem em outra máquina |
 
-## Pendências antes de um uso público real
+## Antes de um uso público real
 
-Classificação: **HIGH** = resolver antes de abrir ao público; **MEDIUM** = logo depois.
+Resolvido no código (28/09/2026); falta só o que depende de quem publica:
 
 - ✅ **Aviso de privacidade (LGPD):** `/privacidade` (link no rodapé, no cadastro e no assistente), aceite explícito no
   cadastro, "Baixar meus dados" e "Excluir conta" em Minha conta. **Falta preencher `CONTATO_PRIVACIDADE`** (canal
@@ -136,5 +139,7 @@ Classificação: **HIGH** = resolver antes de abrir ao público; **MEDIUM** = lo
 - ✅ **Reenvio automático:** com `TAREFAS_KEY` preenchida, o serviço `agendador` chama o reenvio a cada 5 min
   (`AGENDADOR_INTERVALO_S`) pela rede interna. Numa plataforma sem compose, use o cron dela:
   `POST https://DOMINIO/api/v1/integracao/gdf/reenviar` com `Authorization: Bearer <TAREFAS_KEY>`.
-- **Escala horizontal** (mais de uma instância): trocar rate limit em memória por store compartilhado e as fotos
+- **Fora do código:** preencher `CONTATO_PRIVACIDADE`, revisar o aviso de privacidade com quem responde
+  juridicamente pelo serviço e configurar um SMTP real (com SPF/DKIM).
+- **Só se houver escala horizontal** (mais de uma instância): trocar rate limit em memória por store compartilhado e as fotos
   por storage S3-compatível (ver `docs/ROADMAP.md`, "Adiados").

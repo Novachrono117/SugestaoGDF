@@ -8,7 +8,7 @@ O cidadão descreve um problema urbano com as próprias palavras (texto, foto, l
 
 Fase 1 (MVP web) concluída — ver `docs/ROADMAP.md`. Prontos: domínio (status, protocolo, contrato JSON), IA com fallback, integração push + callback, login, fotos sem EXIF, assistente de denúncia, acompanhamento por protocolo, "Minhas denúncias", Simulador GDF, confirmação/contestação da resolução pelo cidadão e avaliação da IA pelo operador, mapa público e teste E2E do fluxo completo.
 
-Fase 2 concluída: Postgres via Docker, detecção automática da RA pelo mapa, e-mail a cada mudança de status, apoios a denúncias próximas (evita duplicatas), página de transparência + CSV do operador, **PWA** (instalável, câmera no celular, rascunho salvo no aparelho e tela offline), **acessibilidade WCAG 2.1 AA** verificada no E2E (`docs/ACESSIBILIDADE.md`) e **deploy com Docker** (`docs/DEPLOY.md`).
+Fase 2 concluída: Postgres via Docker, detecção automática da RA pelo mapa, e-mail a cada mudança de status, apoios a denúncias próximas (evita duplicatas), página de transparência + CSV do operador, **PWA** (instalável, câmera no celular, rascunho salvo no aparelho e tela offline), **acessibilidade WCAG 2.1 AA** verificada no E2E (`docs/ACESSIBILIDADE.md`) **deploy com Docker** (`docs/DEPLOY.md`), **aviso de privacidade** com baixar dados/excluir conta (LGPD) e **CSP com nonce**.
 
 **Instalar como app:** no celular, abra o site e use "Adicionar à tela inicial" (Android/Chrome oferece "Instalar app"). Precisa de HTTPS; `localhost` vale como seguro para testar no computador. O service worker só é registrado no build de produção (`npm run build && npm start`), não no `npm run dev`.
 
@@ -46,6 +46,7 @@ Usuários fictícios (senha = `SEED_SENHA_DEMO`): `operador@vozdf.example` (aces
 | `npm run db:migrate` | Aplica migrações **e** gera o client (no Prisma 7 o `migrate dev` não gera sozinho). Pare o `npm run dev` antes |
 | `npm run ras:baixar` | Baixa os limites oficiais das 37 RAs (IDE-DF/SEDUH) para `data/cache/` — **não versionado** (licença não declarada pela fonte). Sem ele, a RA é escolhida manualmente |
 | `npm run db:seed` | Dados de referência + usuários fictícios (idempotente); grava os limites se o cache existir |
+| `npm run usuario:criar -- --nome "…" --email … --papel OPERADOR_GDF` | Cria conta fora da interface (ex.: operador real); a senha é digitada sem aparecer. `usuario:remover -- --email …` remove |
 | `npx tsx scripts/gerar-icones.mts` | Regera os ícones do PWA (`public/icons/`, `src/app/icon.svg`, `src/app/apple-icon.png`) — só se o desenho mudar |
 | `npm run eval:classificador -- qwen3.5:4b` | Mede acurácia/latência da IA em 48 casos fictícios (`-- --fonte=gdf qwen3.5:4b`: nos casos avaliados pelo operador) |
 

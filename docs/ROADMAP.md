@@ -37,8 +37,8 @@ Cada etapa fecha com: testes (unidade/integração + E2E quando houver tela) →
 | 7 ✅ | **Acessibilidade WCAG 2.1 AA** | Auditoria depois que as telas pararem de mudar | axe-core no E2E + correções |
 | 8 ✅ | **Preparar deploy** (Dockerfile, `.env` por ambiente, guia) | Último: empacota o que existe | Criar contas e publicar é com o usuário. LLM em hospedagem sem GPU → fallback por regras ou VM com Ollama |
 
-**Status (25/09/2026): Fase 2 concluída** — etapas 1–8 (140 testes de unidade/integração e 20 E2E verdes: fluxo, PWA offline e auditoria axe/teclado/reflow). Stack de produção verificada localmente (`docs/DEPLOY.md`).
-Pendente, fora do código: verificação manual com leitor de tela (`docs/ACESSIBILIDADE.md`); antes de abrir ao público, aviso de privacidade (LGPD) e troca dos usuários de demonstração (`docs/DEPLOY.md`, "Pendências"). Se o Ollama falhar (CUDA após suspensão), reiniciar o driver de vídeo (Win+Ctrl+Shift+B) ou o Windows.
+**Status (28/09/2026): Fase 2 concluída, inclusive as pendências de código do deploy** — aviso de privacidade + direitos do titular (baixar dados, excluir conta), usuários de demonstração opcionais + `usuario:criar`/`usuario:remover`, CSP com nonce, reenvio agendado e o mapa em lista. 143 testes de unidade/integração e 25 E2E verdes; stack de produção verificada localmente.
+Pendente, fora do código: verificação manual com leitor de tela (`docs/ACESSIBILIDADE.md`); para um uso público, `CONTATO_PRIVACIDADE`, revisão jurídica do aviso e SMTP real (`docs/DEPLOY.md`). Se o Ollama falhar (CUDA após suspensão), reiniciar o driver de vídeo (Win+Ctrl+Shift+B) ou o Windows.
 
 PWA — fora do escopo por decisão: fotos no rascunho (exigiria IndexedDB), envio em segundo plano (Background Sync não existe no Safari/iOS) e push notifications (o e-mail já cobre o retorno; push exigiria chaves VAPID e guardar inscrições).
 
