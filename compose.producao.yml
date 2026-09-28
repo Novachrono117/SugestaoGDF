@@ -14,6 +14,7 @@ x-app-env: &app-env
   GDF_WEBHOOK_URL: ${GDF_WEBHOOK_URL:-http://127.0.0.1:3000/api/simulador-gdf/manifestacoes}
   GDF_WEBHOOK_KEY: ${GDF_WEBHOOK_KEY:?}
   GDF_CALLBACK_KEY: ${GDF_CALLBACK_KEY:?}
+  TAREFAS_KEY: ${TAREFAS_KEY:-}
   MAX_UPLOAD_MB: ${MAX_UPLOAD_MB:-5}
   OLLAMA_URL: ${OLLAMA_URL:-}
   OLLAMA_MODEL: ${OLLAMA_MODEL:-} # vazio = classificador por regras (servidor sem GPU)
@@ -64,6 +65,28 @@ services:
       migrador: { condition: service_completed_successfully }
     # Sem "ports": só o Caddy fala com o app (o X-Forwarded-For confiável vem dele).
     stop_grace_period: 30s # termina requisições e callbacks after() pendentes
+
+  # Reenvia a cada N segundos o que falhou (envios ao GDF, apoios, avaliações, e-mails). Fala direto com o
+  # app pela rede interna. Sem TAREFAS_KEY, só avisa e para (o botão do simulador continua funcionando).
+  agendador:
+    image: alpine:3.22
+    restart: unless-stopped
+    environment:
+      TAREFAS_KEY: ${TAREFAS_KEY:-}
+      INTERVALO_S: ${AGENDADOR_INTERVALO_S:-300}
+    command:
+      - sh
+      - -c
+      - |
+        [ -n "$$TAREFAS_KEY" ] || { echo "TAREFAS_KEY vazia: agendador desligado"; exec sleep infinity; }
+        while true; do
+          sleep "$$INTERVALO_S"
+          wget -q -O - --header "Authorization: Bearer $$TAREFAS_KEY" --post-data "" \
+            http://app:3000/api/v1/integracao/gdf/reenviar || echo "reenvio falhou; tenta de novo no próximo ciclo"
+          echo
+        done
+    depends_on:
+      app: { condition: service_healthy }
 
   caddy:
     image: caddy:2.10-alpine

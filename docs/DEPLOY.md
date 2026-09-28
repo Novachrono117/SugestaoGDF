@@ -35,7 +35,8 @@ git clone <repo> voz-df && cd voz-df
 cp .env.producao.example .env.producao
 # gere cada segredo (use hex — caracteres especiais quebram a DATABASE_URL montada pelo compose):
 node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
-# preencha no .env.producao: DOMINIO, POSTGRES_PASSWORD, AUTH_SECRET, GDF_WEBHOOK_KEY, GDF_CALLBACK_KEY, SEED_SENHA_DEMO
+# preencha no .env.producao: DOMINIO, POSTGRES_PASSWORD, AUTH_SECRET, GDF_WEBHOOK_KEY, GDF_CALLBACK_KEY,
+# TAREFAS_KEY (reenvio automático), SEED_SENHA_DEMO e CONTATO_PRIVACIDADE
 docker compose -f compose.producao.yml --env-file .env.producao up -d --build
 curl https://SEU-DOMINIO/api/health     # {"ok":true}
 ```
@@ -132,8 +133,8 @@ Classificação: **HIGH** = resolver antes de abrir ao público; **MEDIUM** = lo
   do titular) e, num uso real, revisar o texto com quem responde juridicamente pelo serviço.
 - ✅ **Usuários de demonstração:** num uso real, `SEED_USUARIOS_DEMO=false` e contas nominais (ver "Contas" acima).
 - ✅ **Content-Security-Policy** com nonce por requisição (`src/proxy.ts`), verificada no E2E sem violações.
-- **MEDIUM — Reenvio automático:** e-mails que falharam são reprocessados a cada novo callback do GDF; envios
-  ao GDF que falharam, só pelo botão "Reenviar pendentes" do simulador. Um agendamento (cron) exigiria um endpoint
-  com chave própria (o atual exige sessão de operador).
+- ✅ **Reenvio automático:** com `TAREFAS_KEY` preenchida, o serviço `agendador` chama o reenvio a cada 5 min
+  (`AGENDADOR_INTERVALO_S`) pela rede interna. Numa plataforma sem compose, use o cron dela:
+  `POST https://DOMINIO/api/v1/integracao/gdf/reenviar` com `Authorization: Bearer <TAREFAS_KEY>`.
 - **Escala horizontal** (mais de uma instância): trocar rate limit em memória por store compartilhado e as fotos
   por storage S3-compatível (ver `docs/ROADMAP.md`, "Adiados").

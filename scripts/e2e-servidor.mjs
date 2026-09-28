@@ -32,6 +32,7 @@ const env = {
   GDF_WEBHOOK_URL: `${base}/api/simulador-gdf/manifestacoes`,
   GDF_WEBHOOK_KEY: "e2e-chave-push-somente-para-testes-0123456789",
   GDF_CALLBACK_KEY: "e2e-chave-callback-somente-para-testes-0123456789",
+  TAREFAS_KEY: "e2e-chave-tarefas-somente-para-testes-0123456789",
   // Absoluto: o server.js standalone muda o diretório de trabalho para a própria pasta.
   UPLOAD_DIR: resolve(".tmp/e2e-uploads"),
   PORT: String(PORTA_E2E),

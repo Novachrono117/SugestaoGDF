@@ -33,6 +33,15 @@ test("CSP com nonce novo a cada requisição e cabeçalhos de segurança", async
   expect((await request.get("/api/health")).headers()["content-security-policy"]).toBeUndefined();
 });
 
+test("reenvio de pendentes: agendador com chave, anônimo e chave errada recusados", async ({ request }) => {
+  const url = "/api/v1/integracao/gdf/reenviar";
+  expect((await request.post(url)).status()).toBe(401); // sem sessão nem chave
+  expect((await request.post(url, { headers: { Authorization: "Bearer chave-errada-0000000000000000000000000" } })).status()).toBe(401);
+  const ok = await request.post(url, { headers: { Authorization: "Bearer e2e-chave-tarefas-somente-para-testes-0123456789" } });
+  expect(ok.status()).toBe(200);
+  expect(await ok.json()).toHaveProperty("emails");
+});
+
 test("páginas funcionam sem nenhuma violação de CSP (scripts, estilos, mapa, service worker)", async ({ page }) => {
   const violacoes = await vigiarCsp(page);
 

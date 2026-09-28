@@ -6,6 +6,12 @@ const envSchema = z.object({
   GDF_WEBHOOK_URL: z.url(),
   GDF_WEBHOOK_KEY: z.string().min(32, "GDF_WEBHOOK_KEY deve ter pelo menos 32 caracteres"),
   GDF_CALLBACK_KEY: z.string().min(32, "GDF_CALLBACK_KEY deve ter pelo menos 32 caracteres"),
+  // Chave do agendador (cron) para o reenvio de pendentes. Vazia = só operador logado pode disparar.
+  TAREFAS_KEY: z
+    .string()
+    .optional()
+    .transform((v) => v || undefined)
+    .pipe(z.string().min(32, "TAREFAS_KEY deve ter pelo menos 32 caracteres").optional()),
   GDF_TIMEOUT_MS: z.coerce.number().int().positive().default(5000),
   UPLOAD_DIR: z.string().min(1).default("./uploads"),
   MAX_UPLOAD_MB: z.coerce.number().positive().max(20).default(5),
