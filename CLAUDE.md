@@ -49,6 +49,7 @@ Regras do Next.js 16 (a doc da versão instalada fica em `node_modules/next/dist
 - `npm run db:migrate -- --name <nome>` — `prisma migrate dev`; o hook `postdb:migrate` roda `prisma generate` (no Prisma 7 o migrate não gera o client sozinho)
 - `npm run ras:baixar` — baixa os limites oficiais das RAs (IDE-DF) para `data/cache/` (fora do git: licença não declarada); rodar `db:seed` depois
 - `npm run db:seed` — dados de referência + usuários fictícios (idempotente); grava os limites se o cache existir
+- `npm run usuario:criar -- --nome "…" --email … --papel OPERADOR_GDF` / `npm run usuario:remover -- --email …` — contas fora da interface (senha sem eco ou `NOVA_SENHA`); `SEED_USUARIOS_DEMO=false` desliga os fictícios do seed
 - `docker compose -f compose.producao.yml --env-file .env.producao up -d --build` — stack de produção (ver `docs/DEPLOY.md`)
 - `npm run eval:classificador -- <modelo>` — acurácia/latência da IA (casos fictícios); `-- --fonte=gdf <modelo>` usa as avaliações do operador como gabarito
 

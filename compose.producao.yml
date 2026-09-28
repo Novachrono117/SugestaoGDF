@@ -47,7 +47,9 @@ services:
     build: { context: ., target: migrador }
     environment:
       <<: *app-env
-      SEED_SENHA_DEMO: ${SEED_SENHA_DEMO:?}
+      # false = não cria operador/cidadã fictícios (contas reais: npm run usuario:criar, ver docs/DEPLOY.md)
+      SEED_USUARIOS_DEMO: ${SEED_USUARIOS_DEMO:-true}
+      SEED_SENHA_DEMO: ${SEED_SENHA_DEMO:-}
     depends_on:
       postgres: { condition: service_healthy }
     restart: "no"

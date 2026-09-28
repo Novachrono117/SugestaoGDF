@@ -65,7 +65,11 @@ export async function excluirConta(deps: ApoioDeps, usuarioId: string, senha: st
   if (!(await verificarCredenciais(deps.db, usuario.email, senha))) {
     throw new ErroDominio("SENHA_INCORRETA", "Senha incorreta.", 403);
   }
+  return removerUsuario(deps, usuarioId);
+}
 
+/** Remoção sem checar senha — só para quem administra (scripts/usuarios.ts). Mesmo efeito de excluirConta. */
+export async function removerUsuario(deps: ApoioDeps, usuarioId: string) {
   const apoiadas = await deps.db.$transaction(async (tx) => {
     const apoios = await tx.apoio.findMany({ where: { usuarioId }, select: { denunciaId: true } });
     const ids = apoios.map((a) => a.denunciaId);

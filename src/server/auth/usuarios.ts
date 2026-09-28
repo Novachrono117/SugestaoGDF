@@ -22,12 +22,17 @@ export async function verificarCredenciais(
   return { id: usuario.id, nome: usuario.nome, email: usuario.email, papel: usuario.papel };
 }
 
-/** Cadastro público: sempre CIDADAO (operador do simulador só via seed). */
+/** Cadastro público: sempre CIDADAO (operador só via seed ou `npm run usuario:criar`). */
 export async function cadastrarCidadao(db: PrismaClient, dados: Cadastro): Promise<UsuarioSessao> {
+  return criarUsuario(db, dados, "CIDADAO");
+}
+
+/** Qualquer papel — só para administração (scripts/usuarios.ts); a borda pública usa cadastrarCidadao. */
+export async function criarUsuario(db: PrismaClient, dados: Cadastro, papel: UsuarioSessao["papel"]): Promise<UsuarioSessao> {
   const senhaHash = await bcrypt.hash(dados.senha, CUSTO_BCRYPT);
   try {
     const u = await db.usuario.create({
-      data: { nome: dados.nome, email: dados.email, senhaHash, papel: "CIDADAO" },
+      data: { nome: dados.nome, email: dados.email, senhaHash, papel },
     });
     return { id: u.id, nome: u.nome, email: u.email, papel: u.papel };
   } catch (erro) {

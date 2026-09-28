@@ -17,7 +17,9 @@
     "postinstall": "prisma generate",
     "postdb:migrate": "prisma generate",
     "test:e2e": "playwright test",
-    "ras:baixar": "tsx scripts/baixar-ras.ts"
+    "ras:baixar": "tsx scripts/baixar-ras.ts",
+    "usuario:criar": "tsx scripts/usuarios.ts criar",
+    "usuario:remover": "tsx scripts/usuarios.ts remover"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.10.0",

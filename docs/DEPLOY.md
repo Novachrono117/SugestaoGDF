@@ -52,6 +52,23 @@ docker compose -f compose.producao.yml --env-file .env.producao up -d --build
 O migrador roda de novo (idempotente) antes do app novo subir. O app para com `SIGTERM` e tem 30 s para
 terminar requisições e tarefas `after()` (envio de e-mails) pendentes.
 
+## Contas
+
+Para a demonstração, o seed cria `operador@vozdf.example` e `cidada@vozdf.example` (senha `SEED_SENHA_DEMO`).
+Num uso real, crie contas nominais e remova as fictícias. O comando roda na imagem do migrador (tem os scripts);
+a senha é digitada sem aparecer na tela — nunca na linha de comando.
+
+```bash
+C="docker compose -f compose.producao.yml --env-file .env.producao"
+$C run --rm migrador npm run usuario:criar -- --nome "Maria Souza" --email maria@exemplo.gov.br --papel OPERADOR_GDF
+$C run --rm migrador npm run usuario:remover -- --email operador@vozdf.example
+$C run --rm migrador npm run usuario:remover -- --email cidada@vozdf.example
+# e no .env.producao: SEED_USUARIOS_DEMO=false (senão o próximo deploy recria as fictícias)
+```
+
+Sem terminal interativo (CI, script), passe a senha pela variável `NOVA_SENHA` (`$C run --rm -e NOVA_SENHA migrador ...`).
+Remover uma conta tem o mesmo efeito de "Excluir conta": as denúncias dela ficam anônimas.
+
 ## Backup
 
 ```bash
@@ -113,8 +130,7 @@ Classificação: **HIGH** = resolver antes de abrir ao público; **MEDIUM** = lo
 - ✅ **Aviso de privacidade (LGPD):** `/privacidade` (link no rodapé, no cadastro e no assistente), aceite explícito no
   cadastro, "Baixar meus dados" e "Excluir conta" em Minha conta. **Falta preencher `CONTATO_PRIVACIDADE`** (canal
   do titular) e, num uso real, revisar o texto com quem responde juridicamente pelo serviço.
-- **HIGH — Usuários de demonstração:** o seed cria operador e cidadã fictícios com `SEED_SENHA_DEMO`. Num
-  uso real, trocar por contas nominais e remover os fictícios.
+- ✅ **Usuários de demonstração:** num uso real, `SEED_USUARIOS_DEMO=false` e contas nominais (ver "Contas" acima).
 - **MEDIUM — Content-Security-Policy:** os outros cabeçalhos de segurança já saem em toda resposta; CSP exige
   nonce por requisição (scripts inline do Next).
 - **MEDIUM — Reenvio automático:** e-mails que falharam são reprocessados a cada novo callback do GDF; envios
