@@ -131,8 +131,7 @@ Classificação: **HIGH** = resolver antes de abrir ao público; **MEDIUM** = lo
   cadastro, "Baixar meus dados" e "Excluir conta" em Minha conta. **Falta preencher `CONTATO_PRIVACIDADE`** (canal
   do titular) e, num uso real, revisar o texto com quem responde juridicamente pelo serviço.
 - ✅ **Usuários de demonstração:** num uso real, `SEED_USUARIOS_DEMO=false` e contas nominais (ver "Contas" acima).
-- **MEDIUM — Content-Security-Policy:** os outros cabeçalhos de segurança já saem em toda resposta; CSP exige
-  nonce por requisição (scripts inline do Next).
+- ✅ **Content-Security-Policy** com nonce por requisição (`src/proxy.ts`), verificada no E2E sem violações.
 - **MEDIUM — Reenvio automático:** e-mails que falharam são reprocessados a cada novo callback do GDF; envios
   ao GDF que falharam, só pelo botão "Reenviar pendentes" do simulador. Um agendamento (cron) exigiria um endpoint
   com chave própria (o atual exige sessão de operador).

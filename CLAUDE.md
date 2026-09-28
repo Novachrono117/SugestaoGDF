@@ -69,6 +69,7 @@ Regras do Next.js 16 (a doc da versão instalada fica em `node_modules/next/dist
 - Estado vindo do `localStorage` (rascunho): não ler no render inicial (diverge do HTML do servidor). O assistente remonta com `key` após hidratar (`useSyncExternalStore`) e só salva depois disso — antes, o estado vazio apagaria o rascunho.
 - `output: "standalone"`: o E2E roda o `server.js` standalone (mesmo artefato da imagem), não `next start` (sem suporte nesse modo). O `server.js` muda o cwd para a própria pasta → caminhos em env (ex.: `UPLOAD_DIR`) devem ser absolutos. Arquivo lido em runtime precisa ser `import` estático (ler via `process.cwd()` escapa do rastreamento do build).
 - `src/server/db.ts` cria o Prisma Client ao ser importado e exige `DATABASE_URL`: o build Docker usa uma URL fictícia só no `RUN` do build. Página que consultar o banco no build quebra o build de propósito.
+- CSP (`src/proxy.ts`, verificada em `e2e/seguranca.spec.ts`): recurso de outro domínio precisa entrar na política; `<style>`/`<script>` inline só com nonce (o Next aplica sozinho nos dele). Todo módulo com Zod que roda no navegador importa `@/lib/zod-sem-eval` antes (senão o Zod sonda `new Function` e gera violação). Arquivos de `public/` com `<style>` inline (ex.: `offline.html`) ficam fora do `matcher`.
 - IP do cliente (rate limit) = **último** item do `X-Forwarded-For` (o do nosso proxy); os anteriores são forjáveis. Não expor o app sem proxy na frente.
 - Pouca memória livre derruba o `next build` do E2E ("heap out of memory"): as VMs do Docker/WSL consomem vários GB.
 

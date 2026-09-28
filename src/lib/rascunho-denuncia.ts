@@ -1,6 +1,7 @@
 // Rascunho da denúncia guardado NESTE aparelho (localStorage) para não perder o relato
 // se a internet cair ou a pessoa fechar a aba. Fotos ficam de fora (File não é serializável).
 // O conteúdo lido é validado: o storage pode ter versão antiga, lixo ou ter sido editado.
+import "./zod-sem-eval";
 import { z } from "zod";
 
 export const CHAVE_RASCUNHO = "voz-df:rascunho-denuncia";

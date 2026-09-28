@@ -1,4 +1,5 @@
 // Entrada da criação de denúncia (compartilhada entre o formulário e a API).
+import "../zod-sem-eval";
 import { z } from "zod";
 
 // Retângulo que envolve o DF com folga — barra coordenadas absurdas; a RA é confirmada pelo cidadão.

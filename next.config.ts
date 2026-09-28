@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
-// Cabeçalhos de segurança em todas as respostas. CSP fica de fora por ora: o Next injeta scripts
-// inline e exigiria nonce por requisição (docs/DEPLOY.md, "Pendências").
+// Cabeçalhos de segurança em todas as respostas. A Content-Security-Policy fica em src/proxy.ts: precisa
+// de um nonce novo por requisição, o que um cabeçalho fixo daqui não consegue.
 const cabecalhosDeSeguranca = [
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "X-Frame-Options", value: "DENY" },
