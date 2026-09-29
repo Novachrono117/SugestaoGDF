@@ -72,6 +72,13 @@ describe("OllamaClassificador", () => {
     const body = JSON.parse(String(init?.body));
     expect(body).toMatchObject({ model: "modelo-teste", stream: false, think: false, options: { temperature: 0 } });
     expect(body.format.properties.categoria.enum).toEqual(categorias.map((c) => c.slug));
+    expect(body).not.toHaveProperty("keep_alive"); // sem config: padrão do Ollama
+  });
+
+  it("repassa keep_alive quando configurado (evento: modelo fica carregado)", async () => {
+    const fetchFn = fetchComResposta({ categoria: "iluminacao-publica", alternativas: [], confianca: 0.9, justificativa: "x" });
+    await new OllamaClassificador(categorias, { ...config, keepAlive: "4h", fetchFn }).classificar("Poste apagado");
+    expect(JSON.parse(String(vi.mocked(fetchFn).mock.calls[0][1]?.body)).keep_alive).toBe("4h");
   });
 
   it("rejeita categoria fora da lista", async () => {

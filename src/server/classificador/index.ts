@@ -60,6 +60,7 @@ export function criarClassificador(env: NodeJS.ProcessEnv = process.env): Classi
         url: env.OLLAMA_URL || "http://localhost:11434",
         modelo,
         timeoutMs: Number(env.CLASSIFICADOR_TIMEOUT_MS) || 8000,
+        keepAlive: env.OLLAMA_KEEP_ALIVE?.trim() || undefined,
       })
     : null;
   // Loga só o tipo do erro — nunca o texto da denúncia (pode conter dados pessoais). A mensagem só

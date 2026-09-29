@@ -7,6 +7,8 @@ export type OllamaConfig = {
   url: string;
   modelo: string;
   timeoutMs: number;
+  /** Quanto tempo o Ollama mantém o modelo na memória depois de cada uso (ex.: "4h"). Padrão do Ollama: 5 min. */
+  keepAlive?: string;
   fetchFn?: typeof fetch;
 };
 
@@ -78,6 +80,8 @@ export class OllamaClassificador implements Classificador {
         // desnecessário para escolher 1 de 16 categorias.
         think: false,
         options: { temperature: 0 },
+        // Carregar o modelo a frio leva ~20 s (mais que o timeout): em evento, manter carregado.
+        ...(this.config.keepAlive && { keep_alive: this.config.keepAlive }),
         messages: [
           { role: "system", content: this.promptSistema },
           { role: "user", content: `Denúncia do cidadão:\n"""\n${descricao}\n"""` },
