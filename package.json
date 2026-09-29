@@ -19,7 +19,10 @@
     "test:e2e": "playwright test",
     "ras:baixar": "tsx scripts/baixar-ras.ts",
     "usuario:criar": "tsx scripts/usuarios.ts criar",
-    "usuario:remover": "tsx scripts/usuarios.ts remover"
+    "usuario:remover": "tsx scripts/usuarios.ts remover",
+    "demo:preparar": "node scripts/demo.mjs preparar",
+    "demo": "node scripts/demo.mjs",
+    "demo:verificar": "node scripts/verificar-demo.mjs"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.10.0",
@@ -45,12 +48,14 @@
     "@types/node": "^24.13.6",
     "@types/nodemailer": "^8.0.2",
     "@types/pg": "^8.23.1",
+    "@types/qrcode": "1.5.6",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "dotenv": "^18.0.3",
     "eslint": "^9",
     "eslint-config-next": "16.3.6",
     "prisma": "^7.10.0",
+    "qrcode": "1.5.4",
     "tailwindcss": "^4",
     "tsx": "^4.23.15",
     "typescript": "^5",

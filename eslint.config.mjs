@@ -15,6 +15,7 @@ const eslintConfig = defineConfig([
     // Cliente gerado pelo Prisma.
     "generated/**",
     ".next-e2e/**",
+    ".next-demo/**",
     "playwright-report/**",
     "test-results/**",
   ]),

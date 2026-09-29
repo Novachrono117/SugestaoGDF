@@ -47,6 +47,7 @@ Usuários fictícios (senha = `SEED_SENHA_DEMO`): `operador@vozdf.example` (aces
 | `npm run ras:baixar` | Baixa os limites oficiais das 37 RAs (IDE-DF/SEDUH) para `data/cache/` — **não versionado** (licença não declarada pela fonte). Sem ele, a RA é escolhida manualmente |
 | `npm run db:seed` | Dados de referência + usuários fictícios (idempotente); grava os limites se o cache existir |
 | `npm run usuario:criar -- --nome "…" --email … --papel OPERADOR_GDF` | Cria conta fora da interface (ex.: operador real); a senha é digitada sem aparecer. `usuario:remover -- --email …` remove |
+| `npm run demo:preparar` → `npm run demo` | Apresentação: banco `vozdf_demo` com dados fictícios, app em modo produção na rede, túnel Cloudflare (se instalado) e QR codes para a turma testar pelo celular. Roteiro e plano B: [`docs/DEMO.md`](docs/DEMO.md) |
 | `npx tsx scripts/gerar-icones.mts` | Regera os ícones do PWA (`public/icons/`, `src/app/icon.svg`, `src/app/apple-icon.png`) — só se o desenho mudar |
 | `npm run eval:classificador -- qwen3.5:4b` | Mede acurácia/latência da IA em 48 casos fictícios (`-- --fonte=gdf qwen3.5:4b`: nos casos avaliados pelo operador) |
 
