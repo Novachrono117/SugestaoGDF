@@ -281,6 +281,10 @@ export function PassoLocal({
   }
 
   function usarMinhaLocalizacao() {
+    // Sem HTTPS (ex.: acesso pelo IP da rede local) o navegador nem pergunta: bloqueia a localização.
+    if (!window.isSecureContext) {
+      return setGps({ estado: "erro", msg: "Nesta conexão (sem https) o navegador não libera a localização. Toque no mapa para marcar o local." });
+    }
     if (!navigator.geolocation) return setGps({ estado: "erro", msg: "Seu navegador não informa a localização." });
     setGps({ estado: "buscando" });
     navigator.geolocation.getCurrentPosition(
@@ -291,7 +295,14 @@ export function PassoLocal({
         void marcar(p);
         setCentralizar(p);
       },
-      () => setGps({ estado: "erro", msg: "Não foi possível obter sua localização. Marque no mapa." }),
+      (e) =>
+        setGps({
+          estado: "erro",
+          msg:
+            e.code === e.PERMISSION_DENIED
+              ? "A localização não foi permitida (veja as permissões do site no navegador). Marque no mapa."
+              : "Não foi possível obter sua localização. Marque no mapa.",
+        }),
       { enableHighAccuracy: true, timeout: 10_000 },
     );
   }
