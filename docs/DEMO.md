@@ -77,6 +77,7 @@ Medidos neste notebook em 29/09/2026 (`npm run eval:classificador -- qwen3.5:4b`
 | QR "Mesma rede" não abre no celular | A rede isola os aparelhos, ou o firewall barrou o Node: cenário 3. |
 | `O app não respondeu. O Docker (Postgres) está de pé?` | Abrir o Docker Desktop, esperar, `docker compose up -d`, rodar de novo. |
 | Colegas veem "Muitas tentativas" | Não deveria (limites ×20 na demo). Se acontecer, siga com os que conseguiram. |
+| Precisa aplicar uma correção de código com a demo no ar | Parar só o app (Ctrl+C na demo; o `cloudflared` separado pode seguir), `npm run demo:compilar` (não apaga o banco) e `npm run demo -- --tunel=<endereço atual>` (mantém o mesmo QR). |
 | Mapa sem imagem de fundo | Internet fraca: tocar no mapa ainda marca o ponto, e a RA pode ser escolhida na lista. |
 
 ## Depois

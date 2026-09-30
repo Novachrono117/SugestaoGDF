@@ -1,5 +1,6 @@
 // Apresentação com a turma testando pelo celular (docs/DEMO.md).
 //   npm run demo:preparar  → recria o banco vozdf_demo (migrações + seed + dados fictícios) e compila o app
+//   npm run demo:compilar  → só refaz o build (mantém o banco: aplica correção sem perder os testes)
 //   npm run demo           → sobe o app na rede, tenta o túnel da Cloudflare, aquece a IA e abre os QR codes
 // Não toca no banco de desenvolvimento. Sem `cloudflared` instalado, mostra só os endereços da rede local.
 import "dotenv/config";
@@ -66,6 +67,11 @@ async function preparar() {
   rodar(PRISMA, ["db", "seed"]);
   // A primeira chamada carrega o modelo a frio (~20 s): folga só nesta etapa.
   rodar(TSX, ["scripts/demo-dados.ts"], { CLASSIFICADOR_TIMEOUT_MS: "90000" });
+  compilar();
+}
+
+/** Só o build (mantém o banco): para aplicar uma correção de código sem perder o que a turma já fez. */
+function compilar() {
   rodar(NEXT, ["build"]);
   cpSync("public", `${DIST}/standalone/public`, { recursive: true });
   cpSync(`${DIST}/static`, `${DIST}/standalone/${DIST}/static`, { recursive: true });
@@ -204,8 +210,13 @@ async function iniciar() {
   console.log(`[demo] ${await aquecerIa()}`);
 
   let publico = null;
-  const exe = acharCloudflared();
-  if (!exe) {
+  // --tunel=<url>: reaproveita um túnel que já está no ar (ex.: reinício do app para aplicar correção) — o QR não muda.
+  const tunelExistente = process.argv.find((a) => a.startsWith("--tunel="))?.slice("--tunel=".length);
+  const exe = tunelExistente ? null : acharCloudflared();
+  if (tunelExistente) {
+    publico = tunelExistente.replace(/\/+$/, "");
+    console.log((await esperar(`${publico}/api/health`, 30_000)) ? `[demo] Túnel existente OK: ${publico}` : `[demo] ATENÇÃO: túnel existente não respondeu: ${publico}`);
+  } else if (!exe) {
     console.log("[demo] cloudflared não encontrado: só rede local (winget install --id Cloudflare.cloudflared).");
   } else {
     console.log("[demo] Abrindo túnel da Cloudflare…");
@@ -226,4 +237,5 @@ async function iniciar() {
 }
 
 if (process.argv[2] === "preparar") await preparar();
+else if (process.argv[2] === "compilar") compilar();
 else await iniciar();

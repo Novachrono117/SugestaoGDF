@@ -21,6 +21,7 @@
     "usuario:criar": "tsx scripts/usuarios.ts criar",
     "usuario:remover": "tsx scripts/usuarios.ts remover",
     "demo:preparar": "node scripts/demo.mjs preparar",
+    "demo:compilar": "node scripts/demo.mjs compilar",
     "demo": "node scripts/demo.mjs",
     "demo:verificar": "node scripts/verificar-demo.mjs"
   },
