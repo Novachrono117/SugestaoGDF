@@ -210,8 +210,11 @@ async function iniciar() {
   } else {
     console.log("[demo] Abrindo túnel da Cloudflare…");
     publico = await abrirTunel(exe, filhos);
-    if (publico && !(await esperar(`${publico}/api/health`, 40_000))) publico = null;
-    console.log(publico ? `[demo] Túnel OK: ${publico}` : "[demo] Túnel indisponível (rede bloqueando?). Siga com a rede local ou só no notebook.");
+    // O DNS da rede do notebook pode demorar a conhecer o nome novo (e guardar o "não existe" em cache) — no
+    // dia, pelo 4G, o túnel estava no ar e só esta checagem falhava. Não descarta: avisa e mostra o QR mesmo assim.
+    if (!publico) console.log("[demo] Túnel indisponível (rede bloqueando?). Siga com a rede local ou só no notebook.");
+    else if (await esperar(`${publico}/api/health`, 90_000)) console.log(`[demo] Túnel OK: ${publico}`);
+    else console.log(`[demo] Túnel criado, mas o notebook ainda não o alcança (DNS atrasado?): ${publico} — teste pelo celular antes de usar.`);
   }
 
   const locais = ipsDaRede();
