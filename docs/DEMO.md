@@ -9,7 +9,7 @@ mostra os endereços da rede local e, se nada disso servir, você apresenta sozi
 | **2. Wi-Fi de lá** | Wi-Fi da faculdade | QR "Qualquer rede" se o túnel subir; senão, QR "Mesma rede" (só funciona se a rede deixar celulares falarem entre si) |
 | **3. Só você** | Qualquer uma (ou nenhuma) | Ninguém: demo no projetor, pelo `http://localhost:3000` |
 
-O endereço do túnel **muda a cada vez que ele sobe**: o QR é gerado na hora, na página que abre sozinha (`.tmp/demo-qr.html`).
+O túnel usa HTTP/2 na porta 443 (TCP), porque redes de faculdade bloqueiam o QUIC (UDP), que é o padrão do `cloudflared`: foi o que aconteceu no dia da apresentação. O endereço do túnel **muda a cada vez que ele sobe**: o QR é gerado na hora, na página que abre sozinha (`.tmp/demo-qr.html`).
 
 ## Hoje à noite
 

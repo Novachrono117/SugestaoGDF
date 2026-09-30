@@ -102,10 +102,13 @@ function acharCloudflared() {
   return candidatos.find((c) => spawnSync(c, ["--version"], { stdio: "ignore" }).status === 0);
 }
 
-/** Túnel rápido (sem conta): o endereço muda a cada execução, por isso o QR é gerado agora. */
+/**
+ * Túnel rápido (sem conta): o endereço muda a cada execução, por isso o QR é gerado agora.
+ * HTTP/2 (TCP 443) e não o QUIC padrão (UDP): redes de faculdade bloqueiam UDP — foi o que aconteceu no dia.
+ */
 function abrirTunel(exe, filhos) {
   return new Promise((ok) => {
-    const t = spawn(exe, ["tunnel", "--no-autoupdate", "--url", LOCAL], { stdio: ["ignore", "pipe", "pipe"] });
+    const t = spawn(exe, ["tunnel", "--no-autoupdate", "--protocol", "http2", "--url", LOCAL], { stdio: ["ignore", "pipe", "pipe"] });
     filhos.push(t);
     const tempo = setTimeout(() => ok(null), 45_000);
     const ler = (buf) => {
