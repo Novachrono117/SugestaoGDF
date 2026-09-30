@@ -13,6 +13,9 @@ import { FOTOS, type CategoriaOpcao, type Foto, type RegiaoOpcao } from "./tipos
 const TIPOS_ACEITOS: readonly string[] = FOTOS.tiposAceitos;
 const MAX_FOTOS = FOTOS.max;
 const MAX_MB = FOTOS.maxMbPadrao;
+// Acima disso a posição do aparelho não serve para marcar o ponto (GPS ~5–30 m; rede da operadora: km).
+const PRECISAO_MAXIMA_M = 150;
+const formatarDistancia = (m: number) => (m >= 1000 ? `~${(m / 1000).toLocaleString("pt-BR", { maximumFractionDigits: 1 })} km` : `~${m} m`);
 const ESTILO_BOTAO_FOTO =
   "h-24 w-24 cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-slate-300 text-center text-xs font-medium text-slate-600 hover:border-blue-500 hover:text-blue-700 focus-within:ring-2 focus-within:ring-blue-600";
 
@@ -241,7 +244,7 @@ export function PassoLocal({
   onEndereco: (v: string) => void;
   regioes: RegiaoOpcao[];
 }) {
-  const [gps, setGps] = useState<{ estado: "ocioso" | "buscando" | "erro"; msg?: string }>({ estado: "ocioso" });
+  const [gps, setGps] = useState<{ estado: "ocioso" | "buscando" | "erro" | "aviso"; msg?: string }>({ estado: "ocioso" });
   const [centralizar, setCentralizar] = useState<Ponto | null>(null);
   const [deteccao, setDeteccao] = useState<{ estado: "ocioso" | "buscando" | "achou" | "nao-achou"; nome?: string }>({
     estado: "ocioso",
@@ -291,9 +294,18 @@ export function PassoLocal({
       ({ coords }) => {
         const p = { lat: coords.latitude, lng: coords.longitude };
         if (!dentroDoDf(p)) return setGps({ estado: "erro", msg: "Sua localização parece estar fora do DF. Marque no mapa." });
-        setGps({ estado: "ocioso" });
-        void marcar(p);
+        // Dentro de prédio / só 4G o celular devolve posição pela rede, com erro de quilômetros (no dia da
+        // apresentação, 1,5 km). Imprecisa: só leva o mapa até a região e pede o toque no ponto exato.
         setCentralizar(p);
+        const precisao = Math.round(coords.accuracy);
+        if (precisao > PRECISAO_MAXIMA_M) {
+          return setGps({
+            estado: "aviso",
+            msg: `Sua localização veio aproximada (erro de ${formatarDistancia(precisao)}). Levamos o mapa até a região: toque no ponto exato do problema.`,
+          });
+        }
+        setGps({ estado: "aviso", msg: `Local marcado pela sua localização (precisão de ~${precisao} m). Confira no mapa e toque para ajustar.` });
+        void marcar(p);
       },
       (e) =>
         setGps({
@@ -303,7 +315,8 @@ export function PassoLocal({
               ? "A localização não foi permitida (veja as permissões do site no navegador). Marque no mapa."
               : "Não foi possível obter sua localização. Marque no mapa.",
         }),
-      { enableHighAccuracy: true, timeout: 10_000 },
+      // maximumAge 0: não reaproveita uma posição antiga (e possivelmente grosseira) guardada pelo aparelho.
+      { enableHighAccuracy: true, timeout: 10_000, maximumAge: 0 },
     );
   }
 
@@ -325,6 +338,7 @@ export function PassoLocal({
           {gps.estado === "buscando" ? "Buscando localização…" : "📍 Usar minha localização"}
         </Botao>
         {gps.estado === "erro" && <Alerta>{gps.msg}</Alerta>}
+        {gps.estado === "aviso" && <Alerta tipo="info">{gps.msg}</Alerta>}
         <MapaSeletor ponto={ponto} onSelecionar={selecionar} centralizarEm={centralizar} />
         <p className="text-xs text-slate-500" aria-live="polite">
           {ponto ? `Local marcado: ${ponto.lat.toFixed(5)}, ${ponto.lng.toFixed(5)}` : "Nenhum local marcado ainda."}
