@@ -1,6 +1,6 @@
 # UC 6 — Atividade Prática: Identificando Problemas da Comunidade e Criando Soluções Tecnológicas
 
-**Turma:** 2026.07.77 · **Instrutor:** Prof. Esp. José Nilton dos Santos · **Data:** 23/09/2026
+**Turma:** 2026.07.77 · **Data:** 23/09/2026
 **Solução proposta:** **Voz DF — Rede Central de Denúncias do Distrito Federal** *(nome provisório)*
 **Problema escolhido:** nº 18 da lista — *Ausência de canais eficientes para denúncias e solicitações à administração pública* (abrange também os problemas 1, 3, 4, 5, 6, 9, 10, 11, 12 e 16 como **categorias** de denúncia).
 
