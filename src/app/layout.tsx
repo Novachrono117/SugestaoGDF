@@ -50,9 +50,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             </Link>
             <Link href="/transparencia" className="font-medium underline hover:text-blue-700">
               Transparência
-            </Link>
-            <span>Projeto acadêmico — não é um serviço oficial do GDF.</span>
-          </div>
+            </Link>          </div>
         </footer>
         <RegistrarServiceWorker />
       </body>
