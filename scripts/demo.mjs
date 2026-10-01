@@ -72,7 +72,7 @@ async function preparar() {
 
 /** Só o build (mantém o banco): para aplicar uma correção de código sem perder o que a turma já fez. */
 function compilar() {
-  rodar(NEXT, ["build"]);
+  rodar(NEXT, ["build"], { NEXT_BUILD_CPUS: process.env.NEXT_BUILD_CPUS || "4" }); // menos memória que um processo por núcleo
   cpSync("public", `${DIST}/standalone/public`, { recursive: true });
   cpSync(`${DIST}/static`, `${DIST}/standalone/${DIST}/static`, { recursive: true });
   console.log("\n[demo] Pronto. Para apresentar: npm run demo");
@@ -212,8 +212,12 @@ async function iniciar() {
   let publico = null;
   // --tunel=<url>: reaproveita um túnel que já está no ar (ex.: reinício do app para aplicar correção) — o QR não muda.
   const tunelExistente = process.argv.find((a) => a.startsWith("--tunel="))?.slice("--tunel=".length);
-  const exe = tunelExistente ? null : acharCloudflared();
-  if (tunelExistente) {
+  // --sem-tunel: só no notebook/rede local (mostrar a alguém ao lado, sem expor o app na internet).
+  const semTunel = process.argv.includes("--sem-tunel");
+  const exe = tunelExistente || semTunel ? null : acharCloudflared();
+  if (semTunel) {
+    console.log("[demo] Sem túnel (--sem-tunel): só neste notebook e na rede local.");
+  } else if (tunelExistente) {
     publico = tunelExistente.replace(/\/+$/, "");
     console.log((await esperar(`${publico}/api/health`, 30_000)) ? `[demo] Túnel existente OK: ${publico}` : `[demo] ATENÇÃO: túnel existente não respondeu: ${publico}`);
   } else if (!exe) {
